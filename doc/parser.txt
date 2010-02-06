@@ -1,0 +1,22 @@
+= LALR Parser
+
+The first version of metar uses the dhaka parser gem.
+
+== Dhaka
+
+* Home: http://dhaka.rubyforge.org/doc/index.html
+* RDoc: http://dhaka.rubyforge.org/
+
+== Development
+
+* Made a tokenizer specification, which identifies different sections of input and labels them,
+* Made a grammar, which specifies which tokens follow which.
+** The main structural point is that there are two sub-grammars: International and United States.
+
+== Use
+
+If you want the GraphVix dot graph:
+
+  tokens = Metar::Lexer.lex('LIRQ 031220Z VRB02KT 5000 -DZ BKN025 BKN070 04/01 Q1020')
+  parser = Metar::Parser.parse(tokens)
+  parser.save_dot('foo.dot')

@@ -1,0 +1,18 @@
+= noaa-metar - Downloads and parses weather status
+
+The information comes from the National Oceanic and Atmospheric Association's raw data source.
+
+= Data format descrition
+
+* http://www.met.tamu.edu/class/METAR/metar-pg3.html
+
+= Other software
+
+There are two gems which read the National Oceanic and Atmospheric Association's XML weather data feeds:
+* noaa-weather - Ruby interface to NOAA SOAP interface
+* noaa (http://github.com/outoftime/noaa) - 
+
+= Testing
+
+The tests use a local copy of the weather stations list: data/nsd_cccc.txt
+If missing, the file gets downloaded before running tests.
