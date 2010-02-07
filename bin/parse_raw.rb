@@ -7,17 +7,18 @@ require File.join(File.expand_path(File.dirname(__FILE__) + '/../lib'), 'metar')
 filename = File.join(File.expand_path(File.dirname(__FILE__) + '/../data'), "stations.yml")
 stations = YAML.load_file(filename)
 
-stations.each_pair do |cccc, metar|
-  $stderr.puts "#{ cccc }: #{ metar }"
-  tokens = Metar::Lexer.lex(metar)
-  parser = Metar::Parser.parse(tokens)
-  if parser.class != Dhaka::ParseSuccessResult
+stations.each_pair do |cccc, raw_text|
+  raw = Metar::Raw.new(cccc, raw_text)
+  $stderr.puts "#{ cccc }: #{ raw.metar }"
+  report = nil
+  begin
+    report = Metar::Report.new(raw)
+    report.analyze
+  rescue => e
     puts ': Parser error'
-    puts metar
-    puts parser.inspect
+    puts e
+    puts raw.metar
+    puts report.inspect
     exit
   end
-  evaluator = Metar::Evaluator.new(metar)
-  evaluator.run!
-  report = evaluator.report
 end
