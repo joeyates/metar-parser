@@ -42,6 +42,10 @@ module Metar
       transitions :from => :datetime,           :to => :wind
     end
 
+    aasm_event :cavok do
+      transitions :from => :variable_wind,      :to => :sky_conditions
+    end
+
     aasm_event :variable_wind do
       transitions :from => :wind,               :to => :variable_wind
     end
@@ -51,11 +55,11 @@ module Metar
     end
 
     aasm_event :runway_visible_range do
-      transitions :from => [:visibility, :runway_visible_range],         :to => :runway_visible_range
+      transitions :from => [:visibility],         :to => :runway_visible_range
     end
 
     aasm_event :present_weather do
-      transitions :from => [:visibility, :runway_visible_range, :present_weather],
+      transitions :from => [:runway_visible_range],
                                               :to => :present_weather
     end
 
@@ -105,24 +109,8 @@ module Metar
 
     private
 
-    def set_wmo
-      @warnings << "Setting standard to International - already set to United States. Remaining: #{ @chunks.join(' ') }" if @standard == STANDARD_US
-      return if @standard == STANDARD_WMO
-      @standard = STANDARD_WMO
-    end
-
-    def set_us
-      @warnings << "Setting standard to United States - already set to International. Remaining: #{ @chunks.join(' ') }" if @standard == STANDARD_WMO
-      return if @standard == STANDARD_US
-      @standard = STANDARD_US
-    end
-
     def seek_location
-      case
-      when @chunks[0] =~ /^[A-Z]{4}$/
-        @location = @chunks.shift
-      when @chunks[0] =~ /^[A-Z]{2}[A-Z0-9]{2}$/
-        @warnings << "Illegal CCCC code '#{ @chunks[0] }'"
+      if @chunks[0] =~ /^[A-Z][A-Z0-9]{3}$/
         @location = @chunks.shift
       else
         error!
@@ -155,21 +143,16 @@ module Metar
 
     def seek_wind
       case
-      when @chunks[0] =~ /^\d{5}(G\d{2,3})?(KT)?$/
+      when @chunks[0] =~ /^(\d{3})(\d{2})(KT|MPS|KMH)?$/
         @wind = @chunks.shift
-      when @chunks[0] =~ /^\d{5}(G\d{2,3})?MPS$/
+      when @chunks[0] =~ /^(\d{3})(\d{2})G(\d{2,3})(KT|MPS|KMH)?$/
         @wind = @chunks.shift
-      when @chunks[0] =~ /^\d{5}(G\d{2,3})?KMH$/
+      when @chunks[0] =~ /^VRB\d{2}(KT|MPS|KMH)?$/
         @wind = @chunks.shift
-      when @chunks[0] =~ /^VRB\d{2}(KT)?$/
+      when @chunks[0] =~ /^\/{3}\d{2}(KT|MPS|KMH)?$/
         @wind = @chunks.shift
-      when @chunks[0] =~ /^VRB\d{2}MPS$/
+      when @chunks[0] =~ /^\/{5}(KT|MPS|KMH)?$/
         @wind = @chunks.shift
-      when @chunks[0] =~ /^VRB\d{2}KMH$/
-        @wind = @chunks.shift
-      else
-        error!
-        raise "Expecting wind, found '#{ @chunks[0] }'"
       end
       wind!
     end
@@ -177,15 +160,14 @@ module Metar
     def seek_variable_wind
       if @chunks[0] =~ /^\d+V\d+$/
         @variable_wind = @chunks.shift
+        variable_wind!
       end
-      variable_wind!
     end
 
     def seek_visibility
       if @chunks[0] == 'CAVOK'
         @visibility = @chunks.shift # TODO - this sets 3 attributes
-        # TODO not used in us
-        sky_conditions!
+        cavok!
         return
       end
 
@@ -200,44 +182,33 @@ module Metar
       case
       when @chunks[0] == '9999'
         @visibility = @chunks.shift
-        # Seems to be used in US only
-      when (@chunks[0] == '1' and @chunks[1] =~ /^(1\/4|1\/2|3\/4)SM$/)
+      when @chunks[0] =~ /\d{4}NDV/ # WMO
+        @visibility = @chunks.shift
+      when (@chunks[0] == '1' and @chunks[1] =~ /^(1\/4|1\/2|3\/4)SM$/) # US
         @visibility = @chunks.shift + ' ' + @chunks.shift
-        set_us
-      when (@chunks[0] == '2' and @chunks[1] =~ /^1\/2SM$/)
+      when (@chunks[0] == '2' and @chunks[1] =~ /^1\/2SM$/) # US
         @visibility = @chunks.shift + ' ' + @chunks.shift
-        set_us
       when @chunks[0] =~ /^\d+KM$/
         @visibility = @chunks.shift
-        set_wmo
       when @chunks[0] =~ /^\d+(N|NE|E|SE|S|SW|W|NW)?$/
         @visibility = @chunks.shift
-        set_wmo
-      when @chunks[0] == 'M1/4SM'
+      when @chunks[0] == 'M1/4SM' # US
         @visibility = @chunks.shift
-        set_us
-      when @chunks[0] =~ /^(1\/4|1\/2|3\/4)SM$/
+      when @chunks[0] =~ /^(1\/4|1\/2|3\/4)SM$/ # US
         @visibility = @chunks.shift
-        set_us
       # TODO: Other values, which imply manual
-      when @chunks[0] =~ /^([1-9]|1[0-5]|[2-9][05])SM$/
+      when @chunks[0] =~ /^([1-9]|1[0-5]|[2-9][05])SM$/ # US
         @visibility = @chunks.shift
-        set_us
       end
       visibility!
     end
 
     def collect_runway_visible_range
       case
-      when @chunks[0] =~ /^R\d+(R|L|C)?\/(P|M)?\d+(V\d+)?FT$/
+      when @chunks[0] =~ /^R\d+\/(P|M)?\d{4}(N|U)?$/ # U?
         @runway_visible_range << @chunks.shift
         collect_runway_visible_range
-      when @chunks[0] =~ /^R\d+\/(P|M)?\d+$/
-        # TODO should indicate meters - see end of RVR page
-        @runway_visible_range << @chunks.shift
-        collect_runway_visible_range
-      when @chunks[0] =~ /^R\d+\/\d+(U|D)$/
-        # TODO should indicate meters - see end of RVR page
+      when @chunks[0] =~ /^R\d+\/(P|M)?\d{4}V\d{4}(N)?$/ # U?
         @runway_visible_range << @chunks.shift
         collect_runway_visible_range
       end
@@ -282,7 +253,6 @@ module Metar
         @present_weather << @chunks.shift
         collect_present_weather
       when @chunks[0] =~ /^(-|\+)SHSNRA$/
-        @warnings << "Illegal present weather value '#{ @chunks[0] }'"
         @present_weather << @chunks.shift
         collect_present_weather
       # Obscurations
@@ -320,20 +290,22 @@ module Metar
 
     def collect_sky_conditions
       case
+      when @chunks[0] == 'NSC' # WMO
+        @sky_conditions << @chunks.shift
       when @chunks[0] == 'CLR'
         @sky_conditions << @chunks.shift
       when @chunks[0] == 'SKC'
         @sky_conditions << @chunks.shift
-      when @chunks[0] =~ /^SCT\d+(CB|TCU)?$/
+      when @chunks[0] =~ /^SCT\d+(CB|TCU|\/{3})?$/
         @sky_conditions << @chunks.shift
         collect_sky_conditions
-      when @chunks[0] =~ /^BKN\d+(CB|TCU)?$/
+      when @chunks[0] =~ /^BKN\d+(CB|TCU|\/{3})?$/
         @sky_conditions << @chunks.shift
         collect_sky_conditions
-      when @chunks[0] =~ /^FEW\d+(CB|TCU)?$/
+      when @chunks[0] =~ /^FEW\d+(CB|TCU|\/{3})?$/
         @sky_conditions << @chunks.shift
         collect_sky_conditions
-      when @chunks[0] =~ /^OVC\d+(CB|TCU)?$/
+      when @chunks[0] =~ /^OVC\d+(CB|TCU|\/{3})?$/
         @sky_conditions << @chunks.shift
         collect_sky_conditions
       when @chunks[0] =~ /^VV(\d{3}|\/\/\/)?$/
@@ -357,10 +329,11 @@ module Metar
 
     def seek_temperature_dew_point
       case
-      when @chunks[0] =~ /^M?\d+\/(M?\d+)?$/
+      when @chunks[0] =~ /^(M?\d+)\/(M?\d+)?$/
         @temperature_dew_point = @chunks.shift
       when @chunks[0] =~ /^(M?\d+)\/(XX)$/
-        @warnings << "Illegal dew point value: #{ $2 }"
+        @temperature_dew_point = @chunks.shift
+      when @chunks[0] =~ /^(XX)\/(XX)$/
         @temperature_dew_point = @chunks.shift
       else
         error!
