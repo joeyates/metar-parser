@@ -1,4 +1,0 @@
-= TODO
-
-* Save current work in a 'parser' branch
-* Hold data internally in SI units, provide settings to indicate required units (e.g. km/miles)

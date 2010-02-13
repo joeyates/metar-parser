@@ -13,12 +13,16 @@ stations.each_pair do |cccc, raw_text|
   begin
     report = Metar::Report.new(raw)
     report.analyze
+    $stdout.print '.'
   rescue => e
     $stderr.puts "#{ raw.metar }"
     $stderr.puts "  Error: #{ e }"
+    $stdout.print 'E'
   end
   if report.warnings.length > 0
     $stderr.puts "#{ raw.metar }"
     $stderr.puts "  Warning(s): " + report.warnings.join(', ')
+    $stdout.print 'W'
   end
+  $stdout.flush
 end
