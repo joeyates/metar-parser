@@ -3,14 +3,9 @@ require 'aasm'
 require File.join(File.dirname(__FILE__), 'data')
 
 module Metar
-  OBSERVER_REAL      = :real
-  OBSERVER_CORRECTED = :corrected
-  OBSERVER_AUTO      = :auto
 
   class Report
     include AASM
-
-    attr_reader :standard, :observer, :location, :datetime, :wind
     
     aasm_initial_state :start
 
@@ -99,13 +94,19 @@ module Metar
       report
     end
 
+    attr_reader :station_code, :time, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
+       :present_weather, :sky_conditions, :temperature, :dew_point, :remarks
+
     def initialize(raw)
       @metar                = raw.metar.clone
-      @chunks               = @metar.split(' ')
+      @time                 = raw.time.clone
+    end
+
+    def analyze
+      @chunks = @metar.split(' ')
 
       @location             = nil
-      @time                 = raw.time.clone
-      @observer             = OBSERVER_REAL
+      @observer             = :real
       @wind                 = nil
       @variable_wind        = nil
       @visibility           = nil
@@ -115,35 +116,44 @@ module Metar
       @temperature          = nil
       @dew_point            = nil
       @remarks              = []
-    end
 
-    def analyze
       aasm_enter_initial_state
     end
 
-    def parts
-      a = [
-      "Station code: #{ @location }",
-      "  Date: #{ @time }",
-      "  Observer: #{ @observer }",
-      ]
-      a << "  Wind: #{ @wind }" if @wind
-      a << "  Variable wind: #{ @variable_wind }" if @variable_wind
-      a << "  Visibility: #{ @visibility }" if @visibility
-      a << "  Runway visible range: #{ @runway_visible_range.join(', ') }" if @runway_visible_range.length > 0
-      a << "  Present weather: #{ @present_weather.join(', ') }" if @present_weather.length > 0
-      a << "  Sky conditions: #{ @sky_conditions.join(', ') }" if @sky_conditions.length > 0
-      a << "  Temperature: #{ @temperature }"
-      a << "  Dew point: #{ @dew_point }"
-      a << "  Remarks: #{ @remarks.join(', ') }" if @remarks.length > 0
-      a
+    def attributes
+      h = {
+        :station_code => @location.clone,
+        :time         => @time.to_s,
+        :observer     => Report.symbol_to_s(@observer)
+      }
+      h[:wind]                 =  @wind.to_s                       if @wind
+      h[:variable_wind]        =  @variable_wind.clone             if @variable_wind
+      h[:visibility]           =  @visibility.to_s                 if @visibility
+      h[:runway_visible_range] =  @runway_visible_range.join(', ') if @runway_visible_range.length > 0
+      h[:present_weather]      =  @present_weather.join(', ')      if @present_weather.length > 0
+      h[:sky_conditions]       =  @sky_conditions.join(', ')       if @sky_conditions.length > 0
+      h[:temperature]          =  @temperature.to_s
+      h[:dew_point]            =  @dew_point.to_s
+      h[:remarks]              =  @remarks.join(', ')              if @remarks.length > 0
+      h
     end
 
     def to_s
-      parts.join("\n")
+      # If attributes supplied an ordered hash, the hoop-jumping below
+      # wouldn't be necessary
+      attr = attributes
+      [:station_code, :time, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
+       :present_weather, :sky_conditions, :temperature, :dew_point, :remarks].collect do |key|
+        attr[key] ? Report.symbol_to_s(key) + ": " + attr[key] : nil
+      end.uniq.join("\n")
     end
 
     private
+
+    # :symbol_etc => 'Symbol etc'
+    def Report.symbol_to_s(sym)
+      sym.to_s.gsub(/^([a-z])/) {$1.upcase}.gsub(/_([a-z])/) {" #$1"}
+    end
 
     def seek_location
       if @chunks[0] =~ /^[A-Z][A-Z0-9]{3}$/
@@ -170,10 +180,10 @@ module Metar
       case
       when @chunks[0] == 'AUTO' # WMO 15.4
         @chunks.shift
-        @observer = OBSERVER_AUTO
+        @observer = :auto
       when @chunks[0] == 'COR'
         @chunks.shift
-        @observer = OBSERVER_CORRECTED
+        @observer = :corrected
       end
     end
 
@@ -203,7 +213,7 @@ module Metar
         return
       end
 
-      if @observer == OBSERVER_AUTO # WMO 15.4
+      if @observer == :auto # WMO 15.4
         if @chunks[0] == '////'
           @chunks.shift
           @visibility = Visibility.new('Not observed')
@@ -255,7 +265,7 @@ module Metar
     end
 
     def seek_present_weather
-      if @observer == OBSERVER_AUTO
+      if @observer == :auto
         if @chunks[0] == '//' # WMO 15.4
           @present_weather << Metar::WeatherPhenomenon.new('not observed')
           present_weather!
@@ -277,7 +287,7 @@ module Metar
     end
 
     def seek_sky_conditions
-      if @observer == OBSERVER_AUTO # WMO 15.4
+      if @observer == :auto # WMO 15.4
         if @chunks[0] == '///' or @chunks[0] == '//////'
           @chunks.shift
           @sky_conditions << 'Not observed'
