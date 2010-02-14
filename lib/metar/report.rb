@@ -4,6 +4,9 @@ require File.join(File.dirname(__FILE__), 'data')
 
 module Metar
 
+  class ParseError < StandardError
+  end
+  
   class Report
     include AASM
     
@@ -22,7 +25,6 @@ module Metar
     aasm_state :sea_level_pressure,                          :after_enter => :seek_remarks
     aasm_state :remarks,                                     :after_enter => :seek_end
     aasm_state :end
-    aasm_state :error
 
     aasm_event :location do
       transitions :from => :start,              :to => :location
@@ -76,14 +78,7 @@ module Metar
     end
 
     aasm_event :done do
-      transitions :from => [:temperature_dew_point, :sea_level_pressure, :remarks],
-                                                :to => :end
-    end
-
-    aasm_event :error do
-      transitions :from => [:start, :location, :datetime, :wind, :variable_wind, :visibility, :runway_visible_range,
-                            :present_weather, :sky_conditions, :temperature_dew_point, :sea_level_pressure, :remarks],
-                                                :to => :error
+      transitions :from => [:remarks],          :to => :end
     end
 
     def Report.for_cccc(cccc)
@@ -159,8 +154,7 @@ module Metar
       if @chunks[0] =~ /^[A-Z][A-Z0-9]{3}$/
         @location = @chunks.shift
       else
-        error!
-        raise "Expecting location, found '#{ @chunks[0] }'"
+        raise ParseError.new("Expecting location, found '#{ @chunks[0] }'")
       end
       location!
     end
@@ -170,8 +164,7 @@ module Metar
       when @chunks[0] =~ /^\d{6}Z$/
         @datetime = @chunks.shift
       else
-        error!
-        raise "Expecting datetime, found '#{ @chunks[0] }'"
+        raise ParseError.new("Expecting datetime, found '#{ @chunks[0] }'")
       end
       datetime!
     end
@@ -307,8 +300,7 @@ module Metar
         @temperature = Metar::Temperature.new($1)
         @dew_point = Metar::Temperature.new($2)
       else
-        error!
-        raise "Expecting temperature/dew point, found '#{ @chunks[0] }'"
+        raise ParseError.new("Expecting temperature/dew point, found '#{ @chunks[0] }'")
       end
       temperature_dew_point!
     end
@@ -334,8 +326,7 @@ module Metar
 
     def seek_end
       if @chunks.length > 0
-        error!
-        raise "Unexpected tokens found at end of string: found '#{ @chunks.join(' ') }'"
+        raise ParseError.new("Unexpected tokens found at end of string: found '#{ @chunks.join(' ') }'")
       end
       done!
     end
