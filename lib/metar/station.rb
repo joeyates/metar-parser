@@ -22,6 +22,8 @@ module Metar
         end
       end
 
+      # Load local copy of the station list
+      # and download it first if  missing
       def load_local
         download_local if not File.exist?(Metar::Station.local_nsd_path)
         @nsd_cccc = File.open(Metar::Station.local_nsd_path) do |fil|

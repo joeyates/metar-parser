@@ -1,5 +1,11 @@
 #!/usr/bin/env ruby
 
+=begin
+
+Use the data downloaded by 'download_raw.rb' to bulk test the Report
+
+=end
+
 require 'rubygems' if RUBY_VERSION < '1.9'
 require 'yaml'
 require File.join(File.expand_path(File.dirname(__FILE__) + '/../lib'), 'metar')
