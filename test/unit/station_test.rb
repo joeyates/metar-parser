@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require File.dirname(__FILE__) + '/../metar_test_helper'
 
 class TestStation < Test::Unit::TestCase
