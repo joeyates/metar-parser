@@ -40,4 +40,29 @@ class TestStation < Test::Unit::TestCase
     assert station.loaded?
   end
 
+  def test_latitude_is_a_decimal_number
+    station = Metar::Station.new('LIRQ')
+    assert station.latitude.to_s == station.latitude.to_f.to_s
+  end
+
+  def test_longitude_is_a_decimal_number
+    station = Metar::Station.new('LIRQ')
+    assert station.longitude.to_s == station.longitude.to_f.to_s
+  end
+
+  def test_to_latitude_north
+    assert(Metar::Station.to_latitude('43-48N') == 43.8)
+  end
+
+  def test_to_latitude_south
+    assert(Metar::Station.to_latitude('43-48S') == -43.8)
+  end
+
+  def test_to_longitude_east
+    assert(Metar::Station.to_longitude('011-12E') == 11.2)
+  end
+
+  def test_to_longitude_west
+    assert(Metar::Station.to_longitude('011-12W') == -11.2)
+  end
 end
