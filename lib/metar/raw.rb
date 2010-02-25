@@ -18,6 +18,7 @@ module Metar
         connection = Net::FTP.new('tgftp.nws.noaa.gov')
         connection.login
         connection.chdir('data/observations/metar/stations')
+        connection.passive = true
         connection
       end
 
