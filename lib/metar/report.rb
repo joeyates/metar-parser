@@ -105,12 +105,12 @@ module Metar
       @wind                 = nil
       @variable_wind        = nil
       @visibility           = nil
-      @runway_visible_range = []
-      @present_weather      = []
-      @sky_conditions       = []
+      @runway_visible_range = nil
+      @present_weather      = nil
+      @sky_conditions       = nil
       @temperature          = nil
       @dew_point            = nil
-      @remarks              = []
+      @remarks              = nil
 
       aasm_enter_initial_state
     end
@@ -121,26 +121,44 @@ module Metar
         :time         => @time.to_s,
         :observer     => Report.symbol_to_s(@observer)
       }
-      h[:wind]                 =  @wind.to_s                       if @wind
-      h[:variable_wind]        =  @variable_wind.clone             if @variable_wind
-      h[:visibility]           =  @visibility.to_s                 if @visibility
-      h[:runway_visible_range] =  @runway_visible_range.join(', ') if @runway_visible_range.length > 0
-      h[:present_weather]      =  @present_weather.join(', ')      if @present_weather.length > 0
-      h[:sky_conditions]       =  @sky_conditions.join(', ')       if @sky_conditions.length > 0
-      h[:temperature]          =  @temperature.to_s
-      h[:dew_point]            =  @dew_point.to_s
-      h[:remarks]              =  @remarks.join(', ')              if @remarks.length > 0
+      h[:wind]                 =  @wind                 if @wind
+      h[:variable_wind]        =  @variable_wind.clone  if @variable_wind
+      h[:visibility]           =  @visibility           if @visibility
+      h[:runway_visible_range] =  @runway_visible_range if @runway_visible_range
+      h[:present_weather]      =  @present_weather      if @present_weather
+      h[:sky_conditions]       =  @sky_conditions       if @sky_conditions
+      h[:temperature]          =  @temperature
+      h[:dew_point]            =  @dew_point
+      h[:remarks]              =  @remarks.clone        if @remarks
       h
     end
 
+    def attributes_to_s
+      Rails.logger.info "attributes_to_s"
+      attrib = attributes
+      texts = {}
+      texts[:wind]                 = attrib[:wind]                            if attrib[:wind]
+      texts[:variable_wind]        = attrib[:variable_wind]                   if attrib[:variable_wind]
+      texts[:visibility]           = "%u meters" % attrib[:visibility].value  if attrib[:visibility]
+      texts[:runway_visible_range] = attrib[:runway_visible_range].join(', ') if attrib[:runway_visible_range]
+      texts[:present_weather]      = attrib[:present_weather].join(', ')      if attrib[:present_weather]
+      texts[:sky_conditions]       = attrib[:sky_conditions].join(', ')       if attrib[:sky_conditions]
+      texts[:temperature]          = "%u celcius" % attrib[:temperature]      if attrib[:temperature]
+      texts[:dew_point]            = "%u celcius" % attrib[:dew_point]        if attrib[:dew_point]
+      texts[:remarks]              = attrib[:remarks].join(', ')              if attrib[:remarks]
+
+      texts
+    end
+
     def to_s
+      Rails.logger.info "to_s"
       # If attributes supplied an ordered hash, the hoop-jumping below
       # wouldn't be necessary
-      attr = attributes
+      attr = attributes_to_s
       [:station_code, :time, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
        :present_weather, :sky_conditions, :temperature, :dew_point, :remarks].collect do |key|
         attr[key] ? Report.symbol_to_s(key) + ": " + attr[key] : nil
-      end.uniq.join("\n")
+      end.compact.join("\n")
     end
 
     private
@@ -200,7 +218,9 @@ module Metar
       if @chunks[0] == 'CAVOK'
         @chunks.shift
         @visibility = Visibility.new('More than 10km')
+        @present_weather ||= []
         @present_weather << Metar::WeatherPhenomenon.new('No significant weather')
+        @sky_conditions ||= []
         @sky_conditions << 'No significant cloud' # TODO: What does NSC stand for?
         cavok!
         return
@@ -235,9 +255,11 @@ module Metar
     def collect_runway_visible_range
       case
       when @chunks[0] =~ /^R\d+\/(P|M)?\d{4}(N|U)?$/ # U?
+        @runway_visible_range ||= []
         @runway_visible_range << @chunks.shift
         collect_runway_visible_range
       when @chunks[0] =~ /^R\d+\/(P|M)?\d{4}V\d{4}(N)?$/ # U?
+        @runway_visible_range ||= []
         @runway_visible_range << @chunks.shift
         collect_runway_visible_range
       end
@@ -252,6 +274,7 @@ module Metar
       wtp = WeatherPhenomenon.recognize(@chunks[0])
       if wtp
         @chunks.shift
+        @present_weather ||= []
         @present_weather << wtp
         collect_present_weather
       end
@@ -260,6 +283,7 @@ module Metar
     def seek_present_weather
       if @observer == :auto
         if @chunks[0] == '//' # WMO 15.4
+          @present_weather ||= []
           @present_weather << Metar::WeatherPhenomenon.new('not observed')
           present_weather!
           return
@@ -274,6 +298,7 @@ module Metar
       sky_condition = SkyCondition.recognize(@chunks[0])
       if sky_condition
         @chunks.shift
+        @sky_conditions ||= []
         @sky_conditions << sky_condition
         collect_sky_conditions
       end
@@ -283,6 +308,7 @@ module Metar
       if @observer == :auto # WMO 15.4
         if @chunks[0] == '///' or @chunks[0] == '//////'
           @chunks.shift
+          @sky_conditions ||= []
           @sky_conditions << 'Not observed'
           sky_conditions!
           return
@@ -295,7 +321,7 @@ module Metar
 
     def seek_temperature_dew_point
       case
-      when @chunks[0] =~ /^(M?\d+|XX)\/(M?\d+|XX)?$/
+      when @chunks[0] =~ /^(M?\d+|XX|\/\/)\/(M?\d+|XX|\/\/)?$/
         @chunks.shift
         @temperature = Metar::Temperature.new($1)
         @dew_point = Metar::Temperature.new($2)
@@ -319,6 +345,7 @@ module Metar
       if @chunks[0] == 'RMK'
         @chunks.shift
       end
+      @remarks ||= []
       @remarks += @chunks.clone
       @chunks = []
       remarks!
