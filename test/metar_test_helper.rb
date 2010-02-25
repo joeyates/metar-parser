@@ -12,4 +12,3 @@ Metar::Raw.instance_eval do
 end
 
 require 'test/unit'
-

@@ -12,7 +12,7 @@ module Metar
 
     class << self
 
-      @nsd_cccc = nil
+      @nsd_cccc = nil # Contains the text of the station list
       attr_accessor :nsd_cccc # Allow tests to run from local file
 
       def download_local
@@ -60,19 +60,21 @@ module Metar
     end
 
     attr_reader :cccc, :loaded
+    alias :code :cccc
     # loaded? indicates whether the data has been collected from the Web
     alias :loaded? :loaded
 
     # No check is made on the existence of the station
     def initialize(cccc, options = {})
-      raise "Station identifier cannot be nil" if cccc.nil?
-      raise "Station identifier must be a string" if not cccc.respond_to?('chars')
+      raise "Station identifier must not be nil" if cccc.nil?
+      raise "Station identifier must be a text" if not cccc.respond_to?('to_s')
       @cccc      = cccc
       @name      = options[:name]
       @state     = options[:state]
       @country   = options[:country]
       @longitude = options[:longitude]
       @latitude  = options[:latitude]
+      @raw       = options[:raw]
       @loaded    = false
     end
 
@@ -101,6 +103,11 @@ module Metar
     def longitude
       load! if not @loaded
       @longitude
+    end
+
+    def raw
+      load! if not @loaded
+      @raw
     end
 
     def exist?
@@ -137,6 +144,7 @@ module Metar
             :country   => fields[5],
             :latitude  => fields[7],
             :longitude => fields[8],
+            :raw       => station.clone
           }
         end
 
@@ -156,8 +164,9 @@ module Metar
       @name      = noaa_data[:name]
       @state     = noaa_data[:state]
       @country   = noaa_data[:country]
-      @longitude = noaa_data[:longitude]
-      @latitude  = noaa_data[:latitude]
+      @longitude = Station.to_longitude(noaa_data[:longitude])
+      @latitude  = Station.to_latitude(noaa_data[:latitude])
+      @raw       = noaa_data[:raw]
       @loaded    = true
       self
     end
