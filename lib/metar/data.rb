@@ -1,22 +1,21 @@
 module Metar
 
   class Temperature
+    
+    attr_reader :value, :unit
     def initialize(s)
       @unit = :celcius
       if s =~ /^(M?)(\d+)$/
         sign = $1
-        value = $2
-        if value != 'XX'
-          @value = value.to_i
-          @value *= -1 if sign == 'M'
-        end
+        @value = $2.to_i
+        @value *= -1 if sign == 'M'
       else
         @value = nil
       end
     end
 
     def to_s
-      @value ? "#{ @value } celcius" : 'Not available'
+      @value ? "#{ @value }&deg;" : 'Not available'
     end
   end
 
@@ -66,6 +65,7 @@ module Metar
       end
     end
 
+    alias :value :to_s
     def initialize(visibility, direction = nil) # visibilty can be String, Distance
       @visibility = visibility
     end
@@ -89,30 +89,48 @@ module Metar
     def Wind.recognize(s)
       case
       when s =~ /^(\d{3})(\d{2}(KT|MPS|KMH|))$/
-        new($1, Speed.parse($2))
+        new("#$1&deg", Speed.parse($2))
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(KT|MPS|KMH|))$/
-        new($1, Speed.parse($2)) # TODO
+        new("#$1&deg", Speed.parse($2)) # TODO
       when s =~ /^VRB(\d{2}(KT|MPS|KMH|))$/
         new('variable direction', Speed.parse($2))
       when s =~ /^\/{3}(\d{2}(KT|MPS|KMH|))$/
         new('unknown direction', Speed.parse($2))
-      when s =~ /^\/{3}(\/{3}(KT|MPS|KMH|))$/
+      when s =~ /^\/{3}(\/{2}(KT|MPS|KMH|))$/
         new('unknown direction', 'unknown')
       else
         nil
       end
     end
 
-    def initialize(direction, speed)
+    def initialize(direction, speed, units = :kmh)
       @direction, @speed = direction, speed
     end
 
     def to_s
-      "#{ @direction } degrees #{ @speed }"
+      "#{ @direction } #{ @speed }"
     end
   end
 
   class WeatherPhenomenon
+
+    Modifiers = {
+      '\+' => 'heavy ',
+      '-' => 'light ',
+      'VC' => 'nearby '
+    }
+
+    Descriptors = {
+      'BC' => 'patches of ',
+      'BL' => 'blowing ',
+      'DR' => 'low drifting ',
+      'FZ' => 'freezing ',
+      'MI' => 'shallow ',
+      'PR' => 'partial ',
+      'SH' => 'shower of ',
+      'TS' => 'thunderstorm and ',
+    }
+
     Phenomena = {
       'BR' => 'mist',
       'DU' => 'dust',
@@ -128,6 +146,7 @@ module Metar
       'PY' => '???', # TODO
       'RA' => 'rain',
       'SA' => 'sand',
+      'SH' => 'shower', # only US?
       'SN' => 'snow',
       'SG' => 'snow grains',
       'SNRA' => 'snow and rain',
@@ -136,24 +155,7 @@ module Metar
       'VA' => 'volcanic ash',
       'FC' => 'funnel cloud',
       'SS' => 'sand storm',
-      'DS' => 'dust strom',
-    }
-
-    Descriptors = {
-      'BC' => 'patches of ',
-      'BL' => 'blowing ',
-      'DR' => 'low drifting ',
-      'FZ' => 'freezing ',
-      'MI' => 'shallow ',
-      'PR' => 'partial ',
-      'SH' => 'shower of ',
-      'TS' => 'thunderstorm and ',
-    }
-
-    Modifiers = {
-      '\+' => 'heavy ',
-      '-' => 'light ',
-      'VC' => 'nearby '
+      'DS' => 'dust storm',
     }
 
     def WeatherPhenomenon.recognize(s)
@@ -183,7 +185,7 @@ module Metar
   class SkyCondition
     def SkyCondition.recognize(s)
       case
-      when s == 'NSC' # WMO
+      when (s == 'NSC' or s == 'NCD') # WMO
         'No significant cloud'
       when s == 'CLR' # TODO - meaning?
         'Clear skies'
