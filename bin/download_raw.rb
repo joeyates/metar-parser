@@ -28,14 +28,14 @@ Metar::Station.load_local
     begin
       raw = Metar::Raw.new(station.cccc)
     rescue Net::FTPPermError => e
-      puts ': Not available'
+      puts ": Not available - #{ e }"
       next
     rescue
-      puts ': Other error'
+      puts ": Other error - #{ e }"
       next
     end
-  
-    stations[station.cccc] = raw.raw
+
+    stations[station.cccc] = raw.raw.clone
     puts ': OK'
   end
 
