@@ -134,7 +134,6 @@ module Metar
     end
 
     def attributes_to_s
-      Rails.logger.info "attributes_to_s"
       attrib = attributes
       texts = {}
       texts[:wind]                 = attrib[:wind]                            if attrib[:wind]
@@ -151,7 +150,6 @@ module Metar
     end
 
     def to_s
-      Rails.logger.info "to_s"
       # If attributes supplied an ordered hash, the hoop-jumping below
       # wouldn't be necessary
       attr = attributes_to_s
@@ -199,7 +197,7 @@ module Metar
     end
 
     def seek_wind
-      wind = Wind.recognize(@chunks[0])
+      wind = Wind.parse(@chunks[0])
       if wind
         @chunks.shift
         @wind = wind
@@ -271,7 +269,7 @@ module Metar
     end
 
     def collect_present_weather
-      wtp = WeatherPhenomenon.recognize(@chunks[0])
+      wtp = WeatherPhenomenon.parse(@chunks[0])
       if wtp
         @chunks.shift
         @present_weather ||= []
@@ -295,7 +293,7 @@ module Metar
     end
 
     def collect_sky_conditions
-      sky_condition = SkyCondition.recognize(@chunks[0])
+      sky_condition = SkyCondition.parse(@chunks[0])
       if sky_condition
         @chunks.shift
         @sky_conditions ||= []
@@ -323,8 +321,8 @@ module Metar
       case
       when @chunks[0] =~ /^(M?\d+|XX|\/\/)\/(M?\d+|XX|\/\/)?$/
         @chunks.shift
-        @temperature = Metar::Temperature.new($1)
-        @dew_point = Metar::Temperature.new($2)
+        @temperature = Metar::Temperature.parse($1)
+        @dew_point = Metar::Temperature.parse($2)
       else
         raise ParseError.new("Expecting temperature/dew point, found '#{ @chunks[0] }'")
       end
