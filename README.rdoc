@@ -16,9 +16,14 @@ The information comes from the National Oceanic and Atmospheric Association's ra
 
 = Other software
 
+Other Ruby libraries offering METAR parsing:
+* ruby-metar - http://github.com/brandonh/ruby-metar
+* ruby-wx - http://hans.fugal.net/src/ruby-wx/doc/
+
 There are two gems which read the National Oceanic and Atmospheric Association's XML weather data feeds:
 * noaa-weather - Ruby interface to NOAA SOAP interface
-* noaa (http://github.com/outoftime/noaa) - 
+* noaa - http://github.com/outoftime/noaa
+
 Interactive map:
 * http://www.spatiality.at/metarr/frontend/
 
