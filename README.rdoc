@@ -2,6 +2,10 @@
 
 The information comes from the National Oceanic and Atmospheric Association's raw data source.
 
+= Implementation
+
+* Parses METAR strings using a state machine.
+
 = Data format descrition
 
 * WMO
