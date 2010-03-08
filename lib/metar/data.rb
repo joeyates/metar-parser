@@ -1,8 +1,104 @@
+# encoding: utf-8
+require 'rubygems' if RUBY_VERSION < '1.9'
+require 'i18n'
+
+module I18n
+  def I18n.translate_float_count(key, f)
+    count = case f
+            when 0.0; 0
+            when 1.0; 1
+            else      42
+            end
+    I18n.t(key, {:count => count})
+  end
+
+  def I18n.localize_float(f, options)
+    format = options[:format] || '%f'
+    s = format % f
+    integers, decimal = s.split('.')
+    integers ||= ''
+
+    thousands_separator = I18n.t('numbers.thousands_separator')
+    integers.gsub(',', thousands_separator)
+
+    return integers if decimal.nil?
+
+    decimal_separator = I18n.t('numbers.decimal_separator')
+    integers + decimal_separator + decimal
+  end
+end
+
 module Metar
+  locales_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'locales'))
+
+  I18n.load_path = Dir.glob("#{ locales_path }/*.yml")
+  I18n.locale = :en
+
+  # Start with basic SI units: distance, time, temperature
+  class Distance
+    UNITS = [:meters, :miles, :kilometers]
+    METERS_PER_MILE = 1609.344
+
+    class << self
+      # Default output options
+      @@options = {:units => :meters, :abbreviated => false, :decimals => 3}
+      def options
+        @@options
+      end
+
+      def to_meters(n)
+        n
+      end
+
+      def to_kilometers(n)
+        n.to_f / 1000.0
+      end
+
+      def to_miles(n)
+        n.to_f / METERS_PER_MILE
+      end
+
+      def miles(miles)
+        miles.to_f * METERS_PER_MILE
+      end
+    end
+
+    attr_reader :value, :options
+
+    def initialize(value, options = Distance.options.clone)
+      @value, @options = value.to_f, Distance.options.merge(options)
+      raise "Unknown units '#{ @options[:units] }'" if not UNITS.find_index(@options[:units])
+    end
+
+    def to_s
+      value_in_units = Distance.send("to_#{ @options[:units] }", @value)
+      localized_value = I18n.localize_float(value_in_units, {:format => "%0.#{ @options[:decimals] }f"})
+
+      key = 'units.distance.' + @options[:units].to_s
+      @options[:abbreviated] ? key += '.abbreviated' : key += '.full'
+      unit = I18n.translate_float_count(key, value_in_units)
+
+      "#{ localized_value }%s#{ unit }" % (@options[:abbreviated] ? '' : ' ')
+    end
+
+  end
+
+  class Direction
+
+    attr_reader :value
+
+    def initialize(value)
+      @value = value.to_i # TODO: handle degrees as floats
+    end
+
+    def to_s
+      "#{ @value }°"
+    end
+
+  end
 
   class Temperature
-    
-    attr_reader :value, :unit
+
     def Temperature.parse(s)
       unit = :celcius
       if s =~ /^(M?)(\d+)$/
@@ -14,6 +110,8 @@ module Metar
         nil
       end
     end
+
+    attr_reader :value, :unit
 
     def initialize(value, unit = :celcius)
       @value, @unit = value, unit
@@ -43,12 +141,14 @@ module Metar
     end
 
     attr_reader :value, :unit
+
     def initialize(value, unit = :kilometers_per_hour)
       @value, @unit = value, unit
     end
 
     def to_s
-      "#{ @value } #{ @unit }"
+      units = I18n.t 'speed.unit.' + @unit + '.' + ((@value == 1) ? 'singular' : 'plural')
+      "#{ @value } #{ units }"
     end
 
   end
@@ -69,21 +169,21 @@ module Metar
     def Visibility.parse(s)
       case
       when s == '9999'
-        new(Distance.new(10, :kilometer), nil, :more)
+        new(Distance.new(10, :kilometers), nil, :more_than)
       when s =~ /(\d{4})NDV/ # WMO
         new(Distance.new($1.to_f))
       when (s =~ /^((1|2)\s|)([13])\/([24])SM$/) # US
         miles = $1.to_f + $3.to_f / $4.to_f
-        new(Distance.new(miles, :mile))
+        new(Distance.new(miles, :miles))
       when s =~ /^(\d+)SM$/ # US
-        new(Distance.new($1, :mile))
+        new(Distance.new($1, :miles))
       when s == 'M1/4SM' # US
-        new(Distance.new(0.25, :mile), nil, :less)
+        new(Distance.new(0.25, :miles), nil, :less_than)
       when s =~ /^(\d+)KM$/
-        new(Distance.new($1.to_f, :kilometer))
+        new(Distance.new($1.to_f, :kilometers))
       when s =~ /^(\d+)(N|NE|E|SE|S|SW|W|NW)?$/
-        direction = DIRECTION[$2]
-        new(Distance.new($1.to_f, :kilometer), direction)
+        direction = Direction.new(DIRECTION[$2])
+        new(Distance.new($1.to_f, :kilometers), direction)
       else
         nil
       end
@@ -100,38 +200,13 @@ module Metar
       when (@direction.nil? and @comparator.nil?)
         @distance.to_s
       when @comparator.nil?
-        "%s %s" % [@distance.to_s, direction_s]
+        "%s %s" % [@distance.to_s, direction]
       when @direction.nil?
-        "%s %s" % [comparator_s, @distance.to_s]
+        "%s %s" % [I18n.t('comparison.' + @comparator), @distance.to_s]
       else
-        "%s %s %s" % [comparator_s, @distance.to_s, direction_s]
+        "%s %s %s" % [I18n.t('comparison.' + @comparator), @distance.to_s, direction]
       end
     end
-
-    private
-
-    def comparator_s
-      comparator = {:more => 'more than', :less => 'less than'}[@comparator]
-    end
-
-    def direction_s
-      "%u&deg;" % @direction
-    end
-  end
-
-  class Distance
-
-    attr_reader :value, :unit
-
-    def initialize(value, unit = :meter)
-      @value, @unit = value, unit
-    end
-
-    def to_s
-      unit = @value == 1 ? @unit.to_s : "#{ @unit.to_s }s"
-      "#{ @value } #{ unit }"
-    end
-
   end
 
   class Wind
@@ -139,13 +214,13 @@ module Metar
     def Wind.parse(s)
       case
       when s =~ /^(\d{3})(\d{2}(KT|MPS|KMH|))$/
-        new("#$1&deg", Speed.parse($2))
+        new(Direction.new($1), Speed.parse($2))
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(KT|MPS|KMH|))$/
-        new("#$1&deg", Speed.parse($2)) # TODO
+        new(Direction.new($1), Speed.parse($2))
       when s =~ /^VRB(\d{2}(KT|MPS|KMH|))$/
-        new('variable direction', Speed.parse($2))
+        new('variable direction', Speed.parse($1))
       when s =~ /^\/{3}(\d{2}(KT|MPS|KMH|))$/
-        new('unknown direction', Speed.parse($2))
+        new('unknown direction', Speed.parse($1))
       when s =~ /^\/{3}(\/{2}(KT|MPS|KMH|))$/
         new('unknown direction', 'unknown')
       else
@@ -154,7 +229,8 @@ module Metar
     end
 
     attr_reader :direction, :speed, :units
-    def initialize(direction, speed, units = :kmh)
+
+    def initialize(direction, speed, units = :kilometers_per_hour)
       @direction, @speed = direction, speed
     end
 

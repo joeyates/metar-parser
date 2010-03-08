@@ -1,2 +1,27 @@
+# encoding: utf8
 en:
-  hello: "Hello world"
+  numbers:
+    thousands_separator: ','
+    decimal_separator: '.'
+  units:
+    distance:
+      meters:
+        full:
+          zero: meter
+          one: meter
+          other: meters
+        abbreviated: m
+      miles:
+        full:
+          zero: miles
+          one: mile
+          other: miles
+    speed:
+      knots:
+        full:
+          zero: knots
+          one: knot
+          other: knots
+  comparison:
+    more_than: more than
+    less_than: less than

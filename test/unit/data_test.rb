@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 require File.dirname(__FILE__) + '/../metar_test_helper'
 
@@ -7,6 +8,7 @@ class TestMetarData < Test::Unit::TestCase
   def setup
   end
 
+  # Temperature
   def test_temperature_parse_blank_gives_nil
     temperature = Metar::Temperature.parse('')
     assert_nil(temperature)
@@ -25,6 +27,12 @@ class TestMetarData < Test::Unit::TestCase
   def test_temperature_parse_negative
     temperature = Metar::Temperature.parse('M12')
     assert(temperature.value == -12)
+  end
+
+  # Direction
+  def test_direction_handles_leading_zero
+    direction = Metar::Direction.new('010')
+    assert(direction.to_s == '10°')
   end
 
   # Speed
@@ -80,25 +88,29 @@ class TestMetarData < Test::Unit::TestCase
   def test_visibility_parse_us_fractions_1_4
     visibility = Metar::Visibility.parse('1/4SM')
     assert(visibility.distance.value == 0.25)
-    assert(visibility.distance.unit == :mile)
+    assert(visibility.distance.unit == :miles)
   end
 
   def test_visibility_parse_us_fractions_2_1_2
     visibility = Metar::Visibility.parse('2 1/2SM')
     assert(visibility.distance.value == 2.5)
-    assert(visibility.distance.unit == :mile)
+    assert(visibility.distance.unit == :miles)
   end
 
   def test_visibility_parse_kilometers
     visibility = Metar::Visibility.parse('5KM')
     assert(visibility.distance.value == 5.0)
-    assert(visibility.distance.unit == :kilometer)
+    assert(visibility.distance.unit == :kilometers)
   end
 
   def test_visibility_parse_compass
     visibility = Metar::Visibility.parse('5NE')
     assert(visibility.distance.value == 5.0)
-    assert(visibility.distance.unit == :kilometer)
-    assert(visibility.direction == 45)
+    assert(visibility.distance.unit == :kilometers)
+    assert(visibility.direction.value == 45)
+    Metar::Distance.output.unit = :metric
+    Metar::Distance.output.style = :abbreviated
+    Metar::Direction.output.unit = :compass
+    assert(visibility.to_s == '5km NE')
   end
 end

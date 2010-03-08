@@ -184,7 +184,7 @@ module Metar
     def seek_visibility
       if @chunks[0] == 'CAVOK'
         @chunks.shift
-        @visibility = Visibility.new('More than 10km')
+        @visibility = Visibility.new(Distance.new(10, :kilometer), nil, :more_than)
         @present_weather ||= []
         @present_weather << Metar::WeatherPhenomenon.new('No significant weather')
         @sky_conditions ||= []

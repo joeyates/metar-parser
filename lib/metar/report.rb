@@ -1,21 +1,14 @@
-# * coding: UTF-8 *
-require 'rubygems' if RUBY_VERSION < '1.9'
-require 'i18n'
+# encoding: utf-8
 
 module Metar
   class Report
 
-    locales_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'locales'))
-
-    I18n.load_path = Dir.glob("#{ locales_path }/*.yml")
-    I18n.locale = :en
-
-    def initialize(report)
-      @report = report
+    def initialize(parser)
+      @parser = parser
     end
 
     def wind
-      '10° 7 knots'
+      @parser.wind.to_s
     end
 
   end

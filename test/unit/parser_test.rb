@@ -27,6 +27,6 @@ class TestMetarParser < Test::Unit::TestCase
     report = Metar::Parser.new(raw)
     report.analyze
     assert(report.visibility.distance.value == 1.75)
-    assert(report.visibility.distance.unit == :mile)
+    assert(report.visibility.distance.unit == :miles)
   end
 end
