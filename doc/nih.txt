@@ -1,6 +1,0 @@
-Units
-  ruby-units
-    no i18n
-      representations: , as decimal separator
-        monkey patch Unit.to_s ?
-    pollutes too many objects

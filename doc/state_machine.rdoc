@@ -1,3 +1,0 @@
-= States
-
-* State changes are forward only or looping
