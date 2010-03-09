@@ -36,8 +36,9 @@ module Metar
 
   # Start with basic SI units: distance, time, temperature
   class Distance
-    UNITS = [:meters, :miles, :kilometers]
+    KNOWN_UNITS = [:meters, :miles, :kilometers]
     METERS_PER_MILE = 1609.344
+    METERS_PER_KILOMETER = 1000.0
 
     class << self
       # Default output options
@@ -46,20 +47,24 @@ module Metar
         @@options
       end
 
-      def to_meters(n)
-        n
+      def to_meters(m)
+        m.to_f
       end
 
-      def to_kilometers(n)
-        n.to_f / 1000.0
+      def to_kilometers(m)
+        m.to_f / METERS_PER_KILOMETER
       end
 
-      def to_miles(n)
-        n.to_f / METERS_PER_MILE
+      def to_miles(m)
+        m.to_f / METERS_PER_MILE
       end
 
-      def miles(miles)
-        miles.to_f * METERS_PER_MILE
+      def miles(m)
+        m.to_f * METERS_PER_MILE
+      end
+
+      def kilometers(km)
+        km.to_f * METERS_PER_KILOMETER
       end
     end
 
@@ -67,7 +72,7 @@ module Metar
 
     def initialize(value, options = Distance.options.clone)
       @value, @options = value.to_f, Distance.options.merge(options)
-      raise "Unknown units '#{ @options[:units] }'" if not UNITS.find_index(@options[:units])
+      raise "Unknown units '#{ @options[:units] }'" if not KNOWN_UNITS.find_index(@options[:units])
     end
 
     def to_s
@@ -84,15 +89,61 @@ module Metar
   end
 
   class Direction
+    CIRCLE = 360.0
+    KNOWN_UNITS = [:degrees, :compass]
+    SECTOR_DEGREES = CIRCLE / 16.0
+    # TODO i18n
+    SECTOR = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
 
-    attr_reader :value
+    class << self
+      # Default output options
+      @@options = {:units => :degrees, :abbreviated => true, :decimals => 0}
+      def options
+        @@options
+      end
 
-    def initialize(value)
-      @value = value.to_i # TODO: handle degrees as floats
+      def to_degrees(d)
+        d
+      end
+
+      def normalize(d)
+        case
+        when d < 0
+          normalize(d + CIRCLE)
+        when d >= CIRCLE
+          normalize(d - CIRCLE)
+        else
+          d
+        end
+      end
+
+      def to_compass(d)
+        sector = (normalize(d) / SECTOR_DEGREES).round
+        SECTOR[sector]
+      end
+
+      def compass(s)
+        sector = SECTOR.find_index(s)
+        raise "Compass direction '#{ s }' not recognised" if sector.nil?
+        new(sector.to_f * SECTOR_DEGREES)
+      end
+    end
+
+    attr_reader :value, :options
+
+    def initialize(value, options = Direction.options.clone)
+      @value, @options = value.to_f, Direction.options.merge(options)
+      raise "Unknown units '#{ @options[:units] }'" if not KNOWN_UNITS.find_index(@options[:units])
     end
 
     def to_s
-      "#{ @value }°"
+      value_in_units = Direction.send("to_#{ @options[:units] }", @value)
+      if @options[:units] == :compass
+        Direction.to_compass(@value)
+      else
+        localized_value = I18n.localize_float(value_in_units, {:format => "%0.#{ @options[:decimals] }f"})
+        "#{ localized_value }°" # TODO Use options to choose between '°' and 'degrees'
+      end
     end
 
   end
@@ -155,35 +206,23 @@ module Metar
 
   class Visibility
 
-    DIRECTION = {
-      'N'   => 0,
-      'NE'  => 45,
-      'E'   => 90,
-      'SE'  => 135,
-      'S'   => 180,
-      'SW'  => 225,
-      'W'   => 270,
-      'NW'  => 315,
-    }
-
     def Visibility.parse(s)
       case
       when s == '9999'
-        new(Distance.new(10, :kilometers), nil, :more_than)
+        new(Distance.new(10000, {:units => :kilometers, :decimals => 0}), nil, :more_than)
       when s =~ /(\d{4})NDV/ # WMO
         new(Distance.new($1.to_f))
       when (s =~ /^((1|2)\s|)([13])\/([24])SM$/) # US
         miles = $1.to_f + $3.to_f / $4.to_f
-        new(Distance.new(miles, :miles))
+        new(Distance.new(Distance.miles(miles), {:units => :miles}))
       when s =~ /^(\d+)SM$/ # US
-        new(Distance.new($1, :miles))
+        new(Distance.new(Distance.miles($1.to_f), {:units => :miles}))
       when s == 'M1/4SM' # US
-        new(Distance.new(0.25, :miles), nil, :less_than)
+        new(Distance.new(Distance.miles(0.25), {:units => :miles}), nil, :less_than)
       when s =~ /^(\d+)KM$/
-        new(Distance.new($1.to_f, :kilometers))
+        new(Distance.new(Distance.kilometers($1), {:units => :kilometers}))
       when s =~ /^(\d+)(N|NE|E|SE|S|SW|W|NW)?$/
-        direction = Direction.new(DIRECTION[$2])
-        new(Distance.new($1.to_f, :kilometers), direction)
+        new(Distance.new(Distance.kilometers($1), {:units => :kilometers}), Direction.compass($2))
       else
         nil
       end
@@ -200,11 +239,11 @@ module Metar
       when (@direction.nil? and @comparator.nil?)
         @distance.to_s
       when @comparator.nil?
-        "%s %s" % [@distance.to_s, direction]
+        "%s %s" % [@distance.to_s, @direction.to_s]
       when @direction.nil?
-        "%s %s" % [I18n.t('comparison.' + @comparator), @distance.to_s]
+        "%s %s" % [I18n.t('comparison.' + @comparator.to_s), @distance.to_s]
       else
-        "%s %s %s" % [I18n.t('comparison.' + @comparator), @distance.to_s, direction]
+        "%s %s %s" % [I18n.t('comparison.' + @comparator.to_s), @distance.to_s, direction]
       end
     end
   end
@@ -317,9 +356,9 @@ module Metar
       case
       when (s == 'NSC' or s == 'NCD') # WMO
         'No significant cloud'
-      when s == 'CLR' # TODO - meaning?
+      when s == 'CLR'
         'Clear skies'
-      when s == 'SKC' # TODO - meaning?
+      when s == 'SKC'
         'Clear skies'
       when s =~ /^(BKN|FEW|OVC|SCT)(\d+)(CB|TCU|\/{3})?$/
         quantity = $1

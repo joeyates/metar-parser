@@ -11,6 +11,12 @@ it:
           one: metro
           other: metri
         abbreviated: m
+      kilometers:
+        full:
+          zero: chilometri
+          one: chilometro
+          other: chilometri
+        abbreviated: km
       miles:
         full:
           zero: miglia

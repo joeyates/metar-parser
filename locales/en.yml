@@ -7,10 +7,16 @@ en:
     distance:
       meters:
         full:
-          zero: meter
+          zero: meters
           one: meter
           other: meters
         abbreviated: m
+      kilometers:
+        full:
+          zero: kilometers
+          one: kilometer
+          other: kilometers
+        abbreviated: km
       miles:
         full:
           zero: miles

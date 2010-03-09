@@ -14,6 +14,7 @@ task :default => :test
 
 spec = Gem::Specification.new do |s|
   s.name = 'metar-parser'
+  s.description = 'Downloads, parses and presents METAR weather reports'
   s.summary = 'Downloads and parses weather reports'
   s.version = Metar::VERSION::STRING
 
@@ -23,12 +24,14 @@ spec = Gem::Specification.new do |s|
 
   s.files = ['README.rdoc', 'COPYING', 'Rakefile'] + FileList['{bin,lib,test}/**/*.rb']
   s.require_paths = ['lib']
+  s.add_dependency('aasm', '>= 2.1.5')
+  s.add_dependency('i18n', '>= 0.3.5')
 
   s.has_rdoc = true
   s.rdoc_options += RDOC_OPTS
   s.extra_rdoc_files = ['README.rdoc', 'COPYING']
 
-  s.test_file = 'test/test_all.rb'
+  s.test_file = 'test/all_tests.rb'
 end
 
 Rake::TestTask.new do |t|
@@ -40,7 +43,7 @@ end
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'doc/rdoc'
   rdoc.options += RDOC_OPTS
-  rdoc.main = "README.rdoc"
+  rdoc.main = 'README.rdoc'
   rdoc.rdoc_files.add ['README.rdoc', 'COPYING', 'lib/**/*.rb']
 end
 
