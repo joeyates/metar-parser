@@ -1,27 +1,6 @@
 # encoding: utf8
 en:
-  numbers:
-    thousands_separator: ','
-    decimal_separator: '.'
   units:
-    distance:
-      meters:
-        full:
-          zero: meters
-          one: meter
-          other: meters
-        abbreviated: m
-      kilometers:
-        full:
-          zero: kilometers
-          one: kilometer
-          other: kilometers
-        abbreviated: km
-      miles:
-        full:
-          zero: miles
-          one: mile
-          other: miles
     speed:
       knots:
         full:

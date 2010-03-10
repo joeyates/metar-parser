@@ -29,12 +29,6 @@ class TestMetarData < Test::Unit::TestCase
     assert_equal(-12, temperature.value)
   end
 
-  # Direction
-  def test_direction_handles_leading_zero
-    direction = Metar::Direction.new('010')
-    assert_equal('10°', direction.to_s)
-  end
-
   # Speed
   def test_speed_parse_blank_gives_nil
     speed = Metar::Speed.parse('')

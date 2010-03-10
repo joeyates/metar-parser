@@ -1,27 +1,6 @@
 # encoding: utf8
 it:
-  numbers:
-    thousands_separator: '.'
-    decimal_separator: ','
   units:
-    distance:
-      meters:
-        full:
-          zero: metri
-          one: metro
-          other: metri
-        abbreviated: m
-      kilometers:
-        full:
-          zero: chilometri
-          one: chilometro
-          other: chilometri
-        abbreviated: km
-      miles:
-        full:
-          zero: miglia
-          one: miglio
-          other: miglia
     speed:
       knots:
         zero: nodi
