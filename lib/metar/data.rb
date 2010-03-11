@@ -1,12 +1,43 @@
 # encoding: utf-8
 require 'rubygems' if RUBY_VERSION < '1.9'
 require 'i18n'
+require 'm9t'
 
 module Metar
   locales_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'locales'))
   I18n.load_path += Dir.glob("#{ locales_path }/*.yml")
 
-  # Start with basic SI units: distance, time, temperature
+  class Speed < M9t::Speed
+
+    METAR_UNITS = {
+      'KMH' => :kilometers_per_hour,
+      'MPS' => :meters_per_second,
+      'KT'  => :knots,
+    }
+
+    def Speed.parse(s)
+      case
+      when s =~ /^(\d+)(KT|MPS|KMH)$/
+        new($1.to_i, METAR_UNITS[$2])
+      when s =~ /^(\d+)$/
+        new($1.to_i, :kilometers_per_hour)
+      else
+        nil
+      end
+    end
+
+    attr_reader :value, :unit
+
+    def initialize(value, unit = :kilometers_per_hour)
+      @value, @unit = value, unit
+    end
+
+    def to_s
+      units = I18n.t 'speed.unit.' + @unit + '.' + ((@value == 1) ? 'singular' : 'plural')
+      "#{ @value } #{ units }"
+    end
+
+  end
 
   class Temperature
 
@@ -34,55 +65,25 @@ module Metar
 
   end
 
-  class Speed
-
-    UNITS = {
-      ''    => :kilometers_per_hour,
-      'KMH' => :kilometers_per_hour,
-      'KT'  => :knots,
-      'MPS' => :meters_per_second      
-    }
-
-    def Speed.parse(s)
-      if s =~ /^(\d+)(KT|MPS|KMH|)/
-        new($1.to_i, UNITS[$2])
-      else
-        nil
-      end
-    end
-
-    attr_reader :value, :unit
-
-    def initialize(value, unit = :kilometers_per_hour)
-      @value, @unit = value, unit
-    end
-
-    def to_s
-      units = I18n.t 'speed.unit.' + @unit + '.' + ((@value == 1) ? 'singular' : 'plural')
-      "#{ @value } #{ units }"
-    end
-
-  end
-
   class Visibility
 
     def Visibility.parse(s)
       case
       when s == '9999'
-        new(M9t::Distance.new(10000, {:units => :kilometers, :decimals => 0}), nil, :more_than)
+        new(M9t::Distance.new(10000, {:units => :kilometers, :precision => 0}), nil, :more_than)
       when s =~ /(\d{4})NDV/ # WMO
-        new(M9t::Distance.new($1.to_f))
+        new(M9t::Distance.new($1.to_f)) # Assuming meters
       when (s =~ /^((1|2)\s|)([13])\/([24])SM$/) # US
         miles = $1.to_f + $3.to_f / $4.to_f
-        new(M9t::Distance.new(M9t::Distance.miles(miles), {:units => :miles}))
+        new(M9t::Distance.miles(miles, {:units => :miles}))
       when s =~ /^(\d+)SM$/ # US
-        new(M9t::Distance.new(M9t::Distance.miles($1.to_f), {:units => :miles}))
+        new(M9t::Distance.miles($1.to_f, {:units => :miles}))
       when s == 'M1/4SM' # US
-        new(M9t::Distance.new(M9t::Distance.miles(0.25), {:units => :miles}), nil, :less_than)
+        new(M9t::Distance.miles(0.25, {:units => :miles}), nil, :less_than)
       when s =~ /^(\d+)KM$/
-        new(M9t::Distance.new(M9t::Distance.kilometers($1), {:units => :kilometers}))
+        new(M9t::Distance.kilometers($1, {:units => :kilometers}))
       when s =~ /^(\d+)(N|NE|E|SE|S|SW|W|NW)?$/
-        new(M9t::Distance.new(M9t::Distance.kilometers($1), {:units => :kilometers}), Direction.compass($2))
+        new(M9t::Distance.kilometers($1, {:units => :kilometers}), M9t::Direction.compass($2))
       else
         nil
       end
@@ -113,9 +114,9 @@ module Metar
     def Wind.parse(s)
       case
       when s =~ /^(\d{3})(\d{2}(KT|MPS|KMH|))$/
-        new(Direction.new($1), Speed.parse($2))
+        new(M9t::Direction.new($1), Speed.parse($2))
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(KT|MPS|KMH|))$/
-        new(Direction.new($1), Speed.parse($2))
+        new(M9t::Direction.new($1), Speed.parse($2))
       when s =~ /^VRB(\d{2}(KT|MPS|KMH|))$/
         new('variable direction', Speed.parse($1))
       when s =~ /^\/{3}(\d{2}(KT|MPS|KMH|))$/

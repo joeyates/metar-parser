@@ -1,11 +1,5 @@
 # encoding: utf8
 it:
-  units:
-    speed:
-      knots:
-        zero: nodi
-        one: nodo
-        other: nodi
   comparison:
     more_than: piú di
     less_than: meno di

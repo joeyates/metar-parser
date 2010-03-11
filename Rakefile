@@ -14,18 +14,19 @@ task :default => :test
 
 spec = Gem::Specification.new do |s|
   s.name        = 'metar-parser'
-  s.description = 'Downloads, parses and presents METAR weather reports'
   s.summary     = 'Downloads and parses weather reports'
+  s.description = 'Downloads, parses and presents METAR weather reports'
   s.version     = Metar::VERSION::STRING
 
   s.homepage = 'http://github.com/joeyates/metar-parser'
   s.author   = 'Joe Yates'
   s.email    = 'joe.g.yates@gmail.com'
 
-  s.files         = ['README.rdoc', 'COPYING', 'Rakefile'] + FileList['{bin,lib,test}/**/*.rb']
+  s.files         = ['README.rdoc', 'COPYING', 'Rakefile'] + FileList['{bin,lib,test}/**/*.rb'] + FileList['locales/**/*.{rb,yml}']
   s.require_paths = ['lib']
   s.add_dependency('aasm', '>= 2.1.5')
   s.add_dependency('i18n', '>= 0.3.5')
+  s.add_dependency('m9t', '>= 0.1.1')
 
   s.has_rdoc = true
   s.rdoc_options += RDOC_OPTS

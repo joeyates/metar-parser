@@ -1,12 +1,5 @@
 # encoding: utf8
 en:
-  units:
-    speed:
-      knots:
-        full:
-          zero: knots
-          one: knot
-          other: knots
   comparison:
     more_than: more than
     less_than: less than

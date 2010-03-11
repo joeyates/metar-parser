@@ -26,7 +26,7 @@ class TestMetarParser < Test::Unit::TestCase
     raw = Metar::Raw.new('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
     report = Metar::Parser.new(raw)
     report.analyze
-    assert(report.visibility.distance.value == 1.75)
-    assert(report.visibility.distance.unit == :miles)
+    assert_in_delta(1.75, report.visibility.distance.to_miles, 0.01)
+    assert_equal(:miles, report.visibility.distance.options[:units])
   end
 end

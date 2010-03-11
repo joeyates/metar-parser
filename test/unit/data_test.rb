@@ -8,6 +8,10 @@ class TestMetarData < Test::Unit::TestCase
   def setup
   end
 
+  def test_m9t_translations_available
+    assert_equal('10 kilometers', M9t::Distance.new(10000, {:units => :kilometers, :precision => 0}).to_s)
+  end
+
   # Temperature
   def test_temperature_parse_blank_gives_nil
     temperature = Metar::Temperature.parse('')
@@ -81,13 +85,13 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_visibility_parse_us_fractions_1_4
     visibility = Metar::Visibility.parse('1/4SM')
-    assert_equal(Metar::Distance.miles(0.25), visibility.distance.value)
+    assert_equal(M9t::Distance.miles(0.25).value, visibility.distance.value)
     assert_equal(:miles, visibility.distance.options[:units])
   end
 
   def test_visibility_parse_us_fractions_2_1_2
     visibility = Metar::Visibility.parse('2 1/2SM')
-    assert_equal(Metar::Distance.miles(2.5), visibility.distance.value)
+    assert_equal(M9t::Distance.miles(2.5).value, visibility.distance.value)
     assert_equal(:miles, visibility.distance.options[:units])
   end
 
@@ -104,7 +108,7 @@ class TestMetarData < Test::Unit::TestCase
     assert_equal(45.0, visibility.direction.value)
     visibility.distance.options[:units] = :kilometers
     visibility.distance.options[:abbreviated] = true
-    visibility.distance.options[:decimals] = 0
+    visibility.distance.options[:precision] = 0
     visibility.direction.options[:units] = :compass
     assert_equal('5km NE', visibility.to_s)
   end
