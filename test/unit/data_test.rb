@@ -11,7 +11,7 @@ class TestMetarData < Test::Unit::TestCase
   def test_m9t_translations_available
     assert_equal('10 kilometers', M9t::Distance.new(10000, {:units => :kilometers, :precision => 0}).to_s)
   end
-
+  
   # Temperature
   def test_temperature_parse_blank_gives_nil
     temperature = Metar::Temperature.parse('')
@@ -39,26 +39,30 @@ class TestMetarData < Test::Unit::TestCase
     assert_nil(speed)
   end
 
+  def test_class_options_set
+    assert_not_nil(Metar::Speed.options)
+  end
+
   def test_speed_parse_default_unit
     speed = Metar::Speed.parse('12')
-    assert_equal(12, speed.value)
-    assert_equal(:kilometers_per_hour, speed.unit)
+    assert_equal(12, speed.to_kilometers_per_hour)
+    assert_equal(:kilometers_per_hour, speed.options[:units])
   end
 
   def test_speed_parse_kilometers_per_hour
     speed = Metar::Speed.parse('12KMH')
-    assert_equal(12, speed.value)
-    assert_equal(:kilometers_per_hour, speed.unit)
+    assert_equal(12, speed.to_kilometers_per_hour)
+    assert_equal(:kilometers_per_hour, speed.options[:units])
   end
 
   def test_speed_parse_knots
     speed = Metar::Speed.parse('12KT')
-    assert(:knots, speed.unit)
+    assert_equal(:knots, speed.options[:units])
   end
 
   def test_speed_parse_meters_per_second
     speed = Metar::Speed.parse('12MPS')
-    assert_equal(:meters_per_second, speed.unit)
+    assert_equal(:meters_per_second, speed.options[:units])
   end
 
   # Visibility
@@ -112,4 +116,5 @@ class TestMetarData < Test::Unit::TestCase
     visibility.direction.options[:units] = :compass
     assert_equal('5km NE', visibility.to_s)
   end
+
 end

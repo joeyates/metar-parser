@@ -18,49 +18,28 @@ module Metar
     def Speed.parse(s)
       case
       when s =~ /^(\d+)(KT|MPS|KMH)$/
-        new($1.to_i, METAR_UNITS[$2])
+        send(METAR_UNITS[$2], $1.to_i, {:units => METAR_UNITS[$2], :precision => 0})
       when s =~ /^(\d+)$/
-        new($1.to_i, :kilometers_per_hour)
+        kilometers_per_hour($1.to_i, {:units => :kilometers_per_hour, :precision => 0})
       else
         nil
       end
-    end
-
-    attr_reader :value, :unit
-
-    def initialize(value, unit = :kilometers_per_hour)
-      @value, @unit = value, unit
-    end
-
-    def to_s
-      units = I18n.t 'speed.unit.' + @unit + '.' + ((@value == 1) ? 'singular' : 'plural')
-      "#{ @value } #{ units }"
     end
 
   end
 
-  class Temperature
+  class Temperature < M9t::Temperature
 
     def Temperature.parse(s)
-      unit = :celcius
+      units = :degrees
       if s =~ /^(M?)(\d+)$/
         sign = $1
         value = $2.to_i
         value *= -1 if sign == 'M'
-        new(value, unit)
+        new(value, :units => units)
       else
         nil
       end
-    end
-
-    attr_reader :value, :unit
-
-    def initialize(value, unit = :celcius)
-      @value, @unit = value, unit
-    end
-
-    def to_s
-      @value ? "#{ @value }&deg;" : 'Not available'
     end
 
   end
@@ -114,9 +93,9 @@ module Metar
     def Wind.parse(s)
       case
       when s =~ /^(\d{3})(\d{2}(KT|MPS|KMH|))$/
-        new(M9t::Direction.new($1), Speed.parse($2))
+        new(M9t::Direction.new($1, { :abbreviated => true }), Speed.parse($2))
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(KT|MPS|KMH|))$/
-        new(M9t::Direction.new($1), Speed.parse($2))
+        new(M9t::Direction.new($1, { :abbreviated => true }), Speed.parse($2))
       when s =~ /^VRB(\d{2}(KT|MPS|KMH|))$/
         new('variable direction', Speed.parse($1))
       when s =~ /^\/{3}(\d{2}(KT|MPS|KMH|))$/

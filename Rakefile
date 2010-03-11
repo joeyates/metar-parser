@@ -26,7 +26,7 @@ spec = Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.add_dependency('aasm', '>= 2.1.5')
   s.add_dependency('i18n', '>= 0.3.5')
-  s.add_dependency('m9t', '>= 0.1.1')
+  s.add_dependency('m9t', '>= 0.1.9')
 
   s.has_rdoc = true
   s.rdoc_options += RDOC_OPTS
