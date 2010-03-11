@@ -6,7 +6,7 @@ module Metar
 
   class ParseError < StandardError
   end
-  
+
   class Parser
     include AASM
 
@@ -95,24 +95,7 @@ module Metar
     def initialize(raw)
       @metar                = raw.metar.clone
       @time                 = raw.time.clone
-    end
-
-    def analyze
-      @chunks = @metar.split(' ')
-
-      @location             = nil
-      @observer             = :real
-      @wind                 = nil
-      @variable_wind        = nil
-      @visibility           = nil
-      @runway_visible_range = nil
-      @present_weather      = nil
-      @sky_conditions       = nil
-      @temperature          = nil
-      @dew_point            = nil
-      @remarks              = nil
-
-      aasm_enter_initial_state
+      analyze
     end
 
     def attributes
@@ -134,6 +117,24 @@ module Metar
     end
 
     private
+
+    def analyze
+      @chunks = @metar.split(' ')
+
+      @location             = nil
+      @observer             = :real
+      @wind                 = nil
+      @variable_wind        = nil
+      @visibility           = nil
+      @runway_visible_range = nil
+      @present_weather      = nil
+      @sky_conditions       = nil
+      @temperature          = nil
+      @dew_point            = nil
+      @remarks              = nil
+
+      aasm_enter_initial_state
+    end
 
     def seek_location
       if @chunks[0] =~ /^[A-Z][A-Z0-9]{3}$/
