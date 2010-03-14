@@ -20,7 +20,8 @@ module Metar
     aasm_state :visibility,                                  :after_enter => :seek_runway_visible_range
     aasm_state :runway_visible_range,                        :after_enter => :seek_present_weather
     aasm_state :present_weather,                             :after_enter => :seek_sky_conditions
-    aasm_state :sky_conditions,                              :after_enter => :seek_temperature_dew_point
+    aasm_state :sky_conditions,                              :after_enter => :seek_vertical_visibility
+    aasm_state :vertical_visibility,                         :after_enter => :seek_temperature_dew_point
     aasm_state :temperature_dew_point,                       :after_enter => :seek_sea_level_pressure
     aasm_state :sea_level_pressure,                          :after_enter => :seek_remarks
     aasm_state :remarks,                                     :after_enter => :seek_end
@@ -64,8 +65,13 @@ module Metar
                                                 :to => :sky_conditions
     end
 
+    aasm_event :vertical_visibility do
+      transitions :from => [:present_weather, :visibility, :sky_conditions],
+                                                :to => :vertical_visibility
+    end
+
     aasm_event :temperature_dew_point do
-      transitions :from => [:wind, :sky_conditions],   :to => :temperature_dew_point
+      transitions :from => [:wind, :sky_conditions, :vertical_visibility],   :to => :temperature_dew_point
     end
 
     aasm_event :sea_level_pressure do
@@ -84,13 +90,13 @@ module Metar
     def Parser.for_cccc(cccc)
       station = Metar::Station.new(cccc)
       raw = Metar::Raw.new(station)
-      report = Metar::Report.new(raw)
-      report.analyze
-      report
+      parser = new(raw)
+      parser.analyze
+      parser
     end
 
     attr_reader :station_code, :time, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
-       :present_weather, :sky_conditions, :temperature, :dew_point, :remarks
+       :present_weather, :sky_conditions, :vertical_visibility, :temperature, :dew_point, :sea_level_pressure, :remarks
 
     def initialize(raw)
       @metar                = raw.metar.clone
@@ -104,16 +110,22 @@ module Metar
         :time         => @time.to_s,
         :observer     => Report.symbol_to_s(@observer)
       }
-      h[:wind]                 =  @wind                 if @wind
-      h[:variable_wind]        =  @variable_wind.clone  if @variable_wind
-      h[:visibility]           =  @visibility           if @visibility
-      h[:runway_visible_range] =  @runway_visible_range if @runway_visible_range
-      h[:present_weather]      =  @present_weather      if @present_weather
-      h[:sky_conditions]       =  @sky_conditions       if @sky_conditions
-      h[:temperature]          =  @temperature
-      h[:dew_point]            =  @dew_point
-      h[:remarks]              =  @remarks.clone        if @remarks
+      h[:wind]                 = @wind                 if @wind
+      h[:variable_wind]        = @variable_wind.clone  if @variable_wind
+      h[:visibility]           = @visibility           if @visibility
+      h[:runway_visible_range] = @runway_visible_range if @runway_visible_range
+      h[:present_weather]      = @present_weather      if @present_weather
+      h[:sky_conditions]       = @sky_conditions       if @sky_conditions
+      h[:vertical_visibility]  = @vertical_visibility  if @vertical_visibility
+      h[:temperature]          = @temperature
+      h[:dew_point]            = @dew_point
+      h[:sea_level_pressure]   = @sea_level_pressure
+      h[:remarks]              = @remarks.clone        if @remarks
       h
+    end
+
+    def date
+      Date.new(@time.year, @time.month, @time.day)
     end
 
     private
@@ -129,8 +141,10 @@ module Metar
       @runway_visible_range = nil
       @present_weather      = nil
       @sky_conditions       = nil
+      @vertical_visibility  = nil
       @temperature          = nil
       @dew_point            = nil
+      @sea_level_pressure   = nil
       @remarks              = nil
 
       aasm_enter_initial_state
@@ -176,8 +190,10 @@ module Metar
     end
 
     def seek_variable_wind
-      if @chunks[0] =~ /^\d+V\d+$/
-        @variable_wind = @chunks.shift
+      variable_wind = VariableWind.parse(@chunks[0])
+      if variable_wind
+        @chunks.shift
+        @variable_wind = variable_wind
       end
       variable_wind!
     end
@@ -221,14 +237,11 @@ module Metar
     end
 
     def collect_runway_visible_range
-      case
-      when @chunks[0] =~ /^R\d+\/(P|M)?\d{4}(N|U)?$/ # U?
+      runway_visible_range = RunwayVisibleRange.parse(@chunks[0])
+      if runway_visible_range
+        @chunks.shift
         @runway_visible_range ||= []
-        @runway_visible_range << @chunks.shift
-        collect_runway_visible_range
-      when @chunks[0] =~ /^R\d+\/(P|M)?\d{4}V\d{4}(N)?$/ # U?
-        @runway_visible_range ||= []
-        @runway_visible_range << @chunks.shift
+        @runway_visible_range << runway_visible_range
         collect_runway_visible_range
       end
     end
@@ -287,6 +300,15 @@ module Metar
       sky_conditions!
     end
 
+    def seek_vertical_visibility
+      vertical_visibility = VerticalVisibility.parse(@chunks[0])
+      if vertical_visibility
+        @chunks.shift
+        @vertical_visibility = vertical_visibility
+      end
+      vertical_visibility!
+    end
+
     def seek_temperature_dew_point
       case
       when @chunks[0] =~ /^(M?\d+|XX|\/\/)\/(M?\d+|XX|\/\/)?$/
@@ -300,11 +322,10 @@ module Metar
     end
 
     def seek_sea_level_pressure
-      case
-      when @chunks[0] =~ /^Q\d+$/
-        @sea_level_pressure = @chunks.shift
-      when @chunks[0] =~ /^A\d+$/
-        @sea_level_pressure = @chunks.shift
+      sea_level_pressure = Pressure.parse(@chunks[0])
+      if sea_level_pressure
+        @chunks.shift
+        @sea_level_pressure = sea_level_pressure
       end
       sea_level_pressure!
     end

@@ -1,5 +1,108 @@
 # encoding: utf8
 en:
+  date:
+    formats:
+      default: '%d/%m/%Y'
   comparison:
     more_than: more than
     less_than: less than
+  units:
+    pressure:
+      bar:
+        full: bar
+  metar:
+    altitude:
+      at: at
+    distance:
+      unknown: unknown
+    sky_conditions:
+      broken: broken cloud
+      few: few clouds
+      scattered: scattered cloud
+      overcast: overcast
+    runway_visible_range:
+      runway: runway
+    weather:
+      mist: mist
+      dust: dust
+      blowing dust: blowing dust
+      low drifting dust: low drifting dust
+      nearby blowing dust: nearby blowing dust
+      heavy drizzle: heavy drizzle
+      light drizzle: light drizzle
+      heavy freezing drizzle: heavy freezing drizzle
+      light freezing drizzle: light freezing drizzle
+      fog: fog
+      patches of fog: patches of fog
+      freezing fog: freezing fog
+      shallow fog: shallow fog
+      partial fog: partial fog
+      nearby fog: nearby fog
+      smoke: smoke
+      hail: hail
+      heavy shower of hail: heavy shower of hail
+      light shower of hail: light shower of hail
+      heavy shower of small hail: heavy shower of small hail
+      light shower of small hail: light shower of small hail
+      haze: haze
+      ice crystals: ice crystals
+      heavy ice pellets: heavy ice pellets
+      light ice pellets: light ice pellets
+      dust whirls: dust whirls
+      nearby dust whirls: nearby dust whirls
+      spray: spray
+      rain: rain
+      heavy rain: heavy rain
+      light rain: light rain
+      heavy shower of rain: heavy shower of rain
+      light shower of rain: light shower of rain
+      heavy freezing rain: heavy freezing rain
+      light freezing rain: light freezing rain
+      sand: sand
+      blowing sand: blowing sand
+      low drifting sand: low drifting sand
+      nearby blowing sand: nearby blowing sand
+      nearby shower: nearby shower
+      snow: snow
+      heavy snow: heavy snow
+      light snow: light snow
+      heavy shower of snow: heavy shower of snow
+      light shower of snow: light shower of snow
+      blowing snow: blowing snow
+      low drifting snow: low drifting snow
+      nearby blowing snow: nearby blowing snow
+      heavy snow grains: heavy snow grains
+      light snow grains: light snow grains
+      snow and rain: snow and rain
+      squall: squall
+      unknown phenomenon: unknown phenomenon
+      heavy freezing unknown phenomenon: heavy freezing unknown phenomenon
+      light freezing unknown phenomenon: light freezing unknown phenomenon
+      heavy shower of freezing unknown phenomenon: heavy shower of freezing unknown phenomenon
+      light shower of freezing unknown phenomenon: light shower of freezing unknown phenomenon
+      volcanic ash: volcanic ash
+      nearby volcanic ash: nearby volcanic ash
+      funnel cloud: funnel cloud
+      nearby funnel cloud: nearby funnel cloud
+      sand storm: sand storm
+      heavy sand storm: heavy sand storm
+      light sand storm: light sand storm
+      nearby sand storm: nearby sand storm
+      dust storm: dust storm
+      heavy dust storm: heavy dust storm
+      light dust storm: light dust storm
+      nearby dust storm: nearby dust storm
+      thunderstorm: thunderstorm
+      nearby thunderstorm: nearby thunderstorm
+      heavy thunderstorm and hail: heavy thunderstorm and hail
+      light thunderstorm and hail: light thunderstorm and hail
+      heavy thunderstorm and small hail: heavy thunderstorm and small hail
+      light thunderstorm and small hail: light thunderstorm and small hail
+      heavy thunderstorm and rain: heavy thunderstorm and rain
+      light thunderstorm and rain: light thunderstorm and rain
+      heavy thunderstorm and snow: heavy thunderstorm and snow
+      light thunderstorm and snow: light thunderstorm and snow
+      heavy thunderstorm and unknown phenomenon: heavy thunderstorm and unknown phenomenon
+      light thunderstorm and unknown phenomenon: light thunderstorm and unknown phenomenon
+      heavy unknown phenomenon: heavy unknown phenomenon
+      light unknown phenomenon: light unknown phenomenon

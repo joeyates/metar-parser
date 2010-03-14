@@ -1,5 +1,108 @@
 # encoding: utf8
 it:
+  date:
+    formats:
+      default: '%d/%m/%Y'
   comparison:
     more_than: piú di
     less_than: meno di
+  units:
+    pressure:
+      bar:
+        full: bar
+  metar:
+    altitude:
+      at: a
+    distance:
+      unknown: sconosciuto
+    sky_conditions:
+      broken: nuvolosità parziale
+      few: poche nuvole
+      scattered: nuvole sparse
+      overcast: chiuso
+    runway_visible_range:
+      runway: pista
+    weather:
+      mist: foschia
+      dust: polvere
+      blowing dust: polviscolo
+      low drifting dust: deriva bassa di polviscolo # ?
+      nearby blowing dust: deriva vicina di polviscolo # ?
+      heavy drizzle: pioggerellina fitta
+      light drizzle: pioggerellina rada
+      heavy freezing drizzle: pioggerellina ghiacciata pesante
+      light freezing drizzle: pioggerellina ghiacciata leggera
+      fog: nebbia
+      patches of fog: nebbia a banchi
+      freezing fog: nebbia ghiacciata
+      shallow fog: nebbia bassa
+      partial fog: nebbia parziale
+      nearby fog: nebbia vicina
+      smoke: fumo
+      hail: grandine
+      heavy shower of hail: grandinata intensa
+      light shower of hail: grandinata leggera
+      heavy shower of small hail: grandinata fine intensa
+      light shower of small hail: grandinata fine leggera
+      haze: foschia
+      ice crystals: cristalli di ghiaccio
+      heavy ice pellets: caduta intensa di cristalli di ghiaccio
+      light ice pellets: caduta leggera di cristalli di ghiaccio
+      dust whirls: vortici di polvere
+      nearby dust whirls: vortici di polvere vicini
+      spray: "spruzzi d'aqua"
+      rain: pioggia
+      heavy rain: pioggia pesante
+      light rain: pioggia leggera
+      heavy shower of rain: acquazzone intenso
+      light shower of rain: acquazzone leggero
+      heavy freezing rain: pioggia ghiacciata pesante
+      light freezing rain: pioggia ghiacciata leggera
+      sand: sabbia
+      blowing sand: sabbia e vento
+      low drifting sand: deriva bassa di sabbia
+      nearby blowing sand: deriva di sabbia vicina
+      nearby shower: acquazzone vicino
+      snow: neve
+      heavy snow: neve pesante
+      light snow: neve leggera
+      heavy shower of snow: nevicata pesante
+      light shower of snow: nevicata leggera
+      blowing snow: neve portata dal vento
+      low drifting snow: deriva di neve
+      nearby blowing snow: neve portata dal vento vicino
+      heavy snow grains: caudta intensa di granelli di neve
+      light snow grains: caduta leggera di granelli di neve 
+      snow and rain: neve mista a pioggia
+      squall: bufera
+      unknown phenomenon: fenomeno sconosciuto
+      heavy freezing unknown phenomenon: fenomeno ghiacciato sconosciuto pesante
+      light freezing unknown phenomenon: fenomeno ghiacciato sconosciuto leggero
+      heavy shower of freezing unknown phenomenon: scroscio pesante ghiacciata di fenomeno sconosciuto
+      light shower of freezing unknown phenomenon: scroscio leggero ghiacciata di fenomeno sconosciuto
+      volcanic ash: cenere volcanica
+      nearby volcanic ash: cenere volcanica vicina
+      funnel cloud: nube a imbuto
+      nearby funnel cloud: nube a imbuto vicina
+      sand storm: tempesta di sabbia
+      heavy sand storm: tempesta di sabbia pesante
+      light sand storm: tempesta di sabbia leggera
+      nearby sand storm: tempesta di sabbia vicina
+      dust storm: tempesta di polvere
+      heavy dust storm: tempesta di polvere pesante
+      light dust storm: tempesta di polvere leggera
+      nearby dust storm: tempesta di polvere vicina
+      thunderstorm: temporale
+      nearby thunderstorm: temporale vicino
+      heavy thunderstorm and hail: temporale con grandine intenso
+      light thunderstorm and hail: temporale con grandine leggero
+      heavy thunderstorm and small hail: temporale con grandine fine intenso
+      light thunderstorm and small hail: temporale con grandine fine leggero
+      heavy thunderstorm and rain: temporale con pioggia intensa
+      light thunderstorm and rain: temporale con pioggia leggera
+      heavy thunderstorm and snow: temporale con neve intensa
+      light thunderstorm and snow: temporale con neve leggera
+      heavy thunderstorm and unknown phenomenon: temporale con fenomeno sconosciuto intenso
+      light thunderstorm and unknown phenomenon: temporale con fenomeno sconosciuto leggero
+      heavy unknown phenomenon: fenomeno sconosciuto intenso
+      light unknown phenomenon: fenomeno sconosciuto leggero

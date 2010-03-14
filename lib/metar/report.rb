@@ -7,8 +7,52 @@ module Metar
       @parser = parser
     end
 
+    def date
+      I18n.l(@parser.date)
+    end
+
+    def time
+      "%u:%u" % [@parser.time.hour, @parser.time.min]
+    end
+
     def wind
       @parser.wind.to_s
+    end
+
+    def variable_wind
+      @parser.variable_wind.to_s
+    end
+
+    def visibility
+      @parser.visibility.to_s
+    end
+
+    def runway_visible_range
+      @parser.runway_visible_range.collect { |rvr| rvr.to_s }.join(', ')
+    end
+
+    def present_weather
+      @parser.present_weather.to_s
+    end
+
+    def sky_conditions
+      @parser.sky_conditions.collect { |sky| sky.to_s }.join(', ')
+    end
+
+    def vertical_visibility
+      @parser.vertical_visibility.to_s
+    end
+
+    def temperature
+      @parser.temperature.to_s
+    end
+
+    def dew_point
+      @parser.dew_point.to_s
+    end
+
+    def sea_level_pressure
+      @parser.sea_level_pressure.to_s
     end
 
   end
