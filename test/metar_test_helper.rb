@@ -11,4 +11,23 @@ Metar::Raw.instance_eval do
   end
 end
 
+# Don't load station data from files
+module Metar
+  class Station
+
+    class << self
+
+      def all_structures
+        [
+          { :cccc => 'LIRQ', :country => 'Italy', :latitude => '43-48N', :longitude => '011-12E', :name => 'Firenze / Peretola', :state => '' },
+          { :cccc => 'DAAS', :country => 'Algeria', :latitude => '36-11N',  :longitude => '005-25E', :name => 'Setif', :state => '' },
+          { :cccc => 'ESSB', :country => 'Sweden', :latitude => '59-21N', :longitude => '017-57E',:name => 'Stockholm / Bromma', :state => '' },
+          { :cccc => 'KPDX', :country => 'United States', :latitude => '45-35N', :longitude => '122-36W', :name => 'PORTLAND INTERNATIONAL  AIRPORT', :state => '' },
+          { :cccc => 'CYXS', :country => 'Canada', :latitude => '53-53N', :longitude => '122-41W', :name => 'Prince George, B. C.', :state => '' },
+        ]
+      end
+    end
+  end
+end
+
 require 'test/unit'
