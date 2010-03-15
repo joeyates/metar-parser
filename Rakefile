@@ -9,7 +9,6 @@ require 'metar'
 
 RDOC_OPTS = ['--quiet', '--title', 'METAR Weather Report Parser', '--main', 'README.rdoc', '--inline-source']
 RDOC_PATH = 'doc/rdoc'
-CLEAN.include RDOC_PATH
 
 task :default => :test
 
