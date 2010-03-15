@@ -18,10 +18,19 @@ class TestMetarRaw < Test::Unit::TestCase
     end
   end
 
-  def test_attributes
+  def test_cccc
     raw = Metar::Raw.new('LIRQ')
     assert_equal('LIRQ', raw.cccc)
+  end
+
+  def test_time
+    raw = Metar::Raw.new('LIRQ')
     assert_instance_of(Time, raw.time)
+    assert_equal(2010, raw.time.year)
+  end
+
+  def test_metar
+    raw = Metar::Raw.new('LIRQ')
     assert_instance_of(String, raw.metar)
   end
 
