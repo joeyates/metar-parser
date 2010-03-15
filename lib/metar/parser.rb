@@ -177,6 +177,8 @@ module Metar
       when @chunks[0] == 'COR'
         @chunks.shift
         @observer = :corrected
+      else
+        nil
       end
     end
 

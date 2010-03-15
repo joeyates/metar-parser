@@ -8,9 +8,17 @@ module Metar
   module VERSION #:nodoc:
     MAJOR = 0
     MINOR = 1
-    TINY = 2
+    TINY = 3
  
     STRING = [MAJOR, MINOR, TINY].join('.')
+  end
+
+  # Base class for all Metar exceptions
+  class MetarError < StandardError
+  end
+
+  # Raised when an unrecognized value is found
+  class ParseError < MetarError
   end
 
 end

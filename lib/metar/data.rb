@@ -76,6 +76,8 @@ module Metar
         hectopascals($1.to_f)
       when pressure =~ /^A(\d{4})$/
         inches_of_mercury($1.to_f / 100.0)
+      else
+        nil
       end
     end
 
@@ -226,6 +228,8 @@ module Metar
         visibility1 = Visibility.new(distance1, nil, comparator1)
         visibility2 = Visibility.new(distance2, nil, comparator2)
         new(designator, visibility1, visibility2, tendency)
+      else
+        nil
       end
     end
 
@@ -340,17 +344,22 @@ module Metar
       when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+)(CB|TCU|\/{3})?$/
         quantity = QUANTITY[$1]
         height = Distance.new($2.to_i * 30.0, { :units => :meters })
-        type = case $3
-               when nil
-                 nil
-               when 'CB'
-                 'cumulonimbus'
-               when 'TCU'
-                 'towering cumulus'
-               when '///'
-                 ''
-               end
+        type =
+          case $3
+          when 'CB'
+            'cumulonimbus'
+          when 'TCU'
+            'towering cumulus'
+          when nil
+            nil
+          when '///'
+            nil
+          else
+            raise ParseError.new("Unexpected sky condition type: #$3")
+          end
         new(quantity, height, type)
+      else
+        nil
       end
     end
 
@@ -378,6 +387,8 @@ module Metar
         Distance.new($1.to_f * 30.0, { :units => :meters })
       when vertical_visibility == '///'
         Distance.new
+      else
+        nil
       end
     end
 
