@@ -355,7 +355,7 @@ module Metar
           when '///'
             nil
           else
-            raise ParseError.new("Unexpected sky condition type: #$3")
+            raise MetarParserError.new("Unexpected sky condition type: #$3")
           end
         new(quantity, height, type)
       else
