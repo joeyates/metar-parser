@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
-$:.unshift('/home/joe/code/ruby/m9t/lib') ##### DO NOT COMMIT
 require File.dirname(__FILE__) + '/../metar_test_helper'
 
 class TestMetarParser < Test::Unit::TestCase
@@ -41,9 +41,17 @@ class TestMetarParser < Test::Unit::TestCase
   def test_runway_visible_range
     parser = setup_parser('ESSB', "2010/02/15 10:20\nESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 Q1013 1271//55")
     assert_equal(2, parser.runway_visible_range.length)
-    assert_equal(12, parser.runway_visible_range[0].number)
+    assert_equal('12', parser.runway_visible_range[0].designator)
     assert_equal(1000, parser.runway_visible_range[0].visibility1.distance.value)
     assert_equal(:no_change, parser.runway_visible_range[0].tendency)
+  end
+
+  def test_runway_visible_range_variable
+    parser = setup_parser('KPDX', "2010/02/15 11:08\nKPDX 151108Z 11006KT 1/4SM R10R/1600VP6000FT FG OVC002 05/05 A3022 RMK AO2")
+    assert_equal(1600.0, parser.runway_visible_range[0].visibility1.distance.to_feet)
+    assert_equal(:feet, parser.runway_visible_range[0].visibility1.distance.options[:units])
+    assert_equal(6000.0, parser.runway_visible_range[0].visibility2.distance.to_feet)
+    assert_equal(:feet, parser.runway_visible_range[0].visibility2.distance.options[:units])
   end
 
   def test_present_weather

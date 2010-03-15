@@ -15,13 +15,26 @@ it:
       at: a
     distance:
       unknown: sconosciuto
+    wind:
+      variable_direction: direzione variabile
+      unknown_direction: direzione sconosciuta
+      unknown_speed: velocità sconosciuta
     sky_conditions:
+      clear skies: cielo sereno
       broken: nuvolosità parziale
+      broken cumulonimbus: copertura parziale di cumulonembi
+      broken towering cumulus: copertura parziale di cumulonembi
       few: poche nuvole
+      broken cumulonimbus: pochi cumulonembi
+      broken towering cumulus: pochi cumulonembi
       scattered: nuvole sparse
+      scattered cumulonimbus: cumulonembi sparsi
+      scattered towering cumulus: cumulonembi sparsi
       overcast: chiuso
     runway_visible_range:
       runway: pista
+      from: da
+      to: a
     weather:
       mist: foschia
       dust: polvere
@@ -30,7 +43,7 @@ it:
       nearby blowing dust: deriva vicina di polviscolo # ?
       heavy drizzle: pioggerellina fitta
       light drizzle: pioggerellina rada
-      heavy freezing drizzle: pioggerellina ghiacciata pesante
+      heavy freezing drizzle: pioggerellina ghiacciata intensa
       light freezing drizzle: pioggerellina ghiacciata leggera
       fog: nebbia
       patches of fog: nebbia a banchi
@@ -52,11 +65,11 @@ it:
       nearby dust whirls: vortici di polvere vicini
       spray: "spruzzi d'aqua"
       rain: pioggia
-      heavy rain: pioggia pesante
+      heavy rain: pioggia intensa
       light rain: pioggia leggera
       heavy shower of rain: acquazzone intenso
       light shower of rain: acquazzone leggero
-      heavy freezing rain: pioggia ghiacciata pesante
+      heavy freezing rain: pioggia ghiacciata intensa
       light freezing rain: pioggia ghiacciata leggera
       sand: sabbia
       blowing sand: sabbia e vento
@@ -64,9 +77,9 @@ it:
       nearby blowing sand: deriva di sabbia vicina
       nearby shower: acquazzone vicino
       snow: neve
-      heavy snow: neve pesante
+      heavy snow: neve intensa
       light snow: neve leggera
-      heavy shower of snow: nevicata pesante
+      heavy shower of snow: nevicata intensa
       light shower of snow: nevicata leggera
       blowing snow: neve portata dal vento
       low drifting snow: deriva di neve
@@ -76,20 +89,20 @@ it:
       snow and rain: neve mista a pioggia
       squall: bufera
       unknown phenomenon: fenomeno sconosciuto
-      heavy freezing unknown phenomenon: fenomeno ghiacciato sconosciuto pesante
+      heavy freezing unknown phenomenon: fenomeno ghiacciato sconosciuto intenso
       light freezing unknown phenomenon: fenomeno ghiacciato sconosciuto leggero
-      heavy shower of freezing unknown phenomenon: scroscio pesante ghiacciata di fenomeno sconosciuto
+      heavy shower of freezing unknown phenomenon: scroscio intenso ghiacciata di fenomeno sconosciuto
       light shower of freezing unknown phenomenon: scroscio leggero ghiacciata di fenomeno sconosciuto
       volcanic ash: cenere volcanica
       nearby volcanic ash: cenere volcanica vicina
       funnel cloud: nube a imbuto
       nearby funnel cloud: nube a imbuto vicina
       sand storm: tempesta di sabbia
-      heavy sand storm: tempesta di sabbia pesante
+      heavy sand storm: tempesta di sabbia intensa
       light sand storm: tempesta di sabbia leggera
       nearby sand storm: tempesta di sabbia vicina
       dust storm: tempesta di polvere
-      heavy dust storm: tempesta di polvere pesante
+      heavy dust storm: tempesta di polvere intensa
       light dust storm: tempesta di polvere leggera
       nearby dust storm: tempesta di polvere vicina
       thunderstorm: temporale

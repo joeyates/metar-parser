@@ -18,7 +18,6 @@ stations.each_pair do |cccc, raw_text|
   report = nil
   begin
     report = Metar::Report.new(raw)
-    report.analyze
     $stdout.print '.'
   rescue => e
     $stderr.puts "#{ raw.metar }"

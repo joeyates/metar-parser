@@ -8,7 +8,8 @@ $:.unshift(File.dirname(__FILE__) + '/lib')
 require 'metar'
 
 RDOC_OPTS = ['--quiet', '--title', 'METAR Weather Report Parser', '--main', 'README.rdoc', '--inline-source']
-CLEAN.include 'doc'
+RDOC_PATH = 'doc/rdoc'
+CLEAN.include RDOC_PATH
 
 task :default => :test
 
@@ -26,7 +27,7 @@ spec = Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.add_dependency('aasm', '>= 2.1.5')
   s.add_dependency('i18n', '>= 0.3.5')
-  s.add_dependency('m9t', '>= 0.1.9')
+  s.add_dependency('m9t', '>= 0.1.11')
 
   s.has_rdoc = true
   s.rdoc_options += RDOC_OPTS
@@ -42,7 +43,7 @@ Rake::TestTask.new do |t|
 end
 
 Rake::RDocTask.new do |rdoc|
-  rdoc.rdoc_dir = 'doc/rdoc'
+  rdoc.rdoc_dir = RDOC_PATH
   rdoc.options += RDOC_OPTS
   rdoc.main = 'README.rdoc'
   rdoc.rdoc_files.add ['README.rdoc', 'COPYING', 'lib/**/*.rb']

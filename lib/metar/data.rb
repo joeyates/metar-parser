@@ -7,6 +7,28 @@ module Metar
   locales_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'locales'))
   I18n.load_path += Dir.glob("#{ locales_path }/*.yml")
 
+  # Subclasses M9t::Distance
+  # Uses kilometers as desired default output unit
+  class Distance < M9t::Distance
+
+    # nil is taken to mean 'data unavailable'
+    def initialize(meters = nil, options = {})
+      if meters
+        super(meters, { :units => :kilometers, :precision => 0, :abbreviated => true }.merge(options))
+      else
+        @value = nil
+      end
+    end
+
+    # Handles nil case differently to M9t::Distance
+    def to_s
+      return I18n.t('metar.distance.unknown') if @value.nil?
+      super
+    end
+
+  end
+
+  # Adds a parse method to the M9t base class
   class Speed < M9t::Speed
 
     METAR_UNITS = {
@@ -18,9 +40,10 @@ module Metar
     def Speed.parse(s)
       case
       when s =~ /^(\d+)(KT|MPS|KMH)$/
-        send(METAR_UNITS[$2], $1.to_i, {:units => METAR_UNITS[$2], :precision => 0})
+        # Call the appropriate factory method for the supplied units
+        send(METAR_UNITS[$2], $1.to_i, { :units => METAR_UNITS[$2], :precision => 0 })
       when s =~ /^(\d+)$/
-        kilometers_per_hour($1.to_i, {:units => :kilometers_per_hour, :precision => 0})
+        kilometers_per_hour($1.to_i, { :units => :kilometers_per_hour, :precision => 0 })
       else
         nil
       end
@@ -28,6 +51,7 @@ module Metar
 
   end
 
+  # Adds a parse method to the M9t base class
   class Temperature < M9t::Temperature
 
     def Temperature.parse(s)
@@ -43,20 +67,85 @@ module Metar
 
   end
 
-  class Distance < M9t::Distance
+  # Adds a parse method to the M9t base class
+  class Pressure < M9t::Pressure
 
-    # Set better defaults for METAR, and handle nil as a special case
-    def initialize(meters = nil, options = {})
-      if meters
-        super(meters, { :units => :kilometers, :precision => 0, :abbreviated => true }.merge(options))
-      else
-        @value = nil
+    def Pressure.parse(pressure)
+      case
+      when pressure =~ /^Q(\d{4})$/
+        hectopascals($1.to_f)
+      when pressure =~ /^A(\d{4})$/
+        inches_of_mercury($1.to_f / 100.0)
       end
     end
 
+  end
+
+  class Wind
+    
+    def Wind.parse(s)
+      case
+      when s =~ /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
+        new(M9t::Direction.new($1, { :abbreviated => true }), Speed.parse($2))
+      when s =~ /^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/
+        new(M9t::Direction.new($1, { :abbreviated => true }), Speed.parse($2))
+      when s =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
+        new(:variable_direction, Speed.parse($1))
+      when s =~ /^\/{3}(\d{2}(|MPS|KMH|KT))$/
+        new(:unknown_direction, Speed.parse($1))
+      when s =~ /^\/{3}(\/{2}(|MPS|KMH|KT))$/
+        new(:unknown_direction, :unknown)
+      else
+        nil
+      end
+    end
+
+    attr_reader :direction, :speed, :units
+
+    def initialize(direction, speed, units = :kilometers_per_hour)
+      @direction, @speed = direction, speed
+    end
+
     def to_s
-      return I18n.t('metar.distance.unknown') if @value.nil?
-      super
+      direction =
+        case @direction
+        when :variable_direction
+          I18n.t('metar.wind.variable_direction')
+        when :unknown_direction
+          I18n.t('metar.wind.unknown_direction')
+        else
+          @direction.to_s
+        end
+      speed =
+        case @speed
+        when :unknown
+          I18n.t('metar.wind.unknown_speed')
+        else
+          @speed.to_s
+        end  
+      "#{ direction }, #{ speed }"
+    end
+
+  end
+
+  class VariableWind
+
+    def VariableWind.parse(variable_wind)
+      if variable_wind =~ /^(\d+)V(\d+)$/
+        new(M9t::Direction.new($1), M9t::Direction.new($2))
+      else
+        nil
+      end
+    end
+
+    attr_reader :direction1, :direction2
+
+    def initialize(direction1, direction2)
+      @direction1, @direction2 = direction1, direction2
+    end
+
+    def to_s
+      "#{ @direction1 } - #{ @direction2 }"
     end
 
   end
@@ -111,79 +200,46 @@ module Metar
 
     TENDENCY   = { '' => nil, 'N' => :no_change, 'U' => :improving, 'D' => :worsening }
     COMPARATOR = { '' => nil, 'P' => :more_than, 'M' => :less_than }
+    UNITS      = { '' => :meters, 'FT' => :feet }
 
     def RunwayVisibleRange.parse(runway_visible_range)
       case
-      when runway_visible_range =~ /^R(\d+)\/(P|M|)(\d{4})(N|U|D)?$/
-        visibility = Visibility.new(Distance.new($3.to_f), nil, COMPARATOR[$2])
-        new($1.to_i, visibility, nil, TENDENCY[$4])
-      when runway_visible_range =~ /^R(\d+)\/(\d{4})V(\d{4})(N|U|D)?$/
-        maximum = Visibility.new(Distance.new($2.to_f))
-        minimum = Visibility.new(Distance.new($3.to_f))
-        new($1.to_i, maximum, minimum, TENDENCY[$4])
+      when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})(N|U|D|)(FT|)$/
+        designator = $1
+        comparator = COMPARATOR[$2]
+        count      = $3.to_f
+        tendency   = TENDENCY[$4]
+        units      = UNITS[$5]
+        distance   = Distance.send(units, count, { :units => units })
+        visibility = Visibility.new(distance, nil, comparator)
+        new(designator, visibility, nil, tendency)
+      when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(N|U|D)?(FT)?$/
+        designator  = $1
+        comparator1 = COMPARATOR[$2]
+        count1      = $3.to_f
+        comparator2 = COMPARATOR[$4]
+        count2      = $5.to_f
+        tendency    = TENDENCY[$6]
+        units       = UNITS[$7]
+        distance1   = Distance.send(units, count1, { :units => units })
+        distance2   = Distance.send(units, count2, { :units => units })
+        visibility1 = Visibility.new(distance1, nil, comparator1)
+        visibility2 = Visibility.new(distance2, nil, comparator2)
+        new(designator, visibility1, visibility2, tendency)
       end
     end
 
-    attr_reader :number, :visibility1, :visibility2, :tendency
-    def initialize(number, visibility1, visibility2, tendency = nil)
-      @number, @visibility1, @visibility2, @tendency = number, visibility1, visibility2, tendency
+    attr_reader :designator, :visibility1, :visibility2, :tendency
+    def initialize(designator, visibility1, visibility2 = nil, tendency = nil)
+      @designator, @visibility1, @visibility2, @tendency = designator, visibility1, visibility2, tendency
     end
 
     def to_s
-      # TODO: Handle variable visibility
-      I18n.t('metar.runway_visible_range.runway') + ' ' + number.to_s + ': ' + visibility1.to_s
-    end
-
-  end
-
-  class Wind
-
-    def Wind.parse(s)
-      case
-      when s =~ /^(\d{3})(\d{2}(KT|MPS|KMH|))$/
-        new(M9t::Direction.new($1, { :abbreviated => true }), Speed.parse($2))
-      when s =~ /^(\d{3})(\d{2})G(\d{2,3}(KT|MPS|KMH|))$/
-        new(M9t::Direction.new($1, { :abbreviated => true }), Speed.parse($2))
-      when s =~ /^VRB(\d{2}(KT|MPS|KMH|))$/
-        new('variable direction', Speed.parse($1))
-      when s =~ /^\/{3}(\d{2}(KT|MPS|KMH|))$/
-        new('unknown direction', Speed.parse($1))
-      when s =~ /^\/{3}(\/{2}(KT|MPS|KMH|))$/
-        new('unknown direction', 'unknown')
+      if @visibility2.nil?
+        I18n.t('metar.runway_visible_range.runway') + ' ' + @designator + ': ' + @visibility1.to_s
       else
-        nil
+        I18n.t('metar.runway_visible_range.runway') + ' ' + @designator + ': ' + I18n.t('metar.runway_visible_range.from') + ' ' + @visibility1.to_s + ' ' + I18n.t('metar.runway_visible_range.to') + ' ' + @visibility2.to_s
       end
-    end
-
-    attr_reader :direction, :speed, :units
-
-    def initialize(direction, speed, units = :kilometers_per_hour)
-      @direction, @speed = direction, speed
-    end
-
-    def to_s
-      "#{ @direction } #{ @speed }"
-    end
-
-  end
-
-  class VariableWind
-    def VariableWind.parse(variable_wind)
-      if variable_wind =~ /^(\d+)V(\d+)$/
-        new(M9t::Direction.new($1), M9t::Direction.new($2))
-      else
-        nil
-      end
-    end
-
-    attr_reader :direction1, :direction2
-
-    def initialize(direction1, direction2)
-      @direction1, @direction2 = direction1, direction2
-    end
-
-    def to_s
-      "#{ @direction1 } - #{ @direction2 }"
     end
 
   end
@@ -191,7 +247,7 @@ module Metar
   class WeatherPhenomenon
 
     Modifiers = {
-      '\+' => 'heavy',
+      '+' => 'heavy',
       '-'  => 'light',
       'VC' => 'nearby'
     }
@@ -240,10 +296,12 @@ module Metar
       'TSRA' => 'thunderstorm and unknown phenomenon', # => AUTO
     }
 
+    # Accepts all standard (and some non-standard) present weather codes
     def WeatherPhenomenon.parse(s)
       codes = Phenomena.keys.join('|')
       descriptors = Descriptors.keys.join('|')
       modifiers = Modifiers.keys.join('|')
+      modifiers.gsub!(/([\+\-])/) { "\\#$1" }
       rxp = Regexp.new("^(#{ modifiers })?(#{ descriptors })?(#{ codes })$")
       if rxp.match(s)
         modifier_code = $1
@@ -303,7 +361,7 @@ module Metar
 
     def to_s
       if @quantity == nil and @height == nil and @type == nil
-        'Clear skies'
+        I18n.t('metar.sky_conditions.clear skies')
       else
         type = @type ? ' ' + @type : ''
         I18n.t("metar.sky_conditions.#{ @quantity }#{ type }") + ' ' + I18n.t('metar.altitude.at') + ' ' + height.to_s
@@ -321,53 +379,6 @@ module Metar
       when vertical_visibility == '///'
         Distance.new
       end
-    end
-
-  end
-
-  class Pressure
-    DEFAULT_OPTIONS  = {:units => :bar, :abbreviated => false, :precision => 5}
-    KNOWN_UNITS      = [:bar, :pascals, :hectopascals, :kilopascals, :inches_of_mercury]
-
-    # Conversions
-    PASCAL          = 0.00001
-    HECTOPASCAL     = 100.0 * PASCAL
-    KILOPASCAL      = 1000.0 * PASCAL
-    INCH_OF_MERCURY = 3386.389 * PASCAL
-
-    include M9t::Base
-
-    def Pressure.hectopascals(hectopascals)
-      new(hectopascals * HECTOPASCAL)
-    end
-
-    def Pressure.inches_of_mercury(inches_of_mercury)
-      new(inches_of_mercury * INCH_OF_MERCURY)
-    end
-
-    def Pressure.to_inches_of_mercury(bar)
-      bar / INCH_OF_MERCURY
-    end
-
-    def Pressure.to_bar(bar)
-      bar.to_f
-    end
-
-    def Pressure.parse(pressure)
-      case
-      when pressure =~ /^Q(\d{4})$/
-        hectopascals($1.to_f)
-      when pressure =~ /^A(\d{4})$/
-        inches_of_mercury($1.to_f / 100.0)
-      end
-    end
-
-    def to_inches_of_mercury
-      Pressure.to_inches_of_mercury(@value)
-    end
-
-    def to_bar
-      Pressure.to_bar(@value)
     end
 
   end

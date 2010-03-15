@@ -15,13 +15,26 @@ en:
       at: at
     distance:
       unknown: unknown
+    wind:
+      variable_direction: variable direction
+      unknown_direction: unknown direction
+      unknown_speed: unknown speed
     sky_conditions:
+      clear skies: clear skies
       broken: broken cloud
+      broken cumulonimbus: broken cumulonimbus
+      broken towering cumulus: broken towering cumulus clouds
       few: few clouds
+      few cumulonimbus: few cumulonimbus
+      few towering cumulus: few towering cumulus clouds
       scattered: scattered cloud
+      scattered cumulonimbus: scattered cumulonimbus
+      scattered towering cumulus: scattered towering cumulus clouds
       overcast: overcast
     runway_visible_range:
       runway: runway
+      from: from
+      to: to
     weather:
       mist: mist
       dust: dust

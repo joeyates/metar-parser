@@ -37,7 +37,12 @@ class TestMetarReport < Test::Unit::TestCase
 
   def test_runway_visible_range
     report = setup_report('ESSB', "2010/02/15 10:20\nESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 Q1013 1271//55")
-    assert_equal('runway 12: 1km, runway 30: 2km', report.runway_visible_range)
+    assert_equal('runway 12: 1000m, runway 30: 1500m', report.runway_visible_range)
+  end
+
+  def test_runway_visible_range_variable
+    report = setup_report('KPDX', "2010/02/15 11:08\nKPDX 151108Z 11006KT 1/4SM R10R/1600VP6000FT FG OVC002 05/05 A3022 RMK AO2")
+    assert_equal('runway 10R: from 1600ft to more than 6000ft', report.runway_visible_range)
   end
 
   def test_present_weather
