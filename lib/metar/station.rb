@@ -23,7 +23,7 @@ module Metar
       end
 
       # Load local copy of the station list
-      # and download it first if  missing
+      # and download it first if missing
       def load_local
         download_local if not File.exist?(Metar::Station.local_nsd_path)
         @nsd_cccc = File.open(Metar::Station.local_nsd_path) do |fil|
@@ -39,13 +39,13 @@ module Metar
         end
       end
 
-      def find_by_cccc(cccc)
-        all.find { |station| station.cccc == cccc }
-      end
-      
       # Does the given CCCC code exist?
       def exist?(cccc)
         not find_data_by_cccc(cccc).nil?
+      end
+
+      def find_by_cccc(cccc)
+        all.find { |station| station.cccc == cccc }
       end
 
       def to_longitude(s)
