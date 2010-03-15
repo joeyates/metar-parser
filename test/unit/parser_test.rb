@@ -15,9 +15,20 @@ class TestMetarParser < Test::Unit::TestCase
     end
   end
 
+  def test_time_obligatory
+    assert_raise(Metar::ParseError) {
+      setup_parser('PAIL', "2010/02/06 16:10\nPAIL 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
+    }
+  end
+
   def test_date
     parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
     assert_equal(Date.new(2010, 2, 6), parser.date)
+  end
+
+  def test_observer_real
+    parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+    assert_equal(:real, parser.observer)
   end
 
   def test_wind
@@ -75,6 +86,12 @@ class TestMetarParser < Test::Unit::TestCase
     assert_equal(30, parser.vertical_visibility.value)
   end
 
+  def test_temperature_obligatory
+    assert_raise(Metar::ParseError) {
+      setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 A2910 RMK AO2 P0000")
+    }
+  end
+
   def test_temperature
     parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
     assert_equal(-17, parser.temperature.value)
@@ -89,6 +106,14 @@ class TestMetarParser < Test::Unit::TestCase
     parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
     assert_equal(29.10, parser.sea_level_pressure.to_inches_of_mercury)
     assert_equal(:bar, parser.sea_level_pressure.options[:units])
+  end
+
+  def test_remarks
+    parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+    assert_instance_of(Array, parser.remarks)
+    assert_equal(2, parser.remarks.length)
+    assert_equal('AO2', parser.remarks[0])
+    assert_equal('P0000', parser.remarks[1])
   end
 
   private

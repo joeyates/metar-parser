@@ -18,7 +18,7 @@ module Metar
   end
 
   # Raised when an unrecognized value is found
-  class MetarParserError < MetarError
+  class ParseError < MetarError
   end
 
 end

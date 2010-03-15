@@ -4,9 +4,6 @@ require File.join(File.dirname(__FILE__), 'data')
 
 module Metar
 
-  class ParseError < StandardError
-  end
-
   class Parser
     include AASM
 

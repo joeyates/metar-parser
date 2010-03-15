@@ -36,6 +36,7 @@ en:
       from: from
       to: to
     weather:
+      not observed: not observed
       mist: mist
       dust: dust
       blowing dust: blowing dust

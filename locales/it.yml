@@ -36,6 +36,7 @@ it:
       from: da
       to: a
     weather:
+      not observed: non osservato
       mist: foschia
       dust: polvere
       blowing dust: polviscolo
