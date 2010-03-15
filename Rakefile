@@ -14,8 +14,8 @@ task :default => :test
 
 spec = Gem::Specification.new do |s|
   s.name        = 'metar-parser'
-  s.summary     = 'Downloads and parses weather reports'
-  s.description = 'Downloads, parses and presents METAR weather reports'
+  s.summary     = 'A Ruby library for METAR weather reports'
+  s.description = 'A Ruby library which handle METAR weather reports. Provides weather station listings and info. Downloads and parses reports. Presents localized full text reports'
   s.version     = Metar::VERSION::STRING
 
   s.homepage = 'http://github.com/joeyates/metar-parser'
@@ -26,7 +26,7 @@ spec = Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.add_dependency('aasm', '>= 2.1.5')
   s.add_dependency('i18n', '>= 0.3.5')
-  s.add_dependency('m9t', '>= 0.1.11')
+  s.add_dependency('m9t', '>= 0.1.12')
 
   s.has_rdoc = true
   s.rdoc_options += RDOC_OPTS
