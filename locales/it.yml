@@ -11,15 +11,37 @@ it:
       bar:
         full: bar
   metar:
+    station_code:
+      title: codice stazione
+    station_name:
+      title: nome
+    station_country:
+      title: nazione
+    time:
+      title: ora
+    observer:
+      title: osservatore
+      real: reale
+      auto: automazzato
+      corrected: corretto
     altitude:
       at: a
     distance:
+      title: distanza
       unknown: sconosciuto
     wind:
+      title: vento
       variable_direction: direzione variabile
       unknown_direction: direzione sconosciuta
       unknown_speed: velocità sconosciuta
+    variable_wind:
+      title: variazione del vento
+    visibility:
+      title: visibilità
+    sky_summary:
+      title: cielo
     sky_conditions:
+      title: condizioni del cielo
       clear skies: cielo sereno
       broken: nuvolosità parziale
       broken cumulonimbus: copertura parziale di cumulonembi
@@ -32,10 +54,12 @@ it:
       scattered towering cumulus: cumulonembi sparsi
       overcast: chiuso
     runway_visible_range:
+      title: visibilità sulle piste
       runway: pista
       from: da
       to: a
-    weather:
+    present_weather:
+      title: tempo
       not observed: non osservato
       mist: foschia
       dust: polvere
@@ -120,3 +144,9 @@ it:
       light thunderstorm and unknown phenomenon: temporale con fenomeno sconosciuto leggero
       heavy unknown phenomenon: fenomeno sconosciuto intenso
       light unknown phenomenon: fenomeno sconosciuto leggero
+    temperature:
+      title: temperatura
+    dew_point:
+      title: punto di rugiada
+    remarks:
+      title: annotazioni

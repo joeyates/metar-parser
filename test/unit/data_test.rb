@@ -43,26 +43,31 @@ class TestMetarData < Test::Unit::TestCase
     assert_not_nil(Metar::Speed.options)
   end
 
-  def test_speed_parse_default_unit
+  def test_speed_parse_without_units
     speed = Metar::Speed.parse('12')
     assert_equal(12, speed.to_kilometers_per_hour)
-    assert_equal(:kilometers_per_hour, speed.options[:units])
   end
 
   def test_speed_parse_kilometers_per_hour
     speed = Metar::Speed.parse('12KMH')
     assert_equal(12, speed.to_kilometers_per_hour)
-    assert_equal(:kilometers_per_hour, speed.options[:units])
   end
 
   def test_speed_parse_knots
     speed = Metar::Speed.parse('12KT')
-    assert_equal(:knots, speed.options[:units])
+    assert_equal(12.0, speed.to_knots)
+    assert_equal(:kilometers_per_hour, speed.options[:units])
   end
 
-  def test_speed_parse_meters_per_second
+  def test_speed_parse_kilometers_per_hour_is_default
+    speed = Metar::Speed.parse('12')
+    assert_equal(:kilometers_per_hour, speed.options[:units])
     speed = Metar::Speed.parse('12MPS')
-    assert_equal(:meters_per_second, speed.options[:units])
+    assert_equal(:kilometers_per_hour, speed.options[:units])
+    speed = Metar::Speed.parse('12KMH')
+    assert_equal(:kilometers_per_hour, speed.options[:units])
+    speed = Metar::Speed.parse('12KT')
+    assert_equal(:kilometers_per_hour, speed.options[:units])
   end
 
   # Temperature
@@ -104,55 +109,65 @@ class TestMetarData < Test::Unit::TestCase
   end
 
   # Wind
-  def test_wind_parse_default_units
+  def test_wind_parse_without_units
     wind = Metar::Wind.parse('18012')
     assert_equal(180, wind.direction.value)
     assert_equal(12.0, wind.speed.to_kilometers_per_hour)
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
   end
 
   def test_wind_parse_mps
     wind = Metar::Wind.parse('18012MPS')
     assert_equal(180, wind.direction.value)
     assert_equal(12.0, wind.speed.value)
-    assert_equal(:meters_per_second, wind.speed.options[:units])
   end
 
   def test_wind_parse_kmh
     wind = Metar::Wind.parse('27012KMH')
     assert_equal(270, wind.direction.value)
     assert_equal(12.0, wind.speed.to_kilometers_per_hour)
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
   end
 
   def test_wind_parse_knots
     wind = Metar::Wind.parse('24006KT')
     assert_equal(240, wind.direction.value)
     assert_equal(6, wind.speed.to_knots)
-    assert_equal(:knots, wind.speed.options[:units])
+    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
   end
 
   def test_wind_parse_variable_direction
     wind = Metar::Wind.parse('VRB20KT')
     assert_equal(:variable_direction, wind.direction)
     assert_equal(20, wind.speed.to_knots)
-    assert_equal(:knots, wind.speed.options[:units])
-    assert_equal('variable direction, 20 knots', wind.to_s)
+    assert_equal('37km/h variable direction', wind.to_s)
   end
 
   def test_wind_parse_unknown_direction
     wind = Metar::Wind.parse('///20KT')
     assert_equal(:unknown_direction, wind.direction)
     assert_equal(20, wind.speed.to_knots)
-    assert_equal(:knots, wind.speed.options[:units])
-    assert_equal('unknown direction, 20 knots', wind.to_s)
+    assert_equal('37km/h unknown direction', wind.to_s)
   end
 
   def test_wind_parse_unknown_direction_and_speed
     wind = Metar::Wind.parse('/////')
     assert_equal(:unknown_direction, wind.direction)
     assert_equal(:unknown, wind.speed)
-    assert_equal('unknown direction, unknown speed', wind.to_s)
+    assert_equal('unknown speed unknown direction', wind.to_s)
+  end
+
+  def test_wind_parse_default_output_units_kilometers_per_hour
+    wind = Metar::Wind.parse('18012')
+    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    wind = Metar::Wind.parse('18012MPS')
+    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    wind = Metar::Wind.parse('27012KMH')
+    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    wind = Metar::Wind.parse('24006KT')
+    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    wind = Metar::Wind.parse('VRB20KT')
+    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    wind = Metar::Wind.parse('///20KT')
+    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
   end
 
   # VariableWind

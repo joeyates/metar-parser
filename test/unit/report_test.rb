@@ -5,7 +5,11 @@ require File.dirname(__FILE__) + '/../metar_test_helper'
 
 class TestMetarReport < Test::Unit::TestCase
   def setup
-    I18n.locale = :en
+  end
+
+  def test_name
+    report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
+    assert_equal('Firenze / Peretola', report.station_name)
   end
 
   def test_date
@@ -20,13 +24,12 @@ class TestMetarReport < Test::Unit::TestCase
 
   def test_wind_knots
     report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
-    assert_equal('10°, 7 knots', report.wind)
-    I18n.locale = :it
-    assert_equal('10°, 7 nodi', report.wind)
+    assert_equal('13km/h N', report.wind)
   end
 
   def test_variable_wind
     report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
+    I18n.locale = :en
     assert_equal('350 degrees - 50 degrees', report.variable_wind)
   end
 
@@ -37,11 +40,15 @@ class TestMetarReport < Test::Unit::TestCase
 
   def test_runway_visible_range
     report = setup_report('ESSB', "2010/02/15 10:20\nESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 Q1013 1271//55")
+    I18n.locale = :en
     assert_equal('runway 12: 1000m, runway 30: 1500m', report.runway_visible_range)
+    I18n.locale = :it
+    assert_equal('pista 12: 1000m, pista 30: 1500m', report.runway_visible_range)
   end
 
   def test_runway_visible_range_variable
     report = setup_report('KPDX', "2010/02/15 11:08\nKPDX 151108Z 11006KT 1/4SM R10R/1600VP6000FT FG OVC002 05/05 A3022 RMK AO2")
+    I18n.locale = :en
     assert_equal('runway 10R: from 1600ft to more than 6000ft', report.runway_visible_range)
   end
 
@@ -78,6 +85,13 @@ class TestMetarReport < Test::Unit::TestCase
   def test_sea_level_pressure
     report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
     assert_equal('1.00500 bar', report.sea_level_pressure)
+  end
+
+  def test_to_s
+    report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
+    Metar::Report.attributes -= [:station_code, :variable_wind, :observer, :remarks]
+    I18n.locale = :en
+    assert_equal("name: Firenze / Peretola\ncountry: Italy\ntime: 15:20\nwind: 13km/h N\nvisibility: more than 10km\nsky: broken cloud\ntemperature: 8°C", report.to_s)
   end
 
   private

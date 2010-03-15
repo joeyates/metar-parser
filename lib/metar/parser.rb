@@ -92,33 +92,13 @@ module Metar
       parser
     end
 
-    attr_reader :station_code, :time, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
+    attr_reader :station_code, :observer, :time, :wind, :variable_wind, :visibility, :runway_visible_range,
        :present_weather, :sky_conditions, :vertical_visibility, :temperature, :dew_point, :sea_level_pressure, :remarks
 
     def initialize(raw)
       @metar                = raw.metar.clone
       @time                 = raw.time.clone
       analyze
-    end
-
-    def attributes
-      h = {
-        :station_code => @location.clone,
-        :time         => @time.to_s,
-        :observer     => Report.symbol_to_s(@observer)
-      }
-      h[:wind]                 = @wind                 if @wind
-      h[:variable_wind]        = @variable_wind.clone  if @variable_wind
-      h[:visibility]           = @visibility           if @visibility
-      h[:runway_visible_range] = @runway_visible_range if @runway_visible_range
-      h[:present_weather]      = @present_weather      if @present_weather
-      h[:sky_conditions]       = @sky_conditions       if @sky_conditions
-      h[:vertical_visibility]  = @vertical_visibility  if @vertical_visibility
-      h[:temperature]          = @temperature
-      h[:dew_point]            = @dew_point
-      h[:sea_level_pressure]   = @sea_level_pressure
-      h[:remarks]              = @remarks.clone        if @remarks
-      h
     end
 
     def date
@@ -130,26 +110,26 @@ module Metar
     def analyze
       @chunks = @metar.split(' ')
 
-      @location             = nil
+      @station_code         = nil
       @observer             = :real
       @wind                 = nil
       @variable_wind        = nil
       @visibility           = nil
-      @runway_visible_range = nil
-      @present_weather      = nil
-      @sky_conditions       = nil
+      @runway_visible_range = []
+      @present_weather      = []
+      @sky_conditions       = []
       @vertical_visibility  = nil
       @temperature          = nil
       @dew_point            = nil
       @sea_level_pressure   = nil
-      @remarks              = nil
+      @remarks              = []
 
       aasm_enter_initial_state
     end
 
     def seek_location
       if @chunks[0] =~ /^[A-Z][A-Z0-9]{3}$/
-        @location = @chunks.shift
+        @station_code = @chunks.shift
       else
         raise ParseError.new("Expecting location, found '#{ @chunks[0] }'")
       end
@@ -201,18 +181,15 @@ module Metar
       if @chunks[0] == 'CAVOK'
         @chunks.shift
         @visibility = Visibility.new(M9t::Distance.kilometers(10), nil, :more_than)
-        @present_weather ||= []
         @present_weather << Metar::WeatherPhenomenon.new('No significant weather')
-        @sky_conditions ||= []
-        @sky_conditions << 'No significant cloud' # TODO: What does NSC stand for?
+        @sky_conditions << SkyCondition.new # = 'clear skies'
         cavok!
         return
       end
 
       if @observer == :auto # WMO 15.4
         if @chunks[0] == '////'
-          @chunks.shift
-          @visibility = Visibility.new('Not observed')
+          @chunks.shift # Simply dispose of it
           visibility!
           return
         end
@@ -239,7 +216,6 @@ module Metar
       runway_visible_range = RunwayVisibleRange.parse(@chunks[0])
       if runway_visible_range
         @chunks.shift
-        @runway_visible_range ||= []
         @runway_visible_range << runway_visible_range
         collect_runway_visible_range
       end
@@ -254,7 +230,6 @@ module Metar
       wtp = WeatherPhenomenon.parse(@chunks[0])
       if wtp
         @chunks.shift
-        @present_weather ||= []
         @present_weather << wtp
         collect_present_weather
       end
@@ -263,7 +238,7 @@ module Metar
     def seek_present_weather
       if @observer == :auto
         if @chunks[0] == '//' # WMO 15.4
-          @present_weather ||= []
+          @chunks.shift # Simply dispose of it
           @present_weather << Metar::WeatherPhenomenon.new('not observed')
           present_weather!
           return
@@ -278,7 +253,6 @@ module Metar
       sky_condition = SkyCondition.parse(@chunks[0])
       if sky_condition
         @chunks.shift
-        @sky_conditions ||= []
         @sky_conditions << sky_condition
         collect_sky_conditions
       end
@@ -287,9 +261,7 @@ module Metar
     def seek_sky_conditions
       if @observer == :auto # WMO 15.4
         if @chunks[0] == '///' or @chunks[0] == '//////'
-          @chunks.shift
-          @sky_conditions ||= []
-          @sky_conditions << 'Not observed'
+          @chunks.shift # Simply dispose of it
           sky_conditions!
           return
         end
@@ -333,7 +305,6 @@ module Metar
       if @chunks[0] == 'RMK'
         @chunks.shift
       end
-      @remarks ||= []
       @remarks += @chunks.clone
       @chunks = []
       remarks!

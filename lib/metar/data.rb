@@ -41,9 +41,9 @@ module Metar
       case
       when s =~ /^(\d+)(KT|MPS|KMH)$/
         # Call the appropriate factory method for the supplied units
-        send(METAR_UNITS[$2], $1.to_i, { :units => METAR_UNITS[$2], :precision => 0 })
+        send(METAR_UNITS[$2], $1.to_i, { :units => :kilometers_per_hour, :precision => 0, :abbreviated => true })
       when s =~ /^(\d+)$/
-        kilometers_per_hour($1.to_i, { :units => :kilometers_per_hour, :precision => 0 })
+        kilometers_per_hour($1.to_i, { :units => :kilometers_per_hour, :precision => 0, :abbreviated => true })
       else
         nil
       end
@@ -88,9 +88,9 @@ module Metar
     def Wind.parse(s)
       case
       when s =~ /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
-        new(M9t::Direction.new($1, { :abbreviated => true }), Speed.parse($2))
+        new(M9t::Direction.new($1, { :units => :compass, :abbreviated => true }), Speed.parse($2))
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/
-        new(M9t::Direction.new($1, { :abbreviated => true }), Speed.parse($2))
+        new(M9t::Direction.new($1, { :units => :compass, :abbreviated => true }), Speed.parse($2))
       when s =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
         new(:variable_direction, Speed.parse($1))
       when s =~ /^\/{3}(\d{2}(|MPS|KMH|KT))$/
@@ -125,7 +125,7 @@ module Metar
         else
           @speed.to_s
         end  
-      "#{ direction }, #{ speed }"
+      "#{ speed } #{ direction }"
     end
 
   end
@@ -325,7 +325,7 @@ module Metar
     def to_s
       modifier = @modifier ? @modifier + ' ' : ''
       descriptor = @descriptor ? @descriptor + ' ' : ''
-      I18n.t("metar.weather.%s%s%s" % [modifier, descriptor, @phenomenon])
+      I18n.t("metar.present_weather.%s%s%s" % [modifier, descriptor, @phenomenon])
     end
 
   end
@@ -333,6 +333,7 @@ module Metar
   class SkyCondition
 
     QUANTITY = {'BKN' => 'broken', 'FEW' => 'few', 'OVC' => 'overcast', 'SCT' => 'scattered'}
+
     def SkyCondition.parse(sky_condition)
       case
       when (sky_condition == 'NSC' or sky_condition == 'NCD') # WMO
@@ -369,11 +370,17 @@ module Metar
     end
 
     def to_s
+      conditions = to_summary
+      conditions += ' ' + I18n.t('metar.altitude.at') + ' ' + height.to_s if not @height.nil?
+      conditions
+    end
+
+    def to_summary
       if @quantity == nil and @height == nil and @type == nil
         I18n.t('metar.sky_conditions.clear skies')
       else
         type = @type ? ' ' + @type : ''
-        I18n.t("metar.sky_conditions.#{ @quantity }#{ type }") + ' ' + I18n.t('metar.altitude.at') + ' ' + height.to_s
+        I18n.t("metar.sky_conditions.#{ @quantity }#{ type }")
       end
     end
 

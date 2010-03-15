@@ -1,10 +1,63 @@
 # encoding: utf-8
 
 module Metar
+
   class Report
+
+    KNOWN_ATTRIBUTES =
+      [
+       :station_code, :station_name, :station_country,
+       :date, :time, :observer,
+       :wind, :variable_wind,
+       :visibility, :runway_visible_range,
+       :present_weather,
+       :sky_summary, :sky_conditions,
+       :temperature, :dew_point, :remarks
+      ]
+
+    DEFAULT_ATTRIBUTES =
+      [
+       :station_name, :station_country,
+       :time,
+       :wind,
+       :visibility,
+       :present_weather,
+       :sky_summary,
+       :temperature
+      ]
+
+    instance_eval do
+
+      def reset_options!
+        @attributes = DEFAULT_ATTRIBUTES.clone
+      end
+
+      def attributes
+        @attributes
+      end
+
+      def attributes=(attributes)
+        @attributes = attributes.clone
+      end
+
+      reset_options!
+    end
 
     def initialize(parser)
       @parser = parser
+      @station = Station.find_by_cccc(@parser.station_code)
+    end
+
+    def station_name
+      @station.name
+    end
+
+    def station_country
+      @station.country
+    end
+
+    def station_code
+      @parser.station_code
     end
 
     def date
@@ -13,6 +66,10 @@ module Metar
 
     def time
       "%u:%u" % [@parser.time.hour, @parser.time.min]
+    end
+
+    def observer
+      I18n.t('metar.observer.' + @parser.observer.to_s)
     end
 
     def wind
@@ -35,6 +92,11 @@ module Metar
       @parser.present_weather.to_s
     end
 
+    def sky_summary
+      return I18n.t('metar.sky_conditions.clear skies') if @parser.sky_conditions.length == 0
+      @parser.sky_conditions[-1].to_summary
+    end
+
     def sky_conditions
       @parser.sky_conditions.collect { |sky| sky.to_s }.join(', ')
     end
@@ -55,41 +117,24 @@ module Metar
       @parser.sea_level_pressure.to_s
     end
 
-  end
-end
-
-__END__
-
-
-    def attributes_to_s
-      attrib = attributes
-      texts = {}
-      texts[:wind]                 = attrib[:wind]                            if attrib[:wind]
-      texts[:variable_wind]        = attrib[:variable_wind]                   if attrib[:variable_wind]
-      texts[:visibility]           = "%u meters" % attrib[:visibility].value  if attrib[:visibility]
-      texts[:runway_visible_range] = attrib[:runway_visible_range].join(', ') if attrib[:runway_visible_range]
-      texts[:present_weather]      = attrib[:present_weather].join(', ')      if attrib[:present_weather]
-      texts[:sky_conditions]       = attrib[:sky_conditions].join(', ')       if attrib[:sky_conditions]
-      texts[:temperature]          = "%u celcius" % attrib[:temperature]      if attrib[:temperature]
-      texts[:dew_point]            = "%u celcius" % attrib[:dew_point]        if attrib[:dew_point]
-      texts[:remarks]              = attrib[:remarks].join(', ')              if attrib[:remarks]
-
-      texts
+    def remarks
+      @parser.remarks.join(', ')
+    end
+    
+    def attributes
+      Metar::Report.attributes.reduce([]) do |memo, key|
+        value = self.send(key).to_s
+        memo << {:attribute => key, :value => value} if not value.empty?
+        memo
+      end
     end
 
     def to_s
-      # If attributes supplied an ordered hash, the hoop-jumping below
-      # wouldn't be necessary
-      attr = attributes_to_s
-      [:station_code, :time, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
-       :present_weather, :sky_conditions, :temperature, :dew_point, :remarks].collect do |key|
-        attr[key] ? self.symbol_to_s(key) + ": " + attr[key] : nil
-      end.compact.join("\n")
+      attributes.collect do |attribute|
+        I18n.t('metar.' + attribute[:attribute].to_s + '.title') + ': ' + attribute[:value]
+      end.join("\n")
     end
 
-    private
+  end
 
-    # :symbol_etc => 'Symbol etc'
-    def self.symbol_to_s(sym)
-      sym.to_s.gsub(/^([a-z])/) {$1.upcase}.gsub(/_([a-z])/) {" #$1"}
-    end
+end

@@ -85,9 +85,4 @@ class TestStation < Test::Unit::TestCase
     assert_equal station.longitude.to_s, station.longitude.to_f.to_s
   end
 
-  def test_raw
-    station = Metar::Station.new('LIRQ')
-    assert_not_nil station.raw
-  end
-
 end

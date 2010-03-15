@@ -57,6 +57,11 @@ class TestMetarParser < Test::Unit::TestCase
     assert_equal(:no_change, parser.runway_visible_range[0].tendency)
   end
 
+  def test_runway_visible_range_defaults_to_empty_array
+    parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+    assert_equal(0, parser.runway_visible_range.length)
+  end
+
   def test_runway_visible_range_variable
     parser = setup_parser('KPDX', "2010/02/15 11:08\nKPDX 151108Z 11006KT 1/4SM R10R/1600VP6000FT FG OVC002 05/05 A3022 RMK AO2")
     assert_equal(1600.0, parser.runway_visible_range[0].visibility1.distance.to_feet)
@@ -72,6 +77,11 @@ class TestMetarParser < Test::Unit::TestCase
     assert_equal('snow', parser.present_weather[0].phenomenon)
   end
 
+  def test_present_weather_defaults_to_empty_array
+    parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+    assert_equal(0, parser.present_weather.length)
+  end
+
   def test_sky_conditions
     parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
     assert_equal(2, parser.sky_conditions.length)
@@ -79,6 +89,11 @@ class TestMetarParser < Test::Unit::TestCase
     assert_equal(480, parser.sky_conditions[0].height.value)
     assert_equal('overcast', parser.sky_conditions[1].quantity)
     assert_equal(900, parser.sky_conditions[1].height.value)
+  end
+
+  def test_sky_conditions_defaults_to_empty_array
+    parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN M17/M20 A2910 RMK AO2 P0000")
+    assert_equal(0, parser.sky_conditions.length)
   end
 
   def test_vertical_visibility
@@ -114,6 +129,12 @@ class TestMetarParser < Test::Unit::TestCase
     assert_equal(2, parser.remarks.length)
     assert_equal('AO2', parser.remarks[0])
     assert_equal('P0000', parser.remarks[1])
+  end
+
+  def test_remarks_defaults_to_empty_array
+    parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910")
+    assert_instance_of(Array, parser.remarks)
+    assert_equal(0, parser.remarks.length)
   end
 
   private
