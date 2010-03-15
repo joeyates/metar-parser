@@ -20,9 +20,9 @@ class TestMetarReport < Test::Unit::TestCase
 
   def test_wind_knots
     report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
-    assert_equal('10° 7 knots', report.wind)
+    assert_equal('10°, 7 knots', report.wind)
     I18n.locale = :it
-    assert_equal('10° 7 nodi', report.wind)
+    assert_equal('10°, 7 nodi', report.wind)
   end
 
   def test_variable_wind
