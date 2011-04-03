@@ -27,7 +27,7 @@ end
 
 desc "Build the gem"
 task :build do
-  system "gem build .gemspec"
+  system "gem build metar-parser.gemspec"
 end
 
 desc "Publish a new version of the gem"
