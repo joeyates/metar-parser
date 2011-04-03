@@ -10,7 +10,10 @@ class TestMetarData < Test::Unit::TestCase
   end
 
   def test_m9t_translations_available
-    assert_equal('10 kilometers', M9t::Distance.new(10000, {:units => :kilometers, :precision => 0}).to_s)
+    distance = M9t::Distance.new( 10000 )
+
+    assert_equal( '10 kilometers', distance.to_s( :units     => :kilometers,
+                                                  :precision => 0 ) )
   end
 
   # Distance
@@ -25,12 +28,12 @@ class TestMetarData < Test::Unit::TestCase
   def test_distance_with_default_options
     distance = Metar::Distance.new(123)
     assert_equal(123, distance.value)
-    assert_equal(:kilometers, distance.options[:units])
   end
 
   def test_distance_setting_options
-    distance = Metar::Distance.new(123, { :units => :feet })
-    assert_equal('404ft', distance.to_s)
+    distance = Metar::Distance.new( 123 )
+
+    assert_equal('404ft', distance.to_s( :units => :feet ) )
   end
 
   # Speed
@@ -55,19 +58,22 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_speed_parse_knots
     speed = Metar::Speed.parse('12KT')
+
     assert_equal(12.0, speed.to_knots)
-    assert_equal(:kilometers_per_hour, speed.options[:units])
   end
 
   def test_speed_parse_kilometers_per_hour_is_default
-    speed = Metar::Speed.parse('12')
-    assert_equal(:kilometers_per_hour, speed.options[:units])
-    speed = Metar::Speed.parse('12MPS')
-    assert_equal(:kilometers_per_hour, speed.options[:units])
-    speed = Metar::Speed.parse('12KMH')
-    assert_equal(:kilometers_per_hour, speed.options[:units])
-    speed = Metar::Speed.parse('12KT')
-    assert_equal(:kilometers_per_hour, speed.options[:units])
+    speed = Metar::Speed.parse( '12' )
+    assert_in_delta( M9t::Speed.kilometers_per_hour( 12 ), speed.value, 0.000001 )
+
+    speed = Metar::Speed.parse( '12MPS' )
+    assert_in_delta( 12, speed.value, 0.000001 )
+
+    speed = Metar::Speed.parse( '12KMH' )
+    assert_in_delta( M9t::Speed.kilometers_per_hour( 12 ), speed.value, 0.000001 )
+
+    speed = Metar::Speed.parse( '12KT' )
+    assert_in_delta( M9t::Speed.knots( 12 ), speed.value, 0.000001 )
   end
 
   # Temperature
@@ -84,7 +90,6 @@ class TestMetarData < Test::Unit::TestCase
   def test_temperature_parse_positive
     temperature = Metar::Temperature.parse('12')
     assert_equal(12, temperature.value)
-    assert_equal(:degrees, temperature.options[:units])
   end
 
   def test_temperature_parse_negative
@@ -110,7 +115,8 @@ class TestMetarData < Test::Unit::TestCase
 
   # Wind
   def test_wind_parse_without_units
-    wind = Metar::Wind.parse('18012')
+    wind = Metar::Wind.parse( '18012' )
+
     assert_equal(180, wind.direction.value)
     assert_equal(12.0, wind.speed.to_kilometers_per_hour)
   end
@@ -129,16 +135,18 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_wind_parse_knots
     wind = Metar::Wind.parse('24006KT')
-    assert_equal(240, wind.direction.value)
-    assert_equal(6, wind.speed.to_knots)
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+
+    assert_equal( 240, wind.direction.value )
+    assert_equal( 6, wind.speed.to_knots )
+    assert_equal( :kilometers_per_hour, wind.options[ :speed_units ] )
   end
 
   def test_wind_parse_variable_direction
-    wind = Metar::Wind.parse('VRB20KT')
-    assert_equal(:variable_direction, wind.direction)
-    assert_equal(20, wind.speed.to_knots)
-    assert_equal('37km/h variable direction', wind.to_s)
+    wind = Metar::Wind.parse( 'VRB20KT' )
+
+    assert_equal( :variable_direction, wind.direction )
+    assert_equal( 20, wind.speed.to_knots )
+    assert_equal( '37km/h variable direction', wind.to_s )
   end
 
   def test_wind_parse_unknown_direction
@@ -157,17 +165,17 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_wind_parse_default_output_units_kilometers_per_hour
     wind = Metar::Wind.parse('18012')
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    assert_equal(:kilometers_per_hour, wind.options[:speed_units])
     wind = Metar::Wind.parse('18012MPS')
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    assert_equal(:kilometers_per_hour, wind.options[:speed_units])
     wind = Metar::Wind.parse('27012KMH')
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    assert_equal(:kilometers_per_hour, wind.options[:speed_units])
     wind = Metar::Wind.parse('24006KT')
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    assert_equal(:kilometers_per_hour, wind.options[:speed_units])
     wind = Metar::Wind.parse('VRB20KT')
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    assert_equal(:kilometers_per_hour, wind.options[:speed_units])
     wind = Metar::Wind.parse('///20KT')
-    assert_equal(:kilometers_per_hour, wind.speed.options[:units])
+    assert_equal(:kilometers_per_hour, wind.options[:speed_units])
   end
 
   # VariableWind
@@ -204,31 +212,23 @@ class TestMetarData < Test::Unit::TestCase
   def test_visibility_parse_us_fractions_1_4
     visibility = Metar::Visibility.parse('1/4SM')
     assert_equal(M9t::Distance.miles(0.25).value, visibility.distance.value)
-    assert_equal(:miles, visibility.distance.options[:units])
   end
 
   def test_visibility_parse_us_fractions_2_1_2
     visibility = Metar::Visibility.parse('2 1/2SM')
     assert_equal(M9t::Distance.miles(2.5).value, visibility.distance.value)
-    assert_equal(:miles, visibility.distance.options[:units])
   end
 
   def test_visibility_parse_kilometers
     visibility = Metar::Visibility.parse('5KM')
     assert_equal(5000.0, visibility.distance.value)
-    assert_equal(:kilometers, visibility.distance.options[:units])
   end
 
   def test_visibility_parse_compass
     visibility = Metar::Visibility.parse('5NE')
     assert_equal(5000.0, visibility.distance.value)
-    assert_equal(:kilometers, visibility.distance.options[:units])
     assert_equal(45.0, visibility.direction.value)
-    visibility.distance.options[:units] = :kilometers
-    visibility.distance.options[:abbreviated] = true
-    visibility.distance.options[:precision] = 0
-    visibility.direction.options[:units] = :compass
-    assert_equal('5km NE', visibility.to_s)
+    assert_equal( '5km NE', visibility.to_s )
   end
 
   # RunwayVisibleRange
@@ -328,7 +328,7 @@ class TestMetarData < Test::Unit::TestCase
   end
 
   def test_sky_condition_sct
-    sky_condition = Metar::SkyCondition.parse('SCT016')
+    sky_condition = Metar::SkyCondition.parse( 'SCT016' )
     assert_equal('scattered', sky_condition.quantity)
     assert_equal(480, sky_condition.height.value)
     assert_equal('scattered cloud at 480m', sky_condition.to_s)

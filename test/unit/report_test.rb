@@ -79,7 +79,7 @@ class TestMetarReport < Test::Unit::TestCase
 
   def test_dew_point
     report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
-    assert_equal('2°C', report.dew_point)
+    assert_equal( '2°C', report.dew_point )
   end
 
   def test_sea_level_pressure
@@ -91,7 +91,7 @@ class TestMetarReport < Test::Unit::TestCase
     report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
     Metar::Report.attributes -= [:station_code, :variable_wind, :observer, :remarks]
     I18n.locale = :en
-    assert_equal("name: Firenze / Peretola\ncountry: Italy\ntime: 15:20\nwind: 13km/h N\nvisibility: more than 10km\nsky: broken cloud\ntemperature: 8°C", report.to_s)
+    assert_equal( "name: Firenze / Peretola\ncountry: Italy\ntime: 15:20\nwind: 13km/h N\nvisibility: more than 10km\nsky: broken cloud\ntemperature: 8°C", report.to_s )
   end
 
   private

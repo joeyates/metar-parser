@@ -45,8 +45,7 @@ class TestMetarParser < Test::Unit::TestCase
 
   def test_visibility_miles_and_fractions
     parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
-    assert_in_delta(1.75, parser.visibility.distance.to_miles, 0.01)
-    assert_equal(:miles, parser.visibility.distance.options[:units])
+    assert_in_delta( 1.75, parser.visibility.distance.to_miles, 0.01 )
   end
 
   def test_runway_visible_range
@@ -64,10 +63,9 @@ class TestMetarParser < Test::Unit::TestCase
 
   def test_runway_visible_range_variable
     parser = setup_parser('KPDX', "2010/02/15 11:08\nKPDX 151108Z 11006KT 1/4SM R10R/1600VP6000FT FG OVC002 05/05 A3022 RMK AO2")
+
     assert_equal(1600.0, parser.runway_visible_range[0].visibility1.distance.to_feet)
-    assert_equal(:feet, parser.runway_visible_range[0].visibility1.distance.options[:units])
     assert_equal(6000.0, parser.runway_visible_range[0].visibility2.distance.to_feet)
-    assert_equal(:feet, parser.runway_visible_range[0].visibility2.distance.options[:units])
   end
 
   def test_present_weather
@@ -120,7 +118,6 @@ class TestMetarParser < Test::Unit::TestCase
   def test_sea_level_pressure
     parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
     assert_equal(29.10, parser.sea_level_pressure.to_inches_of_mercury)
-    assert_equal(:bar, parser.sea_level_pressure.options[:units])
   end
 
   def test_remarks

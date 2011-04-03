@@ -11,19 +11,25 @@ module Metar
   # Uses kilometers as desired default output unit
   class Distance < M9t::Distance
 
+    attr_accessor :units
+
     # nil is taken to mean 'data unavailable'
-    def initialize(meters = nil, options = {})
+    def initialize( meters = nil )
+      @units = units || :meters
       if meters
-        super(meters, { :units => :kilometers, :precision => 0, :abbreviated => true }.merge(options))
+        super
       else
         @value = nil
       end
     end
 
     # Handles nil case differently to M9t::Distance
-    def to_s
+    def to_s( options = {} )
+      options = { :units     => @units, 
+                  :precision => 0,
+                  :abbreviated => true }.merge( options )
       return I18n.t('metar.distance.unknown') if @value.nil?
-      super
+      super( options )
     end
 
   end
@@ -41,9 +47,9 @@ module Metar
       case
       when s =~ /^(\d+)(KT|MPS|KMH)$/
         # Call the appropriate factory method for the supplied units
-        send(METAR_UNITS[$2], $1.to_i, { :units => :kilometers_per_hour, :precision => 0, :abbreviated => true })
+        send( METAR_UNITS[$2], $1.to_i )
       when s =~ /^(\d+)$/
-        kilometers_per_hour($1.to_i, { :units => :kilometers_per_hour, :precision => 0, :abbreviated => true })
+        kilometers_per_hour( $1.to_i )
       else
         nil
       end
@@ -59,10 +65,15 @@ module Metar
         sign = $1
         value = $2.to_i
         value *= -1 if sign == 'M'
-        new(value, { :units => :degrees, :precision => 0, :abbreviated => true })
+        new( value )
       else
         nil
       end
+    end
+
+    def to_s( options = {} )
+      options = { :abbreviated => true, :precision => 0 }.merge( options )
+      super( options )
     end
 
   end
@@ -88,9 +99,13 @@ module Metar
     def Wind.parse(s)
       case
       when s =~ /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
-        new(M9t::Direction.new($1, { :units => :compass, :abbreviated => true }), Speed.parse($2))
+        new( M9t::Direction.new( $1 ),
+             Speed.parse( $2 ),
+             :direction_units => :compass )
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/
-        new(M9t::Direction.new($1, { :units => :compass, :abbreviated => true }), Speed.parse($2))
+        new( M9t::Direction.new( $1 ),
+             Speed.parse( $2 ),
+             :direction_units => :compass )
       when s =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
         new(:variable_direction, Speed.parse($1))
       when s =~ /^\/{3}(\d{2}(|MPS|KMH|KT))$/
@@ -102,9 +117,11 @@ module Metar
       end
     end
 
-    attr_reader :direction, :speed, :units
+    attr_reader :direction, :speed, :options
 
-    def initialize(direction, speed, units = :kilometers_per_hour)
+    def initialize( direction, speed, options = {} )
+      @options = { :direction_units => :compass,
+                   :speed_units     => :kilometers_per_hour }.merge( options )
       @direction, @speed = direction, speed
     end
 
@@ -116,14 +133,16 @@ module Metar
         when :unknown_direction
           I18n.t('metar.wind.unknown_direction')
         else
-          @direction.to_s
+          @direction.to_s( :units => @options[ :direction_units ] )
         end
       speed =
         case @speed
         when :unknown
           I18n.t('metar.wind.unknown_speed')
         else
-          @speed.to_s
+          @speed.to_s( :abbreviated => true,
+                       :precision   => 0,
+                       :units       => @options[ :speed_units ] )
         end  
       "#{ speed } #{ direction }"
     end
@@ -157,22 +176,28 @@ module Metar
     def Visibility.parse(s)
       case
       when s == '9999'
-        new(Distance.new(10000), nil, :more_than)
+        new( Distance.new( 10000 ), nil, :more_than )
       when s =~ /(\d{4})NDV/ # WMO
-        new(Distance.new($1.to_f)) # Assuming meters
+        new( Distance.new( $1.to_f ) ) # Assuming meters
       when (s =~ /^((1|2)\s|)([13])\/([248])SM$/) # US
-        miles = $1.to_f + $3.to_f / $4.to_f
-        new(Distance.miles(miles, {:units => :miles}))
+        miles          = $1.to_f + $3.to_f / $4.to_f
+        distance       = Distance.miles( miles )
+        distance.units = :miles
+        new( distance )
       when s =~ /^(\d+)SM$/ # US
-        new(Distance.miles($1.to_f, {:units => :miles}))
+        distance       = Distance.miles( $1.to_f )
+        distance.units = :miles
+        new( distance )
       when s == 'M1/4SM' # US
-        new(Distance.miles(0.25, {:units => :miles}), nil, :less_than)
+        distance       = Distance.miles( 0.25 )
+        distance.units = :miles
+        new( distance, nil, :less_than )
       when s =~ /^(\d+)KM$/
-        new(Distance.kilometers($1))
+        new( Distance.kilometers( $1 ) )
       when s =~ /^(\d+)$/ # Units?
-        new(Distance.kilometers($1))
+        new( Distance.kilometers( $1 ) )
       when s =~ /^(\d+)(N|NE|E|SE|S|SW|W|NW)$/
-        new(Distance.kilometers($1), M9t::Direction.compass($2))
+        new( Distance.kilometers( $1 ), M9t::Direction.compass( $2 ) )
       else
         nil
       end
@@ -184,18 +209,27 @@ module Metar
       @distance, @direction, @comparator = distance, direction, comparator
     end
 
-    def to_s
+    def to_s( options = {} )
+      distance_options = { :abbreviated => true,
+                           :precision   => 0,
+                           :units       => :kilometers }.merge( options )
+      direction_options = { :units => :compass }
       case
-      when (@direction.nil? and @comparator.nil?)
-        @distance.to_s
+      when ( @direction.nil? and @comparator.nil? )
+        @distance.to_s( distance_options )
       when @comparator.nil?
-        "%s %s" % [@distance.to_s, @direction.to_s]
+        "%s %s" % [ @distance.to_s( distance_options ),
+                    @direction.to_s( direction_options ) ]
       when @direction.nil?
-        "%s %s" % [I18n.t('comparison.' + @comparator.to_s), @distance.to_s]
+        "%s %s" % [ I18n.t( 'comparison.' + @comparator.to_s ),
+                    @distance.to_s( distance_options ) ]
       else
-        "%s %s %s" % [I18n.t('comparison.' + @comparator.to_s), @distance.to_s, direction]
+        "%s %s %s" % [ I18n.t( 'comparison.' + @comparator.to_s ),
+                       @distance.to_s( distance_options ),
+                       @direction.to_s( direction_options ) ]
       end
     end
+
   end
 
   class RunwayVisibleRange
@@ -212,7 +246,7 @@ module Metar
         count      = $3.to_f
         tendency   = TENDENCY[$4]
         units      = UNITS[$5]
-        distance   = Distance.send(units, count, { :units => units })
+        distance   = Distance.send( units, count )
         visibility = Visibility.new(distance, nil, comparator)
         new(designator, visibility, nil, tendency)
       when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(N|U|D)?(FT)?$/
@@ -223,26 +257,36 @@ module Metar
         count2      = $5.to_f
         tendency    = TENDENCY[$6]
         units       = UNITS[$7]
-        distance1   = Distance.send(units, count1, { :units => units })
-        distance2   = Distance.send(units, count2, { :units => units })
-        visibility1 = Visibility.new(distance1, nil, comparator1)
-        visibility2 = Visibility.new(distance2, nil, comparator2)
-        new(designator, visibility1, visibility2, tendency)
+        distance1   = Distance.send( units, count1 )
+        distance2   = Distance.send( units, count2 )
+        visibility1 = Visibility.new( distance1, nil, comparator1 )
+        visibility2 = Visibility.new( distance2, nil, comparator2 )
+        new( designator, visibility1, visibility2, tendency, units )
       else
         nil
       end
     end
 
     attr_reader :designator, :visibility1, :visibility2, :tendency
-    def initialize(designator, visibility1, visibility2 = nil, tendency = nil)
-      @designator, @visibility1, @visibility2, @tendency = designator, visibility1, visibility2, tendency
+    def initialize( designator, visibility1, visibility2 = nil, tendency = nil, units = :meters )
+      @designator, @visibility1, @visibility2, @tendency, @units = designator, visibility1, visibility2, tendency, units
     end
 
     def to_s
+      distance_options = { :abbreviated => true,
+                           :precision   => 0,
+                           :units       => @units }
       if @visibility2.nil?
-        I18n.t('metar.runway_visible_range.runway') + ' ' + @designator + ': ' + @visibility1.to_s
+        I18n.t('metar.runway_visible_range.runway') +
+          ' ' + @designator +
+          ': ' + @visibility1.to_s( distance_options )
       else
-        I18n.t('metar.runway_visible_range.runway') + ' ' + @designator + ': ' + I18n.t('metar.runway_visible_range.from') + ' ' + @visibility1.to_s + ' ' + I18n.t('metar.runway_visible_range.to') + ' ' + @visibility2.to_s
+        I18n.t('metar.runway_visible_range.runway') +
+          ' ' + @designator +
+          ': ' + I18n.t('metar.runway_visible_range.from') +
+          ' ' + @visibility1.to_s( distance_options ) +
+          ' ' + I18n.t('metar.runway_visible_range.to') +
+          ' ' + @visibility2.to_s( distance_options )
       end
     end
 
@@ -344,7 +388,7 @@ module Metar
         new
       when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+)(CB|TCU|\/{3})?$/
         quantity = QUANTITY[$1]
-        height = Distance.new($2.to_i * 30.0, { :units => :meters })
+        height = Distance.new( $2.to_i * 30.0 )
         type =
           case $3
           when 'CB'
@@ -388,10 +432,10 @@ module Metar
 
   class VerticalVisibility
 
-    def VerticalVisibility.parse(vertical_visibility)
+    def VerticalVisibility.parse( vertical_visibility )
       case
       when vertical_visibility =~ /^VV(\d{3})$/
-        Distance.new($1.to_f * 30.0, { :units => :meters })
+        Distance.new( $1.to_f * 30.0 )
       when vertical_visibility == '///'
         Distance.new
       else
