@@ -33,6 +33,8 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files = ['README.rdoc', 'COPYING']
 
   s.test_file = 'test/all_tests.rb'
+
+  s.rubyforge_project = 'nowarning'
 end
 
 Rake::TestTask.new do |t|
