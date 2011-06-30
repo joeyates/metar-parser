@@ -5,21 +5,22 @@ module Metar
 
   class Raw
 
+    @@connection = nil
+
     class << self
 
-      @connection = nil
 
       def cache_connection
-        @connection = connection
+        @@connection = connection
       end
 
       def connection
-        return @connection if @connection
-        connection = Net::FTP.new('tgftp.nws.noaa.gov')
-        connection.login
-        connection.chdir('data/observations/metar/stations')
-        connection.passive = true
-        connection
+        return @@connection if @@connection
+        @@connection = Net::FTP.new('tgftp.nws.noaa.gov')
+        @@connection.login
+        @@connection.chdir('data/observations/metar/stations')
+        @@connection.passive = true
+        @@connection
       end
 
       def fetch(cccc)
