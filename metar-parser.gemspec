@@ -18,5 +18,10 @@ spec = Gem::Specification.new do |s|
 
   s.test_file = 'test/all_tests.rb'
 
+  s.add_dependency 'rake', '>= 0.8.7'
+  s.add_dependency 'i18n', '>= 0.3.5'
+  s.add_dependency 'aasm', '>= 2.1.5'
+  s.add_dependency 'm9t',  '~> 0.2.1'
+
   s.rubyforge_project = 'nowarning'
 end
