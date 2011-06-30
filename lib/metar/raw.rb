@@ -33,16 +33,44 @@ module Metar
 
     end
 
-    attr_reader :cccc, :raw, :metar, :time
-    alias :to_s :metar
+    attr_reader :cccc
 
     # Station is a string containing the CCCC code, or
     # an object with a 'cccc' method which returns the code
-    def initialize(station, raw = nil)
+    def initialize( station, data = nil )
       @cccc = station.respond_to?(:cccc) ? station.cccc : station
-      @raw = raw || Raw.fetch(@cccc)
-      time, @metar = @raw.split("\n")
-      @time = Time.parse(time)
+      parse data if data
+    end
+
+    def data
+      fetch
+      @data
+    end
+    # #raw is deprecated, use #data
+    alias :raw :data
+
+    def time
+      fetch
+      @time
+    end
+
+    def metar
+      fetch
+      @metar
+    end
+    alias :to_s :metar
+
+    private
+
+    def fetch
+      return if @data
+      parse Raw.fetch( @cccc )
+    end
+
+    def parse( data )
+      @data        = data
+      time, @metar = @data.split( "\n" )
+      @time        = Time.parse( time )
     end
 
   end
