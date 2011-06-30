@@ -32,5 +32,5 @@ end
 
 desc "Publish a new version of the gem"
 task :release => :build do
-  system "gem push metar-parser-#{Metar::VERSION}"
+  system "gem push metar-parser-#{Metar::VERSION::STRING}"
 end
