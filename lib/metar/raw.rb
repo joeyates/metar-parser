@@ -23,9 +23,9 @@ module Metar
         @@connection
       end
 
-      def fetch(cccc)
+      def fetch( cccc )
         s = ''
-        connection.retrbinary("RETR #{ cccc }.TXT", 1024) do |chunk|
+        connection.retrbinary( "RETR #{ cccc }.TXT", 1024 ) do | chunk |
           s << chunk
         end
         s
