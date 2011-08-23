@@ -6,6 +6,19 @@ The information comes from the National Oceanic and Atmospheric Association's ra
 
 * Parses METAR strings using a state machine.
 
+= Example
+
+This prints the latest weather report for Portland International Airport:
+
+require 'rubygems'
+require 'metar'
+
+raw    = Metar::Raw.new( 'KPDX' )
+parser = Metar::Parser.new( raw )
+report = Metar::Report.new( parser )
+
+puts report.to_s
+
 = Data format descrition
 
 * WMO
