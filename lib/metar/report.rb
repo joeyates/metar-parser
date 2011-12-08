@@ -89,7 +89,7 @@ module Metar
     end
 
     def present_weather
-      @parser.present_weather.to_s
+      @parser.present_weather.join( ', ' )
     end
 
     def sky_summary
