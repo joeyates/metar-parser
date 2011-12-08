@@ -64,16 +64,18 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_speed_parse_kilometers_per_hour_is_default
     speed = Metar::Speed.parse( '12' )
-    assert_in_delta( M9t::Speed.kilometers_per_hour( 12 ), speed.value, 0.000001 )
+    assert_in_delta( M9t::Speed.kilometers_per_hour( 12 ).to_f, speed.to_f, 0.000001 )
+  end
 
+  def test_speed_parse_explicit_units
     speed = Metar::Speed.parse( '12MPS' )
-    assert_in_delta( 12, speed.value, 0.000001 )
+    assert_in_delta( 12, speed.to_f, 0.000001 )
 
     speed = Metar::Speed.parse( '12KMH' )
-    assert_in_delta( M9t::Speed.kilometers_per_hour( 12 ), speed.value, 0.000001 )
+    assert_in_delta( M9t::Speed.kilometers_per_hour( 12 ).to_f, speed.to_f, 0.000001 )
 
     speed = Metar::Speed.parse( '12KT' )
-    assert_in_delta( M9t::Speed.knots( 12 ), speed.value, 0.000001 )
+    assert_in_delta( M9t::Speed.knots( 12 ).to_f, speed.to_f, 0.000001 )
   end
 
   # Temperature
