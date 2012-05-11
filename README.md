@@ -25,11 +25,8 @@ Hello World
 This prints the latest weather report for Portland International Airport:
 
 ```ruby
-raw    = Metar::Raw.new( 'KPDX' )
-parser = Metar::Parser.new( raw )
-report = Metar::Report.new( parser )
-
-puts report.to_s
+station = Metar::Station.find_by_cccc( 'KPDX' )
+puts station.report.to_s
 ```
 
 List Countries

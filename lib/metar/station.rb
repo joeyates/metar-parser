@@ -123,6 +123,12 @@ module Metar
       Station.exist?(@cccc)
     end
 
+    def report
+      raw    = Metar::Raw.new( @cccc )
+      parser = Metar::Parser.new( raw )
+      Metar::Report.new( parser )
+    end
+
     private
 
     class << self
