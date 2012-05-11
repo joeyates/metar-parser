@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.test_file = 'test/all_tests.rb'
 
   s.add_runtime_dependency 'rake', '>= 0.8.7'
+  s.add_runtime_dependency 'rdoc'
   s.add_runtime_dependency 'i18n', '>= 0.3.5'
   s.add_runtime_dependency 'aasm', '>= 2.1.5'
   s.add_runtime_dependency 'm9t',  '~> 0.2.3'

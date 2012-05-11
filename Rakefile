@@ -1,6 +1,6 @@
-require 'rubygems'
-require 'rake/gempackagetask'
-require 'rake/rdoctask'
+require 'rubygems' if RUBY_VERSION < '1.9'
+require 'rubygems/package_task'
+require 'rdoc/task'
 require 'rake/testtask'
 require 'rake/clean'
 
