@@ -43,6 +43,8 @@ module Metar
       reset_options!
     end
 
+    attr_reader :parser, :station
+
     def initialize(parser)
       @parser = parser
       @station = Station.find_by_cccc(@parser.station_code)
