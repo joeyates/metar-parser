@@ -29,11 +29,15 @@ station = Metar::Station.find_by_cccc( 'KPDX' )
 puts station.report.to_s
 ```
 
-List Countries
---------------
+Countries
+---------
 
 ```ruby
+# List countries:
 puts Metar::Station.countries
+
+# Find a country's weather stations:
+spanish = Metar::Station.find_all_by_country( 'Spain' )
 ```
 
 The METAR Data Format
