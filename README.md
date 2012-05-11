@@ -1,15 +1,19 @@
-= metar - Downloads and parses weather status
+metar - Downloads and parses weather status
+===========================================
 
 The information comes from the National Oceanic and Atmospheric Association's raw data source.
 
-= Implementation
+Implementation
+==============
 
 * Parses METAR strings using a state machine.
 
-= Example
+Example
+=======
 
 This prints the latest weather report for Portland International Airport:
 
+```ruby
 require 'rubygems'
 require 'metar'
 
@@ -18,8 +22,10 @@ parser = Metar::Parser.new( raw )
 report = Metar::Report.new( parser )
 
 puts report.to_s
+```
 
-= Data format descrition
+The METAR Data Format
+=====================
 
 * WMO
   * http://www.wmo.int/pages/prog/www/WMOCodes/Manual/Volume-I-selection/Sel2.pdf (pages 27-38)
@@ -32,7 +38,11 @@ puts report.to_s
   * http://weather.cod.edu/notes/metar.html
   * http://www.met.tamu.edu/class/METAR/metar-pg3.html - incomplete
 
-= Other software
+Alternative Software
+====================
+
+Ruby
+----
 
 Other Ruby libraries offering METAR parsing:
 * ruby-metar - http://github.com/brandonh/ruby-metar
@@ -46,8 +56,10 @@ There are two gems which read the National Oceanic and Atmospheric Association's
 Interactive map:
 * http://www.spatiality.at/metarr/frontend/
 
-= Testing
+Testing
+=======
 
 The tests use a local copy of the weather stations list: data/nsd_cccc.txt
 
 If missing, the file gets downloaded before running tests.
+
