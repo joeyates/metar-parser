@@ -1,5 +1,6 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
 require 'open-uri'
+require 'set'
 
 # A Station can be created without downloading data from the Internet.
 # The class downloads and caches the NOAA station list when it is first requested.
@@ -14,6 +15,10 @@ module Metar
 
       @nsd_cccc = nil # Contains the text of the station list
       attr_accessor :nsd_cccc # Allow tests to run from local file
+
+      def countries
+        all_structures.reduce( Set.new ) { |a, s| a.add( s[ :country ] ); a }
+      end
 
       def download_local
         nsd_cccc = Metar::Station.download_stations

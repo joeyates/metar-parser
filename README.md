@@ -8,20 +8,35 @@ Implementation
 
 * Parses METAR strings using a state machine.
 
-Example
-=======
+Usage
+=====
+
+```ruby
+require 'rubygems' if RUBY_VERSION < '1.9'
+require 'metar'
+```
+
+Examples
+========
+
+Hello World
+-----------
 
 This prints the latest weather report for Portland International Airport:
 
 ```ruby
-require 'rubygems'
-require 'metar'
-
 raw    = Metar::Raw.new( 'KPDX' )
 parser = Metar::Parser.new( raw )
 report = Metar::Report.new( parser )
 
 puts report.to_s
+```
+
+List Countries
+--------------
+
+```ruby
+puts Metar::Station.countries
 ```
 
 The METAR Data Format
