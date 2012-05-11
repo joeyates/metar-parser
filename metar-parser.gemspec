@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
-$:.unshift( File.dirname(__FILE__) + '/lib' )
+$:.unshift( File.join( File.dirname( __FILE__ ), 'lib' ) )
 require 'metar/version'
 require 'rake'
 
-spec = Gem::Specification.new do |s|
+Gem::Specification.new do |s|
   s.name        = 'metar-parser'
   s.summary     = 'A Ruby library for METAR weather reports'
   s.description = 'A Ruby library which handle METAR weather reports. Provides weather station listings and info. Downloads and parses reports. Presents localized full text reports'
@@ -18,10 +18,11 @@ spec = Gem::Specification.new do |s|
 
   s.test_file = 'test/all_tests.rb'
 
-  s.add_dependency 'rake', '>= 0.8.7'
-  s.add_dependency 'i18n', '>= 0.3.5'
-  s.add_dependency 'aasm', '>= 2.1.5'
-  s.add_dependency 'm9t',  '~> 0.2.3'
+  s.add_runtime_dependency 'rake', '>= 0.8.7'
+  s.add_runtime_dependency 'i18n', '>= 0.3.5'
+  s.add_runtime_dependency 'aasm', '>= 2.1.5'
+  s.add_runtime_dependency 'm9t',  '~> 0.2.3'
 
   s.rubyforge_project = 'nowarning'
 end
+
