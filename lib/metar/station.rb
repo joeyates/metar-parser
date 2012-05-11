@@ -39,8 +39,8 @@ module Metar
       def all
         all_structures.collect do |h|
           options = h.clone
-          cccc = options.delete(:cccc)
-          new(cccc, h)
+          cccc    = options.delete(:cccc)
+          new(cccc, options)
         end
       end
 
