@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.author   = 'Joe Yates'
   s.email    = 'joe.g.yates@gmail.com'
 
-  s.files         = ['README.rdoc', 'COPYING', 'Rakefile'] + FileList['{bin,lib,test}/**/*.rb'] + FileList['locales/**/*.{rb,yml}']
+  s.files         = ['README.md', 'COPYING', 'Rakefile'] + FileList['{bin,lib,test}/**/*.rb'] + FileList['locales/**/*.{rb,yml}']
   s.require_paths = ['lib']
 
   s.test_file = 'test/all_tests.rb'
