@@ -15,6 +15,10 @@ module Metar
 
       def connection
         return @@connection if @@connection
+        connect
+      end
+
+      def connect
         @@connection = Net::FTP.new('tgftp.nws.noaa.gov')
         @@connection.login
         @@connection.chdir('data/observations/metar/stations')
@@ -23,11 +27,20 @@ module Metar
       end
 
       def fetch( cccc )
-        s = ''
-        connection.retrbinary( "RETR #{ cccc }.TXT", 1024 ) do | chunk |
-          s << chunk
+        attempts = 0
+        while attempts < 2
+          begin
+            s = ''
+            connection.retrbinary( "RETR #{ cccc }.TXT", 1024 ) do | chunk |
+              s << chunk
+            end
+            return s
+          rescue Net::FTPTempError, EOFError => e
+            connect
+            attempts += 1
+          end
         end
-        s
+        raise "Net::FTP.retrbinary failed #{attempts} times"
       end
 
     end
