@@ -92,12 +92,14 @@ module Metar
       parser
     end
 
-    attr_reader :station_code, :observer, :time, :wind, :variable_wind, :visibility, :runway_visible_range,
+    attr_reader :raw, :metar, :time
+    attr_reader :station_code, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
        :present_weather, :sky_conditions, :vertical_visibility, :temperature, :dew_point, :sea_level_pressure, :remarks
 
     def initialize(raw)
-      @metar                = raw.metar.clone
-      @time                 = raw.time.clone
+      @raw   = raw
+      @metar = raw.metar.clone
+      @time  = raw.time.clone
       analyze
     end
 
