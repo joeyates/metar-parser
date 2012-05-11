@@ -9,10 +9,6 @@ module Metar
 
     class << self
 
-      def cache_connection
-        @@connection = connection
-      end
-
       def connection
         return @@connection if @@connection
         connect

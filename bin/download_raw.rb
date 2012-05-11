@@ -16,8 +16,6 @@ Metar::Station.load_local
 
   stations = {}
 
-  Metar::Raw.cache_connection
-
   Metar::Station.all.each do |station|
 
     next if station.cccc[0, 1] < initial
