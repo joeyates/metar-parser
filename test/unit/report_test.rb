@@ -5,9 +5,6 @@ $:.unshift( File.expand_path( '..', File.dirname( __FILE__ ) ) )
 require 'metar_test_helper'
 
 class TestMetarReport < Test::Unit::TestCase
-  def setup
-  end
-
   def test_name
     report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
     assert_equal('Firenze / Peretola', report.station_name)

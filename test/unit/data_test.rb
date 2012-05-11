@@ -375,3 +375,4 @@ class TestMetarData < Test::Unit::TestCase
   end
 
 end
+

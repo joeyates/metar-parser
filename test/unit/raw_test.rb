@@ -5,9 +5,6 @@ $:.unshift( File.expand_path( '..', File.dirname( __FILE__ ) ) )
 require 'metar_test_helper'
 
 class TestMetarRaw < Test::Unit::TestCase
-  
-  def setup
-  end
 
   def test_fetch
     raw = Metar::Raw.fetch('LIRQ')
@@ -37,3 +34,4 @@ class TestMetarRaw < Test::Unit::TestCase
   end
 
 end
+

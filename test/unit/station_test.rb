@@ -5,9 +5,6 @@ $:.unshift( File.expand_path( '..', File.dirname( __FILE__ ) ) )
 require 'metar_test_helper'
 
 class TestStation < Test::Unit::TestCase
-  
-  def setup
-  end
 
   def test_class_method_exist_on_existing_station
     assert Metar::Station.exist?('LIRQ')

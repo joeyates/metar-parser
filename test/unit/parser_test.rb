@@ -5,10 +5,6 @@ $:.unshift( File.expand_path( '..', File.dirname( __FILE__ ) ) )
 require 'metar_test_helper'
 
 class TestMetarParser < Test::Unit::TestCase
-
-  def setup
-  end
-
   def test_new
     raw = Metar::Raw.new('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
     assert_nothing_thrown do
