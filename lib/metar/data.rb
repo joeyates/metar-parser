@@ -7,8 +7,6 @@ module Metar
   locales_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'locales'))
   I18n.load_path += Dir.glob("#{ locales_path }/*.yml")
 
-  # Subclasses M9t::Distance
-  # Uses kilometers as desired default output unit
   class Distance < M9t::Distance
 
     attr_accessor :units
