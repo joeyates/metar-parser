@@ -25,8 +25,8 @@ module Metar
 
     # Handles nil case differently to M9t::Distance
     def to_s( options = {} )
-      options = { :units     => @units, 
-                  :precision => 0,
+      options = { :units       => @units,
+                  :precision   => 0,
                   :abbreviated => true }.merge( options )
       return I18n.t('metar.distance.unknown') if @value.nil?
       super( options )

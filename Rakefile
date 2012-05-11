@@ -1,9 +1,9 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
 require 'rubygems/package_task'
 require 'rdoc/task'
-require 'rake/testtask'
 require 'rake/clean'
 require 'rcov/rcovtask' if RUBY_VERSION < '1.9'
+require 'rspec/core/rake_task'
 
 $:.unshift(File.dirname(__FILE__) + '/lib')
 require 'metar'
@@ -11,17 +11,10 @@ require 'metar'
 RDOC_OPTS = ['--quiet', '--title', 'METAR Weather Report Parser', '--main', 'README.rdoc', '--inline-source']
 RDOC_PATH = 'doc/rdoc'
 
-task :default => :test
+task :default => :spec
 
-Rake::TestTask.new do |t|
-  t.libs << 'test'
-  t.test_files = FileList['test/**/*.rb']
-  t.verbose = true
-end
-
-Rcov::RcovTask.new do |t|
-  t.test_files = FileList['test/**/*_test.rb']
-  t.rcov_opts  = [ "--exclude '/gems/'" ]
+RSpec::Core::RakeTask.new do |t|
+  t.pattern = 'spec/**/*_spec.rb'
 end
 
 if RUBY_VERSION < '1.9'
