@@ -16,10 +16,6 @@ module Metar
       @nsd_cccc = nil # Contains the text of the station list
       attr_accessor :nsd_cccc # Allow tests to run from local file
 
-      def countries
-        all_structures.reduce( Set.new ) { |a, s| a.add( s[ :country ] ); a }
-      end
-
       def download_local
         nsd_cccc = Metar::Station.download_stations
         File.open(Metar::Station.local_nsd_path, 'w') do |fil|
@@ -36,6 +32,10 @@ module Metar
         end
       end
 
+      def countries
+        all_structures.reduce( Set.new ) { |a, s| a.add( s[ :country ] ); a }
+      end
+
       def all
         all_structures.collect do |h|
           options = h.clone
@@ -47,6 +47,10 @@ module Metar
       # Does the given CCCC code exist?
       def exist?(cccc)
         not find_data_by_cccc(cccc).nil?
+      end
+
+      def find_all_by_country( country )
+        all.select { | s | s.country == country }
       end
 
       def find_by_cccc(cccc)
