@@ -1,4 +1,6 @@
+coverage
 doc/rdoc/*
 .rvmrc
-pkg
 Gemfile.lock
+pkg
+

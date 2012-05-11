@@ -24,6 +24,10 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'aasm', '>= 2.1.5'
   s.add_runtime_dependency 'm9t',  '~> 0.2.3'
 
+  if RUBY_VERSION < '1.9'
+    s.add_development_dependency 'rcov'
+  end
+
   s.rubyforge_project = 'nowarning'
 end
 
