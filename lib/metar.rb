@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), 'metar', 'raw')
-require File.join(File.dirname(__FILE__), 'metar', 'station')
-require File.join(File.dirname(__FILE__), 'metar', 'parser')
-require File.join(File.dirname(__FILE__), 'metar', 'report')
-require File.join(File.dirname(__FILE__), 'metar', 'version')
+require 'metar/raw'
+require 'metar/station'
+require 'metar/parser'
+require 'metar/report'
+require 'metar/version'
 
 module Metar
 
@@ -15,3 +15,4 @@ module Metar
   end
 
 end
+
