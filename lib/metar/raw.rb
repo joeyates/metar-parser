@@ -9,7 +9,6 @@ module Metar
 
     class << self
 
-
       def cache_connection
         @@connection = connection
       end
@@ -54,6 +53,11 @@ module Metar
       @time
     end
 
+    def raw_time
+      fetch
+      @raw_time
+    end
+
     def metar
       fetch
       @metar
@@ -68,9 +72,9 @@ module Metar
     end
 
     def parse( data )
-      @data        = data
-      time, @metar = @data.split( "\n" )
-      @time        = Time.parse( time )
+      @data             = data
+      @raw_time, @metar = @data.split( "\n" )
+      @time             = Time.parse( @raw_time )
     end
 
   end
