@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
+$:.unshift( File.expand_path( '..', File.dirname( __FILE__ ) ) )
 require 'metar_test_helper'
 
 class TestMetarReport < Test::Unit::TestCase
