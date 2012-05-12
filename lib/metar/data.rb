@@ -13,7 +13,7 @@ module Metar
 
     # nil is taken to mean 'data unavailable'
     def initialize( meters = nil )
-      @units = units || :meters
+      @units = :meters
       if meters
         super
       else
