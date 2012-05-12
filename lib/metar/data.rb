@@ -98,15 +98,12 @@ module Metar
       when s =~ /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
         return nil if $1.to_i > 359
         new( M9t::Direction.new( $1 ),
-             Speed.parse( $2 ),
-             nil,
-             :direction_units => :compass )
+             Speed.parse( $2 ) )
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/
         return nil if $1.to_i > 359
         new( M9t::Direction.new( $1 ),
              Speed.parse( $2 + $4 ),
-             Speed.parse( $3 ),
-             :direction_units => :compass )
+             Speed.parse( $3 ) )
       when s =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
         new( :variable_direction,
              Speed.parse($1))
@@ -121,15 +118,15 @@ module Metar
       end
     end
 
-    attr_reader :direction, :speed, :gusts, :options
+    attr_reader :direction, :speed, :gusts
 
-    def initialize( direction, speed, gusts = nil, options = {} )
-      @options = { :direction_units => :compass,
-                   :speed_units     => :kilometers_per_hour }.merge( options )
+    def initialize( direction, speed, gusts = nil )
       @direction, @speed, @gusts = direction, speed, gusts
     end
 
-    def to_s
+    def to_s( options = {} )
+      options = { :direction_units => :compass,
+                  :speed_units     => :kilometers_per_hour }.merge( options )
       direction =
         case @direction
         when :variable_direction
@@ -137,7 +134,7 @@ module Metar
         when :unknown_direction
           I18n.t('metar.wind.unknown_direction')
         else
-          @direction.to_s( :units => @options[ :direction_units ] )
+          @direction.to_s( :units => options[ :direction_units ] )
         end
       speed =
         case @speed
@@ -146,13 +143,13 @@ module Metar
         else
           @speed.to_s( :abbreviated => true,
                        :precision   => 0,
-                       :units       => @options[ :speed_units ] )
+                       :units       => options[ :speed_units ] )
         end
       s = "#{ speed } #{ direction }"
       if ! @gusts.nil?
         g =  @gusts.to_s( :abbreviated => true,
                           :precision   => 0,
-                          :units       => @options[ :speed_units ] )
+                          :units       => options[ :speed_units ] )
         s += " #{ I18n.t('metar.wind.gusts') } #{ g }"
       end
       s
