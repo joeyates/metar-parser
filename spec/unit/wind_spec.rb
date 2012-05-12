@@ -4,8 +4,6 @@ RSpec::Matchers.define :be_wind do | direction, speed, gusts |
   match do | wind |
     if wind.nil?              && [ direction, speed, gusts ].all?( &:nil? )
       true
-    elsif wind.nil?           != [ direction, speed, gusts ].all?( &:nil? )
-      false
     elsif wind.direction.nil? != direction.nil?
       false
     elsif wind.speed.nil?     != speed.nil?
@@ -20,7 +18,7 @@ RSpec::Matchers.define :be_wind do | direction, speed, gusts |
        false
     elsif speed.is_a?( Metar::Speed )       && (wind.speed.value - speed).abs > 0.01
       false
-    elsif ! wind.gusts.nil?                 && (wind.gusts.value     - gusts    ).abs > 0.01
+    elsif ! wind.gusts.nil?                 && (wind.gusts.value - gusts).abs > 0.01
        false
     else
       true
