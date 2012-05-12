@@ -174,7 +174,7 @@ module Metar
     end
 
     def to_s
-      "#{ @direction1 } - #{ @direction2 }"
+      "#{ @direction1.to_s( :units => :compass ) } - #{ @direction2.to_s( :units => :compass ) }"
     end
 
   end

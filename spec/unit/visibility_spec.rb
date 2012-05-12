@@ -1,0 +1,81 @@
+load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
+# encoding: utf-8
+
+RSpec::Matchers.define :be_visibility do | distance, direction, comparator |
+  match do | visibility |
+    if    visibility.nil? && [ distance, direction, comparator ].all?( &:nil? )
+      true
+    elsif visibility.nil? != [ distance, direction, comparator ].all?( &:nil? )
+      false
+    elsif visibility.distance.nil?   != distance.nil?
+      false
+    elsif visibility.direction.nil?  != direction.nil?
+      false
+    elsif visibility.comparator.nil? != comparator.nil?
+      false
+    elsif visibility.distance.is_a?( Metar::Distance ) && (visibility.distance.value - distance).abs > 0.01
+      false
+    elsif visibility.direction.is_a?( M9t::Direction ) && (visibility.direction.value - direction).abs > 0.01
+      false
+    elsif comparator.is_a?( Symbol )                   && visibility.comparator != comparator
+      false
+    else
+      true
+    end
+  end
+end
+
+describe Metar::Visibility do
+
+  context '.parse' do
+
+    [
+      [ 'understands 9999',        '9999',    [ 10000.00, nil,   :more_than ] ],
+      [ 'understands nnnn + NDV',  '0123NDV', [   123.00, nil,   nil ] ],
+      [ 'understands n/nSM',       '3/4SM',   [  1207.01, nil,   nil ] ],
+      [ 'understands n n/nSM',     '1 1/4SM', [  2011.68, nil,   nil ] ],
+      [ 'understands nSM',         '5SM',     [  8046.72, nil,   nil ] ],
+      [ 'understands M1/4SM',      'M1/4SM',  [   402.34, nil,   :less_than ] ],
+      [ 'understands n + KM',      '5KM',     [  5000.00, nil,   nil ] ],
+      [ 'understands n',           '5',       [  5000.00, nil,   nil ] ],
+      [ 'understands n + compass', '5NW',     [  5000.00, 315.0, nil ] ],
+    ].each do | docstring, raw, expected |
+      example docstring do
+        Metar::Visibility.parse( raw ).should be_visibility( *expected )
+      end
+    end
+
+  end
+
+  context '#to_s' do
+
+    before :each do
+      @locale = I18n.locale
+      I18n.locale = :it
+    end
+
+    after :each do
+      I18n.locale = @locale
+    end
+
+    [
+      [ 'with distance',                           :en, [ :set, nil,  nil ],        '4km' ],
+      [ 'with distance and direction',             :en, [ :set, :set, nil ],        '4km ESE' ],
+      [ 'with distance, direction and comparator', :en, [ :set, :set, :more_than ], 'more than 4km ESE' ],
+      [ 'with distance and direction',             :it, [ :set, :set, nil ],        '4km ESE' ],
+      [ 'with distance, direction and comparator', :it, [ :set, :set, :more_than ], 'piú di 4km ESE' ],
+    ].each do | docstring, locale, ( distance, direction, comparator ), expected |
+      distance  = Metar::Distance.new( 4321 ) if distance  == :set
+      direction = M9t::Direction.new( 123 )  if direction == :set
+
+      example docstring + " (#{locale})" do
+        I18n.locale = locale
+        Metar::Visibility.new( distance, direction, comparator ).to_s.
+                                  should     == expected
+      end
+    end
+
+  end
+
+end
+
