@@ -25,6 +25,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_visibility_parse_9999
     visibility = Metar::Visibility.parse('9999')
+    I18n.locale =  :en
     assert_equal('more than 10km', visibility.to_s)
     I18n.locale = :it
     assert_equal('piú di 10km', visibility.to_s)
@@ -82,6 +83,7 @@ class TestMetarData < Test::Unit::TestCase
   # WeatherPhenomenon
   def test_weather_phenomenon_snra
     phenomenon = Metar::WeatherPhenomenon.parse('SNRA')
+    I18n.locale =  :en
     assert_equal('snow and rain', phenomenon.to_s)
     I18n.locale =  :it
     assert_equal('neve mista a pioggia', phenomenon.to_s)
@@ -89,6 +91,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_weather_phenomenon_fzfg
     freezing_rain = Metar::WeatherPhenomenon.parse('FZFG')
+    I18n.locale =  :en
     assert_equal('freezing fog', freezing_rain.to_s)
     I18n.locale =  :it
     assert_equal('nebbia ghiacciata', freezing_rain.to_s)
@@ -96,6 +99,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_weather_phenomenon_with_modifier_plus
     phenomenon = Metar::WeatherPhenomenon.parse('+RA')
+    I18n.locale =  :en
     assert_equal('heavy', phenomenon.modifier)
     assert_equal('heavy rain', phenomenon.to_s)
     I18n.locale =  :it
@@ -104,6 +108,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_weather_phenomenon_with_modifier_minus
     phenomenon = Metar::WeatherPhenomenon.parse('-RA')
+    I18n.locale =  :en
     assert_equal('light', phenomenon.modifier)
     assert_equal('light rain', phenomenon.to_s)
     I18n.locale =  :it
@@ -115,6 +120,7 @@ class TestMetarData < Test::Unit::TestCase
     sky_condition = Metar::SkyCondition.parse('NSC')
     assert_nil(sky_condition.quantity)
     assert_nil(sky_condition.height)
+    I18n.locale =  :en
     assert_equal('clear skies', sky_condition.to_s)
     I18n.locale =  :it
     assert_equal('cielo sereno', sky_condition.to_s)
@@ -122,6 +128,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_sky_condition_clr
     sky_condition = Metar::SkyCondition.parse('CLR')
+    I18n.locale =  :en
     assert_equal('clear skies', sky_condition.to_s)
     I18n.locale =  :it
     assert_equal('cielo sereno', sky_condition.to_s)
@@ -138,6 +145,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_sky_condition_few
     sky_condition = Metar::SkyCondition.parse('FEW016')
+    I18n.locale =  :en
     assert_equal('few', sky_condition.quantity)
     assert_equal(480, sky_condition.height.value)
     assert_equal('few clouds at 480m', sky_condition.to_s)
@@ -147,6 +155,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_sky_condition_ovc
     sky_condition = Metar::SkyCondition.parse('OVC016')
+    I18n.locale =  :en
     assert_equal('overcast', sky_condition.quantity)
     assert_equal(480, sky_condition.height.value)
     assert_equal('overcast at 480m', sky_condition.to_s)
@@ -156,6 +165,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_sky_condition_sct
     sky_condition = Metar::SkyCondition.parse( 'SCT016' )
+    I18n.locale =  :en
     assert_equal('scattered', sky_condition.quantity)
     assert_equal(480, sky_condition.height.value)
     assert_equal('scattered cloud at 480m', sky_condition.to_s)
@@ -165,6 +175,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_sky_condition_cloud_types_cb
     sky_condition = Metar::SkyCondition.parse('SCT016CB')
+    I18n.locale =  :en
     assert_equal('scattered', sky_condition.quantity)
     assert_equal('cumulonimbus', sky_condition.type)
     assert_equal(480, sky_condition.height.value)
@@ -175,6 +186,7 @@ class TestMetarData < Test::Unit::TestCase
 
   def test_sky_condition_cloud_types_tcu
     sky_condition = Metar::SkyCondition.parse('SCT016TCU')
+    I18n.locale =  :en
     assert_equal('scattered', sky_condition.quantity)
     assert_equal('towering cumulus', sky_condition.type)
     assert_equal(480, sky_condition.height.value)
@@ -193,6 +205,7 @@ class TestMetarData < Test::Unit::TestCase
   def test_vertical_visibility_unknown
     vertical_visibility = Metar::VerticalVisibility.parse('///')
     assert_nil(vertical_visibility.value)
+    I18n.locale =  :en
     assert_equal('unknown', vertical_visibility.to_s)
     I18n.locale =  :it
     assert_equal('sconosciuto', vertical_visibility.to_s)

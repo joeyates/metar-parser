@@ -52,6 +52,7 @@ class TestMetarReport < Test::Unit::TestCase
 
   def test_present_weather
     report = setup_report('DAAS', "2010/02/15 10:00\nDAAS 151000Z 16012KT 9999 -RA FEW010 BKN026 06/05 Q1006")
+    I18n.locale =  :en
     assert_equal('light rain', report.present_weather)
     I18n.locale = :it
     assert_equal('pioggia leggera', report.present_weather)
