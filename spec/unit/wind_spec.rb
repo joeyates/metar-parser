@@ -2,7 +2,9 @@ load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 
 RSpec::Matchers.define :be_wind do | direction, speed, gusts |
   match do | wind |
-    if wind.nil?              != [ direction, speed, gusts ].all?( &:nil? )
+    if wind.nil?              && [ direction, speed, gusts ].all?( &:nil? )
+      true
+    elsif wind.nil?           != [ direction, speed, gusts ].all?( &:nil? )
       false
     elsif wind.direction.nil? != direction.nil?
       false
@@ -30,103 +32,31 @@ describe Metar::Wind do
 
   context '.parse' do
 
-    it 'treats 5 digits as degrees and kilometers per hour' do
-      Metar::Wind.parse( '12345' ).
-                                  should     be_wind(  123.0, 12.5, nil )
-    end
-
-    it 'understands 5 digits + MPS' do
-      Metar::Wind.parse( '12345MPS' ).
-                                  should     be_wind( 123.0, 45.0, nil )
-    end
-
-    it 'understands 5 digits + KMH' do
-      Metar::Wind.parse( '12345KMH' ).
-                                  should     be_wind( 123.0, 12.5, nil )
-    end
-
-    it 'understands 5 digits + KT' do
-      Metar::Wind.parse( '12345KT' ).
-                                  should     be_wind( 123.0, 23.15, nil )
-    end
-
-    it 'returns nil for directions outside 0 to 360' do
-      Metar::Wind.parse( '88845KT' ).
-                                  should     be_nil
-    end
-
-    it 'understands 5 digits + G + 2 digits' do
-      Metar::Wind.parse( '12345G67' ).
-                                  should     be_wind( 123.0, 12.5, 18.61 )
-    end
-
-    it 'understands 5 digits + G + 2 digits + MPS' do
-      Metar::Wind.parse( '12345G67MPS' ).
-                                  should     be_wind( 123.0, 45.0, 67.00 )
-    end
-
-    it 'understands 5 digits + G + 2 digits + KMH' do
-      Metar::Wind.parse( '12345G67KMH' ).
-                                  should     be_wind( 123.0, 12.5, 18.61 )
-    end
-
-    it 'understands 5 digits + G + 2 digits + KT' do
-      Metar::Wind.parse( '12345G67KT' ).
-                                  should     be_wind( 123.0, 23.15, 34.47 )
-    end
-
-    it 'understands VRB + 2 digits' do
-      Metar::Wind.parse( 'VRB12' ).
-                                  should     be_wind( :variable_direction, 3.33, nil )
-    end
-
-    it 'understands VRB + 2 digits + KMH' do
-      Metar::Wind.parse( 'VRB12KMH' ).
-                                  should     be_wind( :variable_direction, 3.33, nil )
-    end
-
-    it 'understands VRB + 2 digits + MPS' do
-      Metar::Wind.parse( 'VRB12MPS' ).
-                                  should     be_wind( :variable_direction, 12.00, nil )
-    end
-
-    it 'understands VRB + 2 digits + KT' do
-      Metar::Wind.parse( 'VRB12KT' ).
-                                  should     be_wind( :variable_direction, 6.17, nil )
-    end
-
-    it 'understands /// + 2 digits' do
-      Metar::Wind.parse( '///12' ).
-                                  should     be_wind( :unknown_direction,  3.33, nil )
-    end
-
-    it 'understands /// + 2 digits + KMH' do
-      Metar::Wind.parse( '///12KMH' ).
-                                  should     be_wind( :unknown_direction,  3.33, nil )
-    end
-
-    it 'understands /// + 2 digits + MPS' do
-      Metar::Wind.parse( '///12MPS' ).
-                                  should     be_wind( :unknown_direction, 12.00, nil )
-    end
-
-    it 'understands /// + 2 digits + KT' do
-      Metar::Wind.parse( '///12KT' ).
-                                  should     be_wind( :unknown_direction,  6.17, nil )
-    end
-
-    it 'understands /////' do
-      Metar::Wind.parse( '/////' ).
-                                  should     be_wind( :unknown_direction, :unknown, nil )
-    end
-
-    it 'returns nil for badly formatted values' do
-      Metar::Wind.parse( 'XYZ12KT' ).
-                                  should     be_nil
-    end
-
-    it 'returns nil for nil' do
-      Metar::Wind.parse( nil ).   should     be_nil
+    [
+      [ 'treats 5 digits as degrees and kilometers per hour', '12345',       [ 123.0, 12.50, nil   ] ],
+      [ 'understands 5 digits + KMH',                         '12345KMH',    [ 123.0, 12.50, nil   ] ],
+      [ 'understands 5 digits + MPS',                         '12345MPS',    [ 123.0, 45.00, nil   ] ],
+      [ 'understands 5 digits + KT',                          '12345KT',     [ 123.0, 23.15, nil   ] ],
+      [ 'returns nil for directions outside 0 to 360',        '88845KT',     [ nil,   nil,   nil   ] ],
+      [ 'understands 5 digits + G + 2 digits',                '12345G67',    [ 123.0, 12.50, 18.61 ] ],
+      [ 'understands 5 digits + G + 2 digits + MPS',          '12345G67MPS', [ 123.0, 45.00, 67.00 ] ],
+      [ 'understands 5 digits + G + 2 digits + KMH',          '12345G67KMH', [ 123.0, 12.50, 18.61 ] ],
+      [ 'understands 5 digits + G + 2 digits + KT',           '12345G67KT',  [ 123.0, 23.15, 34.47 ] ],
+      [ 'understands VRB + 2 digits'                          'VRB12',       [ :variable_direction,  3.33, nil ] ],
+      [ 'understands VRB + 2 digits + KMH',                   'VRB12KMH',    [ :variable_direction,  3.33, nil ] ],
+      [ 'understands VRB + 2 digits + MPS',                   'VRB12MPS',    [ :variable_direction, 12.00, nil ] ],
+      [ 'understands VRB + 2 digits + KT',                    'VRB12KT',     [ :variable_direction,  6.17, nil ] ],
+      [ 'understands /// + 2 digits',                         '///12',       [ :unknown_direction,   3.33, nil ] ],
+      [ 'understands /// + 2 digits + KMH',                   '///12KMH',    [ :unknown_direction,   3.33, nil ] ],
+      [ 'understands /// + 2 digits + MPS',                   '///12MPS',    [ :unknown_direction,  12.00, nil ] ],
+      [ 'understands /// + 2 digits + KT',                    '///12KT',     [ :unknown_direction,   6.17, nil ] ],
+      [ 'understands /////',                                  '/////',       [ :unknown_direction, :unknown, nil ] ],
+      [ 'returns nil for badly formatted values',             'XYZ12KT',     [ nil, nil, nil ] ],
+      [ 'returns nil for nil',                                'XYZ12KT',     [ nil, nil, nil ] ],
+    ].each do | docstring, raw, expected |
+      example docstring do
+        Metar::Wind.parse( raw ).should be_wind( *expected )
+      end
     end
 
   end
@@ -136,6 +66,7 @@ describe Metar::Wind do
     it 'should return a String version'
 
   end
+
 
 end
 
