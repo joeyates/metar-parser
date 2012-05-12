@@ -36,6 +36,7 @@ module Metar
   class Speed < M9t::Speed
 
     METAR_UNITS = {
+      ''    => :kilometers_per_hour,
       'KMH' => :kilometers_per_hour,
       'MPS' => :meters_per_second,
       'KT'  => :knots,
@@ -43,11 +44,9 @@ module Metar
 
     def Speed.parse(s)
       case
-      when s =~ /^(\d+)(KT|MPS|KMH)$/
+      when s =~ /^(\d+)(|KT|MPS|KMH)$/
         # Call the appropriate factory method for the supplied units
         send( METAR_UNITS[$2], $1.to_i )
-      when s =~ /^(\d+)$/
-        kilometers_per_hour( $1.to_i )
       else
         nil
       end
@@ -97,12 +96,16 @@ module Metar
     def Wind.parse(s)
       case
       when s =~ /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
+        return nil if $1.to_i > 359
         new( M9t::Direction.new( $1 ),
              Speed.parse( $2 ),
+             nil,
              :direction_units => :compass )
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/
+        return nil if $1.to_i > 359
         new( M9t::Direction.new( $1 ),
-             Speed.parse( $2 ),
+             Speed.parse( $2 + $4 ),
+             Speed.parse( $3 + $4),
              :direction_units => :compass )
       when s =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
         new(:variable_direction, Speed.parse($1))
@@ -115,12 +118,12 @@ module Metar
       end
     end
 
-    attr_reader :direction, :speed, :options
+    attr_reader :direction, :speed, :gusts, :options
 
-    def initialize( direction, speed, options = {} )
+    def initialize( direction, speed, gusts = nil, options = {} )
       @options = { :direction_units => :compass,
                    :speed_units     => :kilometers_per_hour }.merge( options )
-      @direction, @speed = direction, speed
+      @direction, @speed, @gusts = direction, speed, gusts
     end
 
     def to_s
