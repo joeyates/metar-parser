@@ -112,7 +112,7 @@ module Metar
              Speed.parse($1))
       when s =~ %r(^/////(|MPS|KMH|KT)$)
         new( :unknown_direction,
-             :unknown)
+             :unknown_speed)
       else
         nil
       end
@@ -127,6 +127,15 @@ module Metar
     def to_s( options = {} )
       options = { :direction_units => :compass,
                   :speed_units     => :kilometers_per_hour }.merge( options )
+      speed =
+        case @speed
+        when :unknown_speed
+          I18n.t('metar.wind.unknown_speed')
+        else
+          @speed.to_s( :abbreviated => true,
+                       :precision   => 0,
+                       :units       => options[ :speed_units ] )
+        end
       direction =
         case @direction
         when :variable_direction
@@ -135,15 +144,6 @@ module Metar
           I18n.t('metar.wind.unknown_direction')
         else
           @direction.to_s( :units => options[ :direction_units ] )
-        end
-      speed =
-        case @speed
-        when :unknown
-          I18n.t('metar.wind.unknown_speed')
-        else
-          @speed.to_s( :abbreviated => true,
-                       :precision   => 0,
-                       :units       => options[ :speed_units ] )
         end
       s = "#{ speed } #{ direction }"
       if ! @gusts.nil?
