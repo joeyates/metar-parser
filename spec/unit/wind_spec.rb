@@ -72,15 +72,20 @@ describe Metar::Wind do
     end
 
     [
-      [ 'should format speed and direction', :en, [ M9t::Direction.new( 123 ), Metar::Speed.new( 123 ), nil ], '443km/h ESE' ],
-      [ 'should handle variable_direction',  :en, [ :variable_direction,       Metar::Speed.new( 123 ), nil ], '443km/h variable direction' ],
-      [ 'should handle unknown_direction',   :en, [ :unknown_direction,        Metar::Speed.new( 123 ), nil ], '443km/h unknown direction' ],
-      [ 'should handle unknown_speed',       :en, [ M9t::Direction.new( 123 ), :unknown_speed,          nil ], 'unknown speed ESE' ],
-      [ 'should format speed and direction', :it, [ M9t::Direction.new( 123 ), Metar::Speed.new( 123 ), nil ], '443km/h ESE' ],
-      [ 'should handle variable_direction',  :it, [ :variable_direction,       Metar::Speed.new( 123 ), nil ], '443km/h direzione variabile' ],
-      [ 'should handle unknown_direction',   :it, [ :unknown_direction,        Metar::Speed.new( 123 ), nil ], '443km/h direzione sconosciuta' ],
-      [ 'should handle unknown_speed',       :it, [ M9t::Direction.new( 123 ), :unknown_speed,          nil ], 'velocità sconosciuta ESE' ],
+      [ 'should format speed and direction', :en, [ nil,                 nil,            nil ],                     '443km/h ESE' ],
+      [ 'should handle variable_direction',  :en, [ :variable_direction, nil,            nil ],                     '443km/h variable direction' ],
+      [ 'should handle unknown_direction',   :en, [ :unknown_direction,  nil,            nil ],                     '443km/h unknown direction' ],
+      [ 'should handle unknown_speed',       :en, [ nil,                 :unknown_speed, nil ],                     'unknown speed ESE' ],
+      [ 'should include gusts',              :en, [ nil,                 nil,            Metar::Speed.new( 123 ) ], '443km/h ESE gusts 443km/h' ],
+      [ 'should format speed and direction', :it, [ nil,                 nil,            nil ],                     '443km/h ESE' ],
+      [ 'should handle variable_direction',  :it, [ :variable_direction, nil,            nil ],                     '443km/h direzione variabile' ],
+      [ 'should handle unknown_direction',   :it, [ :unknown_direction,  nil,            nil ],                     '443km/h direzione sconosciuta' ],
+      [ 'should handle unknown_speed',       :it, [ nil,                 :unknown_speed, nil ],                     'velocità sconosciuta ESE' ],
+      [ 'should include gusts',              :it, [ nil,                 nil,            Metar::Speed.new( 123 ) ], '443km/h ESE folate di 443km/h' ],
     ].each do | docstring, locale, ( direction, speed, gusts ), expected |
+      direction ||= M9t::Direction.new( 123 )
+      speed     ||= Metar::Speed.new( 123 )
+
       example docstring + " (#{locale})" do
         I18n.locale = locale
         Metar::Wind.new( direction, speed, gusts ).to_s.
