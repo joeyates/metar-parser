@@ -51,7 +51,7 @@ describe Metar::Wind do
       [ 'understands /// + 2 digits + KT',                    '///12KT',     [ :unknown_direction,   6.17, nil ] ],
       [ 'understands /////',                                  '/////',       [ :unknown_direction, :unknown_speed, nil ] ],
       [ 'returns nil for badly formatted values',             'XYZ12KT',     [ nil, nil, nil ] ],
-      [ 'returns nil for nil',                                'XYZ12KT',     [ nil, nil, nil ] ],
+      [ 'returns nil for nil',                                nil,           [ nil, nil, nil ] ],
     ].each do | docstring, raw, expected |
       example docstring do
         Metar::Wind.parse( raw ).should be_wind( *expected )
