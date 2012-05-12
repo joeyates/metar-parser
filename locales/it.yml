@@ -34,6 +34,7 @@ it:
       variable_direction: direzione variabile
       unknown_direction: direzione sconosciuta
       unknown_speed: velocità sconosciuta
+      gusts: folate di
     variable_wind:
       title: variazione del vento
     visibility:

@@ -105,14 +105,17 @@ module Metar
         return nil if $1.to_i > 359
         new( M9t::Direction.new( $1 ),
              Speed.parse( $2 + $4 ),
-             Speed.parse( $3 + $4),
+             Speed.parse( $3 ),
              :direction_units => :compass )
       when s =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
-        new(:variable_direction, Speed.parse($1))
+        new( :variable_direction,
+             Speed.parse($1))
       when s =~ /^\/{3}(\d{2}(|MPS|KMH|KT))$/
-        new(:unknown_direction, Speed.parse($1))
+        new( :unknown_direction,
+             Speed.parse($1))
       when s =~ /^\/{3}(\/{2}(|MPS|KMH|KT))$/
-        new(:unknown_direction, :unknown)
+        new( :unknown_direction,
+             :unknown)
       else
         nil
       end
@@ -144,8 +147,15 @@ module Metar
           @speed.to_s( :abbreviated => true,
                        :precision   => 0,
                        :units       => @options[ :speed_units ] )
-        end  
-      "#{ speed } #{ direction }"
+        end
+      s = "#{ speed } #{ direction }"
+      if ! @gusts.nil?
+        g =  @gusts.to_s( :abbreviated => true,
+                          :precision   => 0,
+                          :units       => @options[ :speed_units ] )
+        s += " #{ I18n.t('metar.wind.gusts') } #{ g }"
+      end
+      s
     end
 
   end

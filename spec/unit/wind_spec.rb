@@ -8,6 +8,8 @@ RSpec::Matchers.define :be_wind do | direction, speed, gusts |
       false
     elsif wind.speed.nil?     != speed.nil?
       false
+    elsif wind.gusts.nil?     != gusts.nil?
+      false
     elsif direction.is_a?( Symbol )         && wind.direction != direction
       false
     elsif direction.is_a?( M9t::Direction ) && (wind.direction.value - direction).abs > 0.01
