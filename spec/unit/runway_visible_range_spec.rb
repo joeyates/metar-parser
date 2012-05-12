@@ -49,5 +49,41 @@ describe Metar::RunwayVisibleRange do
 
   end
 
+  context '#to_s' do
+
+    before :all do
+      @locale = I18n.locale
+      I18n.locale = :it
+    end
+
+    after :all do
+      I18n.locale = @locale
+    end
+
+    [
+      [ 'v1',        :en, [ [3400.00, nil, nil], nil,                 nil ], 'runway 14: 3400m' ],
+      [ 'v1 and v2', :en, [ [3400.00, nil, nil], [1900.00, nil, nil], nil ], 'runway 14: from 3400m to 1900m' ],
+    ].each do | docstring, locale, ( visibility1, visibility2, tendency ), expected |
+      d1 = Metar::Distance.new( visibility1[0] )
+      v1 = Metar::Visibility.new( d1, visibility1[1], visibility1[2] )
+      v2 =
+        if ! visibility2.nil?
+          d2 = Metar::Distance.new( visibility2[0] )
+          Metar::Visibility.new( d2, visibility2[1], visibility2[2] )
+        else
+          nil
+        end
+
+      example docstring + " (#{locale})" do
+        I18n.locale = locale
+        Metar::RunwayVisibleRange.new( '14', v1, v2, tendency ).to_s.
+                                  should     == expected
+      end
+    end
+
+    it 'should handle tendency'
+
+  end
+
 end
 
