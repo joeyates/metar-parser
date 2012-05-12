@@ -110,7 +110,7 @@ module Metar
       when s =~ /^\/{3}(\d{2}(|MPS|KMH|KT))$/
         new( :unknown_direction,
              Speed.parse($1))
-      when s =~ /^\/{3}(\/{2}(|MPS|KMH|KT))$/
+      when s =~ %r(^/////(|MPS|KMH|KT)$)
         new( :unknown_direction,
              :unknown)
       else
