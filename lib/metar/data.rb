@@ -375,9 +375,7 @@ module Metar
     end
 
     def to_s
-      modifier = @modifier ? @modifier + ' ' : ''
-      descriptor = @descriptor ? @descriptor + ' ' : ''
-      I18n.t("metar.present_weather.%s%s%s" % [modifier, descriptor, @phenomenon])
+      I18n.t("metar.present_weather.%s" % [@modifier, @descriptor, @phenomenon].compact.join(' '))
     end
 
   end

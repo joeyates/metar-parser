@@ -37,5 +37,32 @@ describe Metar::WeatherPhenomenon do
 
   end
 
+  context '#to_s' do
+
+    before :all do
+      @locale = I18n.locale
+      I18n.locale = :it
+    end
+
+    after :all do
+      I18n.locale = @locale
+    end
+
+    [
+      [ 'simple phenomenon', :en, [ nil, nil, 'mist' ], 'mist' ],
+      [ 'simple phenomenon', :it, [ nil, nil, 'mist' ], 'foschia' ],
+      [ 'descriptor + phenomenon', :en, [ nil, 'patches of', 'fog' ], 'patches of fog' ],
+      [ 'modifier + phenomenon', :en, ['heavy', nil, 'drizzle' ], 'heavy drizzle' ],
+      [ 'modifier + descriptor + phenomenon', :en, ['heavy', 'freezing', 'drizzle' ], 'heavy freezing drizzle' ],
+    ].each do | docstring, locale, ( modifier, descriptor, phenomenon ), expected |
+      example docstring + " (#{locale})" do
+        I18n.locale = locale
+        Metar::WeatherPhenomenon.new( phenomenon, modifier, descriptor ).to_s.
+                                  should     == expected
+      end
+    end
+
+  end
+
 end
 
