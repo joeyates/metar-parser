@@ -1,6 +1,8 @@
 load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 # encoding: utf-8
 
+require 'stringio'
+
 describe Metar::Station do
 
   before :each do
@@ -54,6 +56,35 @@ describe Metar::Station do
       File.                       should_receive( :open ).once.with( %r(nsd_cccc.txt) )
 
       Metar::Station.load_local
+    end
+
+  end
+
+  context '.countries' do
+
+    def nsd_file
+#0    1  2   3    4     5       6 7        8         9        10        11  12  13
+#CCCC;??;???;name;state;country;?;latitude;longitude;latitude;longitude;???;???;?
+      nsd_text =<<EOT
+AAAA;00;000;Airport A1;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P
+AAAB;00;000;Airport A2;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P
+BBBA;00;000;Airport B1;;Bbbbb;1;11-03S;055-24E;11-03S;055-24E;000;000;P
+EOT
+      StringIO.new( nsd_text )
+    end
+
+    def preload_data
+      File.stub!( :exist? ).and_return( true )
+      File.stub!( :open ).with( %r(nsd_cccc.txt) ).and_return( nsd_file )
+      Metar::Station.load_local
+    end
+
+    before :each do
+      preload_data
+    end
+
+    it 'lists unique countries' do
+      Metar::Station.countries.   should     == [ 'Aaaaa', 'Bbbbb' ]
     end
 
   end

@@ -31,7 +31,7 @@ module Metar
       end
 
       def countries
-        all_structures.reduce( Set.new ) { |a, s| a.add( s[ :country ] ); a }
+        all_structures.reduce( Set.new ) { |a, s| a.add( s[ :country ] ) }.to_a.sort
       end
 
       def all
