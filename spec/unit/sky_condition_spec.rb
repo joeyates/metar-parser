@@ -23,10 +23,10 @@ describe Metar::SkyCondition do
 
   context '.parse' do
     [
-      [ 'understands clear skies codes', 'NSC',      [nil,          nil, nil            ] ],
-      [ 'quantity + height',             'BKN12',    ['broken',     360, nil            ] ],
-      [ 'quantity + height + condition', 'BKN12CB',  ['broken',     360, 'cumulonimbus' ] ],
-      [ 'quantity + height + ///',       'BKN12///', ['broken',     360, nil            ] ],
+      [ 'understands clear skies codes', 'NSC',      [ nil,         nil, nil            ] ],
+      [ 'quantity + height',             'BKN12',    [ 'broken',    360, nil            ] ],
+      [ 'quantity + height + condition', 'BKN12CB',  [ 'broken',    360, 'cumulonimbus' ] ],
+      [ 'quantity + height + ///',       'BKN12///', [ 'broken',    360, nil            ] ],
       [ 'returns nil for unmatched',     'FUBAR',    [ :expect_nil, nil, nil            ] ],
     ].each do | docstring, raw, expected |
       example docstring do
