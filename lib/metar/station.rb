@@ -13,7 +13,6 @@ module Metar
     class << self
 
       @nsd_cccc = nil # Contains the text of the station list
-      attr_accessor :nsd_cccc # Allow tests to run from local file
 
       def download_local
         nsd_cccc = Metar::Station.download_stations
