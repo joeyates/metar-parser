@@ -22,15 +22,48 @@ end
 describe Metar::SkyCondition do
 
   context '.parse' do
+
     [
       [ 'understands clear skies codes', 'NSC',      [ nil,         nil, nil            ] ],
       [ 'quantity + height',             'BKN12',    [ 'broken',    360, nil            ] ],
-      [ 'quantity + height + condition', 'BKN12CB',  [ 'broken',    360, 'cumulonimbus' ] ],
+      [ 'quantity + height + type',      'BKN12CB',  [ 'broken',    360, 'cumulonimbus' ] ],
       [ 'quantity + height + ///',       'BKN12///', [ 'broken',    360, nil            ] ],
       [ 'returns nil for unmatched',     'FUBAR',    [ :expect_nil, nil, nil            ] ],
     ].each do | docstring, raw, expected |
       example docstring do
         Metar::SkyCondition.parse( raw ).should be_sky_condition( *expected )
+      end
+    end
+
+  end
+
+  context '.to_summary' do
+
+    [
+      [ 'all values nil',  [ nil,      nil, nil ],           'clear skies'         ],
+      [ 'quantity',        [ 'broken', nil, nil ],           'broken cloud'        ],
+      [ 'quantity + type', [ 'broken', nil, 'cumulonimbus'], 'broken cumulonimbus' ],
+    ].each do | docstring, ( quantity, height, type ), expected |
+      example docstring do
+        sk = Metar::SkyCondition.new( quantity, height, type )
+      
+        sk.to_summary.            should     == expected
+      end
+    end
+
+  end
+
+  context '.to_s' do
+
+    [
+      [ 'all values nil',  [ nil,      nil, nil ],           'clear skies'                ],
+      [ 'quantity',        [ 'broken', 360, nil ],           'broken cloud at 360'        ],
+      [ 'quantity + type', [ 'broken', 360, 'cumulonimbus'], 'broken cumulonimbus at 360' ],
+    ].each do | docstring, ( quantity, height, type ), expected |
+      example docstring do
+        sk = Metar::SkyCondition.new( quantity, height, type )
+      
+        sk.to_s.                  should     == expected
       end
     end
 

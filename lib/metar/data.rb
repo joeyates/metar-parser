@@ -416,9 +416,11 @@ module Metar
     end
 
     def to_s
-      conditions = to_summary
-      conditions += ' ' + I18n.t('metar.altitude.at') + ' ' + height.to_s if not @height.nil?
-      conditions
+      if @height.nil?
+        to_summary
+      else
+        to_summary + ' ' + I18n.t('metar.altitude.at') + ' ' + height.to_s
+      end
     end
 
     def to_summary
