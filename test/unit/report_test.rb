@@ -28,7 +28,7 @@ class TestMetarReport < Test::Unit::TestCase
   def test_variable_wind
     report = setup_report('LIRQ', "2010/02/06 15:20\nLIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
     I18n.locale = :en
-    assert_equal('350 degrees - 50 degrees', report.variable_wind)
+    assert_equal('N - NE', report.variable_wind)
   end
 
   def test_visibility
