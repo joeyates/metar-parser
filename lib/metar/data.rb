@@ -383,31 +383,27 @@ module Metar
   class SkyCondition
 
     QUANTITY = {'BKN' => 'broken', 'FEW' => 'few', 'OVC' => 'overcast', 'SCT' => 'scattered'}
+    CONDITION = {
+      'CB'  => 'cumulonimbus',
+      'TCU' => 'towering cumulus',
+      '///' => nil,
+      ''    => nil
+    }
+    CLEAR_SKIES = [
+      'NSC', # WMO
+      'NCD', # WMO
+      'CLR',
+      'SKC',
+    ]
 
     def SkyCondition.parse(sky_condition)
       case
-      when (sky_condition == 'NSC' or sky_condition == 'NCD') # WMO
+      when CLEAR_SKIES.include?( sky_condition )
         new
-      when sky_condition == 'CLR'
-        new
-      when sky_condition == 'SKC'
-        new
-      when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+)(CB|TCU|\/{3})?$/
-        quantity = QUANTITY[$1]
-        height = Distance.new( $2.to_i * 30.0 )
-        type =
-          case $3
-          when 'CB'
-            'cumulonimbus'
-          when 'TCU'
-            'towering cumulus'
-          when nil
-            nil
-          when '///'
-            nil
-          else
-            raise ParseError.new("Unexpected sky condition type: #$3")
-          end
+      when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+)(CB|TCU|\/{3}|)?$/
+        quantity = QUANTITY[ $1 ]
+        height   = Distance.new( $2.to_i * 30.0 )
+        type     = CONDITION[ $3 ]
         new(quantity, height, type)
       else
         nil
