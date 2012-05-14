@@ -24,6 +24,13 @@ if RUBY_VERSION < '1.9'
     rdoc.main = 'README.rdoc'
     rdoc.rdoc_files.add ['README.rdoc', 'COPYING', 'lib/**/*.rb']
   end
+
+  RSpec::Core::RakeTask.new( 'spec:rcov' ) do |t|
+    t.pattern   = 'spec/**/*_spec.rb'
+    t.rcov      = true
+    t.rcov_opts = [ '--exclude', 'spec/,/gems/' ]
+  end
+
 end
 
 desc "Build the gem"
