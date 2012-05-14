@@ -33,9 +33,18 @@ describe Metar::Parser do
       parser.date.    should     == Date.new(2010, 2, 6)
     end
 
-    it 'observer_real' do
-      parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
-      parser.observer.    should     == :real
+    context '.observer' do
+
+      it 'real' do
+        parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+        parser.observer.          should     == :real
+      end
+
+      it 'corrected' do
+        parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z COR 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+        parser.observer.          should     == :corrected
+      end
+      
     end
 
     it 'wind' do
