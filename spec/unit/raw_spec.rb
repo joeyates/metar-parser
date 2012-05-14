@@ -4,11 +4,47 @@ load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 require 'net/ftp'
 
 describe Metar::Raw do
+
   after :each do
     Metar::Raw.send( :class_variable_set, '@@connection', nil )
   end
 
   context '.connection' do
+
+    context 'uncached' do
+
+      it 'sets up the connection' do
+        ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil )
+
+        Net::FTP.                   should_receive( :new ).
+                                    and_return( ftp )
+
+        Metar::Raw.connect
+      end
+
+    end
+
+    context 'cached' do
+
+      before :each do
+        @ftp = stub( 'ftp' )
+        Metar::Raw.send( :class_variable_set, '@@connection', @ftp )
+      end
+
+      it 'does not connect to FTP' do
+        Net::FTP.                   should_not_receive( :new )
+
+        Metar::Raw.connection
+      end
+
+      it 'returns the cached connection' do
+        connection = Metar::Raw.connection
+
+        connection.               should     == @ftp
+      end
+
+    end
+    
   end
 
   context '.connect' do
@@ -25,6 +61,7 @@ describe Metar::Raw do
 
       Metar::Raw.connect
     end
+
   end
 
   context '.fetch' do
