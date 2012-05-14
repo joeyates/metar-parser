@@ -83,12 +83,10 @@ module Metar
       transitions :from => [:remarks],          :to => :end
     end
 
-    def Parser.for_cccc(cccc)
+    def self.for_cccc(cccc)
       station = Metar::Station.new(cccc)
       raw = Metar::Raw.new(station)
-      parser = new(raw)
-      parser.analyze
-      parser
+      new(raw)
     end
 
     attr_reader :raw, :metar, :time

@@ -3,6 +3,23 @@ load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 
 describe Metar::Parser do
 
+  context '.for_cccc' do
+
+    it 'returns a loaded parser' do
+      station = stub( 'station' )
+      raw = stub( 'raw', :metar => "XXXX 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000",
+                         :time  => '2010/02/06 16:10' )
+      Metar::Station.stub!( :new => station )
+      Metar::Raw.stub!( :new => raw )
+
+      parser = Metar::Parser.for_cccc( 'XXXX' )
+
+      parser.                     should     be_a( Metar::Parser )
+      parser.station_code.        should     == 'XXXX'
+    end
+         
+  end
+
   context 'attributes' do
 
     it 'time obligatory' do
