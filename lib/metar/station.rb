@@ -42,6 +42,10 @@ module Metar
         end
       end
 
+      def find_by_cccc(cccc)
+        all.find { |station| station.cccc == cccc }
+      end
+
       # Does the given CCCC code exist?
       def exist?(cccc)
         not find_data_by_cccc(cccc).nil?
@@ -49,10 +53,6 @@ module Metar
 
       def find_all_by_country( country )
         all.select { | s | s.country == country }
-      end
-
-      def find_by_cccc(cccc)
-        all.find { |station| station.cccc == cccc }
       end
 
       def to_longitude(s)
@@ -66,59 +66,15 @@ module Metar
       end
     end
 
-    attr_reader :cccc, :loaded
+    attr_reader :cccc, :name, :state, :country, :longitude, :latitude, :raw
     alias :code :cccc
-    # loaded? indicates whether the data has been collected from the Web
-    alias :loaded? :loaded
 
     # No check is made on the existence of the station
-    def initialize(cccc, options = {})
-      raise "Station identifier must not be nil" if cccc.nil?
-      raise "Station identifier must be a text" if not cccc.respond_to?('to_s')
-      @cccc      = cccc
-      @name      = options[:name]
-      @state     = options[:state]
-      @country   = options[:country]
-      @longitude = options[:longitude]
-      @latitude  = options[:latitude]
-      @raw       = options[:raw]
-      @loaded    = false
-    end
-
-    # Lazy loaded attributes
-    ## TODO: DRY this up by generating these methods
-    def name
-      load! if not @loaded
-      @name
-    end
-
-    def state
-      load! if not @loaded
-      @state
-    end
-
-    def country
-      load! if not @loaded
-      @country
-    end
-
-    def latitude
-      load! if not @loaded
-      @latitude
-    end
-
-    def longitude
-      load! if not @loaded
-      @longitude
-    end
-
-    def raw
-      load! if not @loaded
-      @raw
-    end
-
-    def exist?
-      Station.exist?(@cccc)
+    def initialize( cccc, noaa_data )
+      raise "Station identifier must not be nil"   if cccc.nil?
+      raise "Station identifier must not be empty" if cccc.to_s == ''
+      @cccc = cccc
+      load! noaa_data
     end
 
     def report
@@ -170,20 +126,16 @@ module Metar
 
     end
 
-    # Get data from the NOAA data file (very slow on first call!)
-    def load!
-      noaa_data  = Station.find_data_by_cccc(@cccc)
-      raise "Station identifier '#{ @cccc }' not found" if noaa_data.nil?
+    def load!( noaa_data )
       @name      = noaa_data[:name]
       @state     = noaa_data[:state]
       @country   = noaa_data[:country]
       @longitude = Station.to_longitude(noaa_data[:longitude])
       @latitude  = Station.to_latitude(noaa_data[:latitude])
       @raw       = noaa_data[:raw]
-      @loaded    = true
-      self
     end
 
   end
 
 end
+

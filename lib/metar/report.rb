@@ -47,7 +47,7 @@ module Metar
 
     def initialize(parser)
       @parser = parser
-      @station = Station.find_by_cccc(@parser.station_code)
+      @station = Station.find_by_cccc(@parser.station_code) # TODO: parser should return the station
     end
 
     def station_name
