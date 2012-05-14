@@ -102,5 +102,53 @@ describe Metar::Raw do
 
   end
 
+  context 'initialization' do
+  
+    it 'should accept CCCC codes' do
+      raw = Metar::Raw.new( 'XXXX' )
+
+      raw.cccc.                   should     == 'XXXX'
+    end
+      
+    it 'should accept Stations' do
+      station = stub( 'Metar::Station', :cccc => 'YYYY' )
+      raw = Metar::Raw.new( station )
+
+      raw.cccc.                   should     == 'YYYY'
+    end
+
+    it 'should parse data, if supplied' do
+      raw = Metar::Raw.new( 'XXXX', raw_metar )
+     
+      raw.data.                   should     == raw_metar 
+      raw.raw_time.               should     == @raw_time
+      raw.metar.                  should     == @metar 
+      raw.time.                   should     == Time.parse( @raw_time ) 
+    end
+    
+  end
+
+  context 'lazy loading' do
+    
+    it 'should fetch data on demand' do
+      raw = Metar::Raw.new( 'ESSB' )
+
+      Metar::Raw.                 should_receive( :fetch ).
+                                  with( 'ESSB' ).
+                                  and_return( raw_metar )
+
+      raw.metar
+
+      raw.data.                   should     == raw_metar 
+    end
+
+  end
+
+  def raw_metar
+    @raw_time  = "2010/02/15 10:20"
+    @metar     = "ESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 Q1013 1271//55"
+    "#{ @raw_time }\n#{ @metar }"
+  end
+
 end
 

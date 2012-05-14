@@ -88,3 +88,4 @@ module Metar
   end
 
 end
+
