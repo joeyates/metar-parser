@@ -4,44 +4,16 @@ module Metar
 
   class Report
 
-    KNOWN_ATTRIBUTES =
-      [
-       :station_code, :station_name, :station_country,
-       :date, :time, :observer,
-       :wind, :variable_wind,
-       :visibility, :runway_visible_range,
-       :present_weather,
-       :sky_summary, :sky_conditions,
-       :temperature, :dew_point, :remarks
-      ]
-
-    DEFAULT_ATTRIBUTES =
-      [
-       :station_name, :station_country,
-       :time,
-       :wind,
-       :visibility,
-       :present_weather,
-       :sky_summary,
-       :temperature
-      ]
-
-    instance_eval do
-
-      def reset_options!
-        @attributes = DEFAULT_ATTRIBUTES.clone
-      end
-
-      def attributes
-        @attributes
-      end
-
-      def attributes=(attributes)
-        @attributes = attributes.clone
-      end
-
-      reset_options!
-    end
+    ATTRIBUTES = [
+      :station_name,
+      :station_country,
+      :time,
+      :wind,
+      :visibility,
+      :present_weather,
+      :sky_summary,
+      :temperature
+    ]
 
     attr_reader :parser, :station
 
@@ -122,19 +94,21 @@ module Metar
     def remarks
       @parser.remarks.join(', ')
     end
-    
-    def attributes
-      Metar::Report.attributes.reduce([]) do |memo, key|
-        value = self.send(key).to_s
-        memo << {:attribute => key, :value => value} if not value.empty?
-        memo
-      end
-    end
 
     def to_s
       attributes.collect do |attribute|
         I18n.t('metar.' + attribute[:attribute].to_s + '.title') + ': ' + attribute[:value]
-      end.join("\n")
+      end.join("\n") + "\n"
+    end
+
+    private
+
+    def attributes
+      a = Metar::Report::ATTRIBUTES.map do | key |
+        value = self.send(key).to_s
+        {:attribute => key, :value => value} if not value.empty?
+      end
+      a.compact
     end
 
   end
