@@ -1,5 +1,7 @@
-metar - Downloads and parses weather status
-===========================================
+metar-parser [![Build Status](https://secure.travis-ci.org/joeyates/metar-parser.png)][Continuous Integration]
+============
+
+* Get latest weather reports from weather stations worldwide *
 
 The information comes from the National Oceanic and Atmospheric Association's raw data source.
 
