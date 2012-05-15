@@ -5,8 +5,14 @@ require 'rake/file_list'
 
 Gem::Specification.new do |s|
   s.name          = 'metar-parser'
-  s.summary       = 'A Ruby library for METAR weather reports'
-  s.description   = 'A Ruby library which handle METAR weather reports. Provides weather station listings and info. Downloads and parses reports. Presents localized full text reports'
+  s.summary       = 'A Ruby gem for worldwide weather reports'
+  s.description   = <<-EOT
+    metar-parser is a ruby gem that downloads weather reports, parses them and formats reports.
+
+    It also provides weather station listings and info (e.g. country, latitude and longitude).
+
+    Reports can be fully localized (currently English and Italian are available).
+    EOT
   s.version       = Metar::VERSION::STRING
 
   s.homepage      = 'http://github.com/joeyates/metar-parser'
