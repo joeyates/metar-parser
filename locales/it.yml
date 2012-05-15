@@ -6,6 +6,10 @@ it:
   comparison:
     more_than: piú di
     less_than: meno di
+  tendency:
+    no_change: invariato
+    improving: in miglioramento
+    worsening: tendente a peggiorare
   units:
     pressure:
       bar:
@@ -151,3 +155,4 @@ it:
       title: punto di rugiada
     remarks:
       title: annotazioni
+

@@ -6,6 +6,10 @@ en:
   comparison:
     more_than: more than
     less_than: less than
+  tendency:
+    no_change: no change
+    improving: improving
+    worsening: worsening
   units:
     pressure:
       bar:

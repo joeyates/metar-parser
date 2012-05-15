@@ -283,18 +283,25 @@ module Metar
       distance_options = { :abbreviated => true,
                            :precision   => 0,
                            :units       => @units }
-      if @visibility2.nil?
-        I18n.t('metar.runway_visible_range.runway') +
-          ' ' + @designator +
-          ': ' + @visibility1.to_s( distance_options )
-      else
-        I18n.t('metar.runway_visible_range.runway') +
-          ' ' + @designator +
-          ': ' + I18n.t('metar.runway_visible_range.from') +
-          ' ' + @visibility1.to_s( distance_options ) +
-          ' ' + I18n.t('metar.runway_visible_range.to') +
-          ' ' + @visibility2.to_s( distance_options )
+      s =
+        if @visibility2.nil?
+          I18n.t( 'metar.runway_visible_range.runway') +
+                  ' '  + @designator +
+                  ': ' + @visibility1.to_s( distance_options )
+        else
+          I18n.t( 'metar.runway_visible_range.runway') +
+                  ' '  + @designator +
+                  ': ' + I18n.t('metar.runway_visible_range.from') +
+                  ' '  + @visibility1.to_s( distance_options ) +
+                  ' '  + I18n.t('metar.runway_visible_range.to') +
+                  ' '  + @visibility2.to_s( distance_options )
+        end
+
+      if ! tendency.nil?
+        s += ' ' + I18n.t( "tendency.#{ tendency }" )
       end
+
+      s
     end
 
   end

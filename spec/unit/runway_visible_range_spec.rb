@@ -62,7 +62,8 @@ describe Metar::RunwayVisibleRange do
 
     [
       [ 'v1',        :en, [ [3400.00, nil, nil], nil,                 nil ], 'runway 14: 3400m' ],
-      [ 'v1 and v2', :en, [ [3400.00, nil, nil], [1900.00, nil, nil], nil ], 'runway 14: from 3400m to 1900m' ],
+      [ 'v1 and v2',       :en,  [ [3400.00, nil, nil], [1900.00, nil, nil], nil ], 'runway 14: from 3400m to 1900m' ],
+      [ 'v1 and tendency', :en, [ [3400.00, nil, nil], nil,                 :improving ], 'runway 14: 3400m improving' ],
     ].each do | docstring, locale, ( visibility1, visibility2, tendency ), expected |
       d1 = Metar::Distance.new( visibility1[0] )
       v1 = Metar::Visibility.new( d1, visibility1[1], visibility1[2] )
@@ -80,8 +81,6 @@ describe Metar::RunwayVisibleRange do
                                   should     == expected
       end
     end
-
-    it 'should handle tendency'
 
   end
 
