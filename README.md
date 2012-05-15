@@ -3,6 +3,10 @@ metar-parser [![Build Status](https://secure.travis-ci.org/joeyates/metar-parser
 
 * Get latest weather reports from weather stations worldwide *
 
+  * [Continuous Integration]
+
+[Continuous Integration]: http://travis-ci.org/joeyates/metar-parser "Build status by Travis-CI"
+
 The information comes from the National Oceanic and Atmospheric Association's raw data source.
 
 Implementation
