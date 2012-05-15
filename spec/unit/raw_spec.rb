@@ -100,6 +100,48 @@ describe Metar::Raw do
       raw.                        should     == "chunk 1\nchunk 2\n"
     end
 
+    it 'retries retrieval once' do
+      ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil )
+      def ftp.attempt
+        @attempt
+      end
+      def ftp.attempt=(a)
+        @attempt = a
+      end
+      ftp.attempt = 0
+      def ftp.retrbinary( *args, &block )
+        self.attempt = self.attempt + 1
+        raise Net::FTPTempError if self.attempt == 1
+        block.call "chunk 1\n"
+        block.call "chunk 2\n"
+      end
+      Net::FTP.stub!( :new ).and_return( ftp )
+ 
+      raw = Metar::Raw.fetch( 'the_cccc' )
+
+      raw.                        should     == "chunk 1\nchunk 2\n"
+    end
+
+    it 'fails with an error, if retrieval fails twice' do
+      ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil )
+      def ftp.attempt
+        @attempt
+      end
+      def ftp.attempt=(a)
+        @attempt = a
+      end
+      ftp.attempt = 0
+      def ftp.retrbinary( *args, &block )
+        self.attempt = self.attempt + 1
+        raise Net::FTPTempError
+      end
+      Net::FTP.stub!( :new ).and_return( ftp )
+
+      expect do
+        Metar::Raw.fetch( 'the_cccc' )
+      end.                        to         raise_error( RuntimeError, /failed 2 times/)
+    end
+
   end
 
   context 'initialization' do
