@@ -32,11 +32,15 @@ puts station.report.to_s
 Countries
 ---------
 
-```ruby
-# List countries:
-puts Metar::Station.countries
+List countries:
 
-# Find a country's weather stations:
+```ruby
+puts Metar::Station.countries
+```
+
+Find a country's weather stations:
+
+```ruby
 spanish = Metar::Station.find_all_by_country( 'Spain' )
 ```
 
