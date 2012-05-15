@@ -228,15 +228,25 @@ EOT
 
   end
 
-  context '.report' do
+  context 'object navigation' do
+    before :each do
+      @raw = stub('raw', :metar => 'PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000', :time => '2010/02/06 16:10' )
+      # TODO: hack - once parser returns station this can be removed
+      Metar::Raw.                 should_receive( :new ).
+                                  and_return( @raw )
+    end
+
     subject { Metar::Station.new( 'DDDD', noaa_data ) }
 
-    it 'should return a Report' do
-      # TODO: hack - once parser returns station this can be removed
-      raw = stub('raw', :metar => 'PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000', :time => '2010/02/06 16:10' )
-      Metar::Raw.should_receive( :new ).and_return( raw )
-      Metar::Station.should_receive( :find_by_cccc ).and_return( subject )
-      subject.report.      should     be_a Metar::Report
+    it '.station should return the Parser' do
+      subject.parser.             should     be_a Metar::Parser
+    end
+
+    it '.report should return the Report' do
+      Metar::Station.             should_receive( :find_by_cccc ).
+                                  and_return( subject )
+
+      subject.report.             should     be_a Metar::Report
     end
   end
 

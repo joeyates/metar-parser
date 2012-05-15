@@ -77,9 +77,12 @@ module Metar
       load! noaa_data
     end
 
+    def parser
+      raw = Metar::Raw.new( @cccc )
+      Metar::Parser.new( raw )
+    end
+
     def report
-      raw    = Metar::Raw.new( @cccc )
-      parser = Metar::Parser.new( raw )
       Metar::Report.new( parser )
     end
 

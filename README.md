@@ -40,6 +40,15 @@ puts Metar::Station.countries
 spanish = Metar::Station.find_all_by_country( 'Spain' )
 ```
 
+Get The Data
+------------
+```ruby
+station = Metar::Station.find_by_cccc( 'KPDX' )
+parser  = station.parser
+puts parser.temperature.value
+```
+
+
 The METAR Data Format
 =====================
 
@@ -71,11 +80,4 @@ There are two gems which read the National Oceanic and Atmospheric Association's
 
 Interactive map:
 * http://www.spatiality.at/metarr/frontend/
-
-Testing
-=======
-
-The tests use a local copy of the weather stations list: data/nsd_cccc.txt
-
-If missing, the file gets downloaded before running tests.
 
