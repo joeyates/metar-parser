@@ -71,14 +71,17 @@ Ruby
 ----
 
 Other Ruby libraries offering METAR parsing:
+
 * [ruby-metar]
 * [ruby-wx]
+
 There are many reports (WMO) that these libraries do not parse.
 
 [ruby-metar]: http://github.com/brandonh/ruby-metar
 [ruby-wx]: http://hans.fugal.net/src/ruby-wx/doc/
 
 There are two gems which read the National Oceanic and Atmospheric Association's XML weather data feeds:
+
 * [noaa]
 * [noaa-weather]
 
