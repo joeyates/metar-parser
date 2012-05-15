@@ -22,10 +22,16 @@ describe Metar::Parser do
 
   context 'attributes' do
 
-    it 'time obligatory' do
+    it '.location missing' do
+      expect do
+        setup_parser('PAIL', "2010/02/06 16:10\nFUBAR 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
+      end.       to         raise_error( Metar::ParseError, /Expecting location/ )
+    end
+
+    it '.time missing' do
       expect do
         setup_parser('PAIL', "2010/02/06 16:10\nPAIL 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
-      end.       to         raise_error( Metar::ParseError )
+      end.       to         raise_error( Metar::ParseError, /Expecting datetime/ )
     end
 
     it 'date' do
@@ -38,6 +44,12 @@ describe Metar::Parser do
       it 'real' do
         parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
         parser.observer.          should     == :real
+      end
+
+      it 'auto' do
+        parser = setup_parser('CYXS', "2010/02/15 10:34\nCYXS 151034Z AUTO 09003KT 1/8SM FZFG VV001 M03/M03 A3019 RMK SLP263 ICG")
+
+        parser.observer.          should     == :auto
       end
 
       it 'corrected' do
@@ -59,9 +71,36 @@ describe Metar::Parser do
       parser.variable_wind.direction2.value.should be_within( 0.0001 ).of( 50 )
     end
 
-    it 'visibility_miles_and_fractions' do
-      parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
-      parser.visibility.distance.to_miles. should be_within( 0.01 ).of( 1.75 )
+    context '.visibility' do
+      it 'CAVOK' do
+        parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT CAVOK M17/M20 A2910 RMK AO2 P0000")
+
+        parser.visibility.distance.value.
+                                  should     be_within( 0.01 ).of( 10000.00 )
+        parser.visibility.comparator.
+                                  should     == :more_than
+        parser.present_weather.size.
+                                  should     == 1
+        parser.present_weather[ 0 ].phenomenon.
+                                  should     == 'No significant weather'
+        parser.sky_conditions.size.
+                                  should     == 1
+        parser.sky_conditions[ 0 ].type.
+                                  should     == nil
+      end
+
+      it 'visibility_miles_and_fractions' do
+        parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+
+        parser.visibility.distance.to_miles.
+                                  should     be_within( 0.01 ).of( 1.75 )
+      end
+
+      it '//// with automatic observer' do
+        parser = setup_parser('CYXS', "2010/02/15 10:34\nCYXS 151034Z AUTO 09003KT //// FZFG VV001 M03/M03 A3019 RMK SLP263 ICG")
+
+        parser.visibility.        should     be_nil
+      end
     end
 
     it 'runway_visible_range' do
@@ -84,11 +123,28 @@ describe Metar::Parser do
       parser.runway_visible_range[0].visibility2.distance.to_feet.    should     == 6000.0
     end
 
-    it 'present_weather' do
-      parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
-      parser.present_weather.length.    should     == 1
-      parser.present_weather[0].modifier.    should     == 'light'
-      parser.present_weather[0].phenomenon.    should     == 'snow'
+    context '.present_weather' do
+
+      it 'normal' do
+        parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+
+        parser.present_weather.size.
+                                  should     == 1
+        parser.present_weather[0].modifier.
+                                  should     == 'light'
+        parser.present_weather[0].phenomenon.
+                                  should     == 'snow'
+      end
+
+      it 'auto + //' do
+        parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z AUTO 24006KT 1 3/4SM // BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+
+        parser.present_weather.size.
+                                  should     == 1
+        parser.present_weather[0].phenomenon.
+                                  should     == 'not observed'
+      end
+
     end
 
     it 'present_weather_defaults_to_empty_array' do
@@ -96,13 +152,30 @@ describe Metar::Parser do
       parser.present_weather.length.    should     == 0
     end
 
-    it 'sky_conditions' do
-      parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
-      parser.sky_conditions.length.    should     == 2
-      parser.sky_conditions[0].quantity.    should     == 'broken'
-      parser.sky_conditions[0].height.value.    should     == 480
-      parser.sky_conditions[1].quantity.    should     == 'overcast'
-      parser.sky_conditions[1].height.value.    should     == 900
+    context '.sky_conditions' do
+
+      it 'normal' do
+        parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+
+        parser.sky_conditions.size.
+                                  should     == 2
+        parser.sky_conditions[0].quantity.
+                                  should     == 'broken'
+        parser.sky_conditions[0].height.value.
+                                  should     == 480
+        parser.sky_conditions[1].quantity.
+                                  should     == 'overcast'
+        parser.sky_conditions[1].height.value.
+                                  should     == 900
+      end
+
+      it 'auto + ///' do
+        parser = setup_parser('PAIL', "2010/02/06 16:10\nPAIL 061610Z AUTO 24006KT 1 3/4SM /// M17/M20 A2910 RMK AO2 P0000")
+
+        parser.sky_conditions.size.
+                                  should     == 0
+      end
+
     end
 
     it 'sky_conditions_defaults_to_empty_array' do

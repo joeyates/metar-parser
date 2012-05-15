@@ -310,9 +310,6 @@ module Metar
     end
 
     def seek_end
-      if @chunks.length > 0
-        raise ParseError.new("Unexpected tokens found at end of string: found '#{ @chunks.join(' ') }'")
-      end
       done!
     end
 
