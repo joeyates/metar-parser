@@ -18,6 +18,7 @@ RSpec::Core::RakeTask.new do | t |
 end
 
 if RUBY_VERSION < '1.9'
+
   Rake::RDocTask.new do |rdoc|
     rdoc.rdoc_dir = RDOC_PATH
     rdoc.options  += RDOC_OPTS

@@ -29,6 +29,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec',  '>= 2.3.0'
   if RUBY_VERSION < '1.9'
     s.add_development_dependency 'rcov'
+  else
+    s.add_development_dependency 'simplecov'
   end
 
   s.rubyforge_project = 'nowarning'
