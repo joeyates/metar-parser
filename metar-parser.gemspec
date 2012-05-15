@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
                     Rake::FileList['locales/**/*.{rb,yml}']
   s.require_paths = ['lib']
 
-  s.test_files    = 'spec/**/*_spec.rb'
+  s.test_files    = Rake::FileList[ 'spec/**/*_spec.rb' ]
 
   s.add_runtime_dependency 'rake', '>= 0.8.7'
   s.add_runtime_dependency 'rdoc'

@@ -13,15 +13,15 @@ RDOC_PATH = 'doc/rdoc'
 
 task :default => :spec
 
-RSpec::Core::RakeTask.new do |t|
+RSpec::Core::RakeTask.new do | t |
   t.pattern = 'spec/**/*_spec.rb'
 end
 
 if RUBY_VERSION < '1.9'
   Rake::RDocTask.new do |rdoc|
     rdoc.rdoc_dir = RDOC_PATH
-    rdoc.options += RDOC_OPTS
-    rdoc.main = 'README.rdoc'
+    rdoc.options  += RDOC_OPTS
+    rdoc.main     = 'README.rdoc'
     rdoc.rdoc_files.add ['README.rdoc', 'COPYING', 'lib/**/*.rb']
   end
 
