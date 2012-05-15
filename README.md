@@ -15,11 +15,6 @@ metar-parser [![Build Status](https://secure.travis-ci.org/joeyates/metar-parser
 
 The information comes from the National Oceanic and Atmospheric Association's raw data source.
 
-Implementation
-==============
-
-* Parses METAR strings using a state machine.
-
 Usage
 =====
 
@@ -64,6 +59,11 @@ parser  = station.parser
 puts parser.temperature.value
 ```
 
+Implementation
+==============
+
+* Parses METAR strings using a state machine.
+
 Alternative Software
 ====================
 
@@ -71,14 +71,24 @@ Ruby
 ----
 
 Other Ruby libraries offering METAR parsing:
-* ruby-metar - http://github.com/brandonh/ruby-metar
-* ruby-wx - http://hans.fugal.net/src/ruby-wx/doc/
+* [ruby-metar]
+* [ruby-wx]
 There are many reports (WMO) that these libraries do not parse.
 
-There are two gems which read the National Oceanic and Atmospheric Association's XML weather data feeds:
-* noaa-weather - Ruby interface to NOAA SOAP interface
-* noaa - http://github.com/outoftime/noaa
+[ruby-metar]: http://github.com/brandonh/ruby-metar
+[ruby-wx]: http://hans.fugal.net/src/ruby-wx/doc/
 
-Interactive map:
-* http://www.spatiality.at/metarr/frontend/
+There are two gems which read the National Oceanic and Atmospheric Association's XML weather data feeds:
+* [noaa]
+* [noaa-weather]
+
+[noaa]: http://github.com/outoftime/noaa
+[noaa-weather]: http://rubygems.org/gems/noaa-weather "Ruby interface to NOAA SOAP interface"
+
+Other
+-----
+
+* [Interactive map]
+
+[Interactive map]: http://www.spatiality.at/metarr/frontend/
 
