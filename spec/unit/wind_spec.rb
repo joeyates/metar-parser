@@ -1,5 +1,5 @@
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 # encoding: utf-8
+load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 
 RSpec::Matchers.define :be_wind do | direction, speed, gusts |
   match do | wind |
