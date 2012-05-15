@@ -53,12 +53,25 @@ describe Metar::Station do
     it 'downloads the station list, if missing, then loads it' do
       File.                       should_receive( :exist? ).
                                   and_return( false )
+      # open-uri call
       Metar::Station.             should_receive( :open ).
                                   and_return( 'aaa' )
-      File.                       should_receive( :open ).once.with( %r(nsd_cccc.txt), 'w' )
-      File.                       should_receive( :open ).once.with( %r(nsd_cccc.txt) )
 
-      Metar::Station.load_local
+      outfile = stub( 'outfile' )
+      File.                       should_receive( :open ).once.with( %r(nsd_cccc.txt), 'w' ) do | *args, &block |
+        block.call outfile
+      end
+      outfile.                    should_receive( :write ).
+                                  with( 'aaa' )
+
+      infile = stub( 'infile' )
+      File.                       should_receive( :open ).once.with( %r(nsd_cccc.txt) ) do | *args, &block |
+        block.call infile
+      end
+      infile.                     should_receive( :read ).
+                                  and_return( 'bbb' )
+
+      Metar::Station.load_local.  should     == 'bbb'
     end
 
     it 'loads the file, if already present' do
