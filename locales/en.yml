@@ -148,6 +148,7 @@ en:
     temperature:
       title: temperature
     dew_point:
-      title: punto di rugiada
+      title: dew point
     remarks:
-      title: annotazioni
+      title: remarks
+
