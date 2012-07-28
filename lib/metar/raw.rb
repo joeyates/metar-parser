@@ -11,6 +11,7 @@ module Metar
       def connection
         return @@connection if @@connection
         connect
+        @@connection
       end
 
       def connect
@@ -18,7 +19,6 @@ module Metar
         @@connection.login
         @@connection.chdir('data/observations/metar/stations')
         @@connection.passive = true
-        @@connection
       end
 
       def fetch( cccc )
