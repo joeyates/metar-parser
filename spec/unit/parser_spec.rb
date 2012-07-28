@@ -162,11 +162,11 @@ describe Metar::Parser do
         parser.sky_conditions[0].quantity.
                                   should     == 'broken'
         parser.sky_conditions[0].height.value.
-                                  should     == 480
+                                  should     == 487.68
         parser.sky_conditions[1].quantity.
                                   should     == 'overcast'
         parser.sky_conditions[1].height.value.
-                                  should     == 900
+                                  should     == 914.40
       end
 
       it 'auto + ///' do

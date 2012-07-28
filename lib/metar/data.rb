@@ -415,7 +415,7 @@ module Metar
         new
       when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+)(CB|TCU|\/{3}|)?$/
         quantity = QUANTITY[ $1 ]
-        height   = Distance.new( $2.to_i * 30.0 )
+        height   = Distance.new( $2.to_i * 30.48 )
         type     = CONDITION[ $3 ]
         new(quantity, height, type)
       else
