@@ -12,6 +12,21 @@ describe Metar::VariableWind do
       vw.direction2.value.        should     == 180.0
     end
 
+    it 'accepts 360, rounding to 0 - 1' do
+      vw = Metar::VariableWind.parse( '360V090' )
+
+      vw.direction1.value.        should     ==   0.0
+      vw.direction2.value.        should     ==  90.0
+    end
+
+
+    it 'accepts 360, rounding to 0 - 2' do
+      vw = Metar::VariableWind.parse( '090V360' )
+
+      vw.direction1.value.        should     ==  90.0
+      vw.direction2.value.        should     ==   0.0
+    end
+
     it 'returns nil for other' do
       vw = Metar::VariableWind.parse( 'XXX' )
 

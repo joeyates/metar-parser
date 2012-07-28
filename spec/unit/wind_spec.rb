@@ -36,6 +36,7 @@ describe Metar::Wind do
       [ 'understands 5 digits + KMH',                         '12345KMH',    [ 123.0, 12.50, nil   ] ],
       [ 'understands 5 digits + MPS',                         '12345MPS',    [ 123.0, 45.00, nil   ] ],
       [ 'understands 5 digits + KT',                          '12345KT',     [ 123.0, 23.15, nil   ] ],
+      [ 'rounds 360 down to 0',                               '36045KT',     [   0.0, 23.15, nil   ] ],
       [ 'returns nil for directions outside 0 to 360',        '88845KT',     [ nil,   nil,   nil   ] ],
       [ 'understands 5 digits + G + 2 digits',                '12345G67',    [ 123.0, 12.50, 18.61 ] ],
       [ 'understands 5 digits + G + 2 digits + MPS',          '12345G67MPS', [ 123.0, 45.00, 67.00 ] ],

@@ -90,17 +90,24 @@ module Metar
 
   end
 
+  class Direction < M9t::Direction
+    def initialize( direction )
+      direction = M9t::Direction::normalize( direction.to_f )
+      super( direction )
+    end
+  end
+
   class Wind
     
     def Wind.parse(s)
       case
       when s =~ /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
-        return nil if $1.to_i > 359
-        new( M9t::Direction.new( $1 ),
+        return nil if $1.to_i > 360
+        new( Direction.new( $1 ),
              Speed.parse( $2 ) )
       when s =~ /^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/
-        return nil if $1.to_i > 359
-        new( M9t::Direction.new( $1 ),
+        return nil if $1.to_i > 360
+        new( Direction.new( $1 ),
              Speed.parse( $2 + $4 ),
              Speed.parse( $3 ) )
       when s =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
@@ -160,7 +167,7 @@ module Metar
 
     def VariableWind.parse(variable_wind)
       if variable_wind =~ /^(\d+)V(\d+)$/
-        new(M9t::Direction.new($1), M9t::Direction.new($2))
+        new(Direction.new($1), Direction.new($2))
       else
         nil
       end
