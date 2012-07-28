@@ -37,7 +37,7 @@ describe Metar::VariableWind do
 
   context '#to_s' do
 
-    it 'renders the ' do
+    it 'renders compatible values as compass directions' do
       vw = Metar::VariableWind.parse( '090V180' )
 
       vw.to_s.                    should     == 'E - S'
