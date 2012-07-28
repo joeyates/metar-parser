@@ -30,7 +30,7 @@ module Metar
               s << chunk
             end
             return s
-          rescue Net::FTPTempError, EOFError => e
+          rescue Net::FTPPermError, Net::FTPTempError, EOFError => e
             connect
             attempts += 1
           end
