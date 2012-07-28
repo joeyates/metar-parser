@@ -44,9 +44,15 @@ module Metar
 
     # Station is a string containing the CCCC code, or
     # an object with a 'cccc' method which returns the code
-    def initialize( station, data = nil )
-      @cccc = station.respond_to?(:cccc) ? station.cccc : station
-      parse data if data
+    def initialize( station = nil, data = nil )
+      case
+      when data
+        parse data
+      when station
+        @cccc = station.respond_to?(:cccc) ? station.cccc : station
+      else
+        raise 'Supply either a Station or a METAR string'
+      end
     end
 
     def data
@@ -83,6 +89,7 @@ module Metar
       @data             = data
       @raw_time, @metar = @data.split( "\n" )
       @time             = Time.parse( @raw_time )
+      @cccc             = @metar[/\w+/]
     end
 
   end

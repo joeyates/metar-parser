@@ -160,12 +160,19 @@ describe Metar::Raw do
     end
 
     it 'should parse data, if supplied' do
-      raw = Metar::Raw.new( 'XXXX', raw_metar )
+      raw = Metar::Raw.new( nil, raw_metar )
      
       raw.data.                   should     == raw_metar 
       raw.raw_time.               should     == @raw_time
       raw.metar.                  should     == @metar 
+      raw.cccc.                   should     == 'ESSB'
       raw.time.                   should     == Time.parse( @raw_time ) 
+    end
+
+    it 'should fail if neither the station, nor the data are supplied' do
+      expect do
+        Metar::Raw.new
+      end.                        to         raise_error( RuntimeError, /Supply either a Station or a METAR string/ )
     end
     
   end
