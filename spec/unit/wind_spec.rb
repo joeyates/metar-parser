@@ -5,6 +5,8 @@ RSpec::Matchers.define :be_wind do | direction, speed, gusts |
   match do | wind |
     if wind.nil?              && [ direction, speed, gusts ].all?( &:nil? )
       true
+    elsif wind.nil?
+      false
     elsif wind.direction.nil? != direction.nil?
       false
     elsif wind.speed.nil?     != speed.nil?
