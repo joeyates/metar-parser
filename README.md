@@ -59,6 +59,14 @@ parser  = station.parser
 puts parser.temperature.value
 ```
 
+Use Your Own Raw Data
+---------------------
+```ruby
+metar_string = "2012/07/28 08:54\nKHWD 280554Z AUTO 29007KT 10SM OVC008 14/12 A3002 RMK AO2 SLP176 T01390117 10211\n"
+raw    = Metar::Raw.new( 'KHWD', metar_string )
+parser = Metar::Parser.new( raw )
+```
+
 Implementation
 ==============
 
