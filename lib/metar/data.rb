@@ -452,7 +452,7 @@ module Metar
     def VerticalVisibility.parse( vertical_visibility )
       case
       when vertical_visibility =~ /^VV(\d{3})$/
-        Distance.new( $1.to_f * 30.0 )
+        Distance.new( $1.to_f * 30.48 )
       when vertical_visibility == '///'
         Distance.new
       else

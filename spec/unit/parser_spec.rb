@@ -185,7 +185,7 @@ describe Metar::Parser do
 
     it 'vertical_visibility' do
       parser = setup_parser('CYXS', "2010/02/15 10:34\nCYXS 151034Z AUTO 09003KT 1/8SM FZFG VV001 M03/M03 A3019 RMK SLP263 ICG")
-      parser.vertical_visibility.value.    should     == 30
+      parser.vertical_visibility.value.    should     == 30.48
     end
 
     it 'temperature_obligatory' do

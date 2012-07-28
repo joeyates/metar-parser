@@ -22,7 +22,7 @@ describe Metar::VerticalVisibility do
   context '.parse' do
 
     [
-      [ 'VV + nnn',                  'VV300',  9000 ],
+      [ 'VV + nnn',                  'VV300',  9144 ],
       [ '///',                       '///',    nil ],
       [ 'returns nil for unmatched', 'FUBAR',  :expect_nil ],
     ].each do | docstring, raw, expected |
