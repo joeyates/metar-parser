@@ -72,6 +72,18 @@ Implementation
 
 * Parses METAR strings using a state machine.
 
+Changelog
+=========
+
+1.0.0
+-----
+This version introduces a major change to the Metar::Raw class.
+
+Previously, this class downloaded METAR data from the NOAA FTP site.
+The old functionality has been moved to Metar::Raw::Noaa. The new class,
+Metar::Raw::Data accepts a METAR string as a parameter - allowing the user to
+parse METAR strings without necessarily contacting the NOAA.
+
 Alternative Software
 ====================
 
