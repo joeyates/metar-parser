@@ -43,6 +43,12 @@ module Metar
           @@connection.passive = true
         end
 
+        def disconnect
+          return if @connection.nil
+          @connection.close
+          @cconnection = nil
+        end
+
         def fetch(cccc)
           attempts = 0
           while attempts < 2
