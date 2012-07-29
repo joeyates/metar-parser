@@ -78,7 +78,7 @@ module Metar
     end
 
     def parser
-      raw = Metar::Raw.new( @cccc )
+      raw = Metar::Raw::Noaa.new( @cccc )
       Metar::Parser.new( raw )
     end
 

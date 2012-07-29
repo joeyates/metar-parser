@@ -84,8 +84,7 @@ module Metar
     end
 
     def self.for_cccc(cccc)
-      station = Metar::Station.new(cccc)
-      raw = Metar::Raw.new(station)
+      raw = Metar::Raw::Noaa.new(cccc)
       new(raw)
     end
 

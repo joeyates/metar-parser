@@ -232,7 +232,7 @@ EOT
     before :each do
       @raw = stub('raw', :metar => 'PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000', :time => '2010/02/06 16:10' )
       # TODO: hack - once parser returns station this can be removed
-      Metar::Raw.                 should_receive( :new ).
+      Metar::Raw::Noaa.           should_receive( :new ).
                                   and_return( @raw )
     end
 

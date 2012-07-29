@@ -1,95 +1,104 @@
 require 'net/ftp'
+require 'time'
 
 module Metar
 
-  class Raw
+  module Raw
 
-    @@connection = nil
+    class Base
+      attr_reader :cccc
+      attr_reader :metar
+      attr_reader :time
+      alias :to_s :metar
 
-    class << self
-
-      def connection
-        return @@connection if @@connection
-        connect
-        @@connection
+      def parse
+        @cccc = @metar[/\w+/]
       end
+    end
 
-      def connect
-        @@connection = Net::FTP.new('tgftp.nws.noaa.gov')
-        @@connection.login
-        @@connection.chdir('data/observations/metar/stations')
-        @@connection.passive = true
+    class Data < Base
+      def initialize(metar, time = Time.now)
+        @metar, @time = metar, time
+
+        parse
       end
+    end
 
-      def fetch( cccc )
-        attempts = 0
-        while attempts < 2
-          begin
-            s = ''
-            connection.retrbinary( "RETR #{ cccc }.TXT", 1024 ) do | chunk |
-              s << chunk
-            end
-            return s
-          rescue Net::FTPPermError, Net::FTPTempError, EOFError => e
-            connect
-            attempts += 1
-          end
+    # Collects METAR data from the NOAA site via FTP
+    class Noaa < Base
+      @@connection = nil
+
+      class << self
+
+        def connection
+          return @@connection if @@connection
+          connect
+          @@connection
         end
-        raise "Net::FTP.retrbinary failed #{attempts} times"
+
+        def connect
+          @@connection = Net::FTP.new('tgftp.nws.noaa.gov')
+          @@connection.login
+          @@connection.chdir('data/observations/metar/stations')
+          @@connection.passive = true
+        end
+
+        def fetch(cccc)
+          attempts = 0
+          while attempts < 2
+            begin
+              s = ''
+              connection.retrbinary( "RETR #{ cccc }.TXT", 1024 ) do |chunk|
+                s << chunk
+              end
+              return s
+            rescue Net::FTPPermError, Net::FTPTempError, EOFError => e
+              connect
+              attempts += 1
+            end
+          end
+          raise "Net::FTP.retrbinary failed #{attempts} times"
+        end
+
       end
 
-    end
-
-    attr_reader :cccc
-
-    # Station is a string containing the CCCC code, or
-    # an object with a 'cccc' method which returns the code
-    def initialize( station = nil, data = nil )
-      case
-      when data
-        parse data
-      when station
+      # Station is a string containing the CCCC code, or
+      # an object with a 'cccc' method which returns the code
+      def initialize(station)
         @cccc = station.respond_to?(:cccc) ? station.cccc : station
-      else
-        raise 'Supply either a Station or a METAR string'
       end
-    end
 
-    def data
-      fetch
-      @data
-    end
-    # #raw is deprecated, use #data
-    alias :raw :data
+      def data
+        fetch
+        @data
+      end
+      # #raw is deprecated, use #data
+      alias :raw :data
 
-    def time
-      fetch
-      @time
-    end
+      def time
+        fetch
+        @time
+      end
 
-    def raw_time
-      fetch
-      @raw_time
-    end
+      def metar
+        fetch
+        @metar
+      end
 
-    def metar
-      fetch
-      @metar
-    end
-    alias :to_s :metar
+      private
 
-    private
+      def fetch
+        return if @data
+        @data = Noaa.fetch(@cccc)
+        parse
+      end
 
-    def fetch
-      return if @data
-      parse Raw.fetch( @cccc )
-    end
+      def parse
+        raw_time, @metar = @data.split("\n")
+        @time            = Time.parse(raw_time)
+        super
+      end
 
-    def parse( data )
-      @data             = data
-      @raw_time, @metar = @data.split( "\n" )
-      @time             = Time.parse( @raw_time )
-      @cccc             = @metar[/\w+/]
     end
 
   end

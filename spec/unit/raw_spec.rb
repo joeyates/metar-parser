@@ -1,12 +1,49 @@
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 # encoding: utf-8
+load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 
 require 'net/ftp'
+require 'time'
 
-describe Metar::Raw do
+module MetarRawTestHelper
+
+  def noaa_metar
+    raw_time  = "2010/02/15 10:20"
+    "#{ raw_time }\n#{ raw_metar }"
+  end
+
+  def raw_metar
+    "ESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 Q1013 1271//55"
+  end
+
+end
+
+describe Metar::Raw::Data do
+
+  include MetarRawTestHelper
+
+  context 'initialization' do
+
+    it 'should parse data, if supplied' do
+      @call_time = Time.parse('2012-07-29 16:35')
+      Time.stub!(:now).and_return(@call_time)
+
+      raw = Metar::Raw::Data.new(raw_metar)
+     
+      raw.metar.                  should     == raw_metar 
+      raw.cccc.                   should     == 'ESSB'
+      raw.time.                   should     == @call_time
+    end
+
+  end
+
+end
+
+describe Metar::Raw::Noaa do
+
+  include MetarRawTestHelper
 
   after :each do
-    Metar::Raw.send( :class_variable_set, '@@connection', nil )
+    Metar::Raw::Noaa.send( :class_variable_set, '@@connection', nil )
   end
 
   context '.connection' do
@@ -19,7 +56,7 @@ describe Metar::Raw do
         Net::FTP.                   should_receive( :new ).
                                     and_return( ftp )
 
-        Metar::Raw.connect
+        Metar::Raw::Noaa.connect
       end
 
     end
@@ -28,17 +65,17 @@ describe Metar::Raw do
 
       before :each do
         @ftp = stub( 'ftp' )
-        Metar::Raw.send( :class_variable_set, '@@connection', @ftp )
+        Metar::Raw::Noaa.send( :class_variable_set, '@@connection', @ftp )
       end
 
       it 'does not connect to FTP' do
         Net::FTP.                   should_not_receive( :new )
 
-        Metar::Raw.connection
+        Metar::Raw::Noaa.connection
       end
 
       it 'returns the cached connection' do
-        connection = Metar::Raw.connection
+        connection = Metar::Raw::Noaa.connection
 
         connection.               should     == @ftp
       end
@@ -59,7 +96,7 @@ describe Metar::Raw do
       ftp.                        should_receive( :passive= ).
                                   with( true )
 
-      Metar::Raw.connect
+      Metar::Raw::Noaa.connect
     end
 
   end
@@ -72,7 +109,7 @@ describe Metar::Raw do
       Net::FTP.                   should_receive( :new ).
                                   and_return( ftp )
 
-      Metar::Raw.fetch( 'the_cccc' )
+      Metar::Raw::Noaa.fetch( 'the_cccc' )
     end
 
     it 'downloads the raw report' do
@@ -84,7 +121,7 @@ describe Metar::Raw do
         args[ 1 ].                should     be_a Fixnum
       end
 
-      Metar::Raw.fetch( 'the_cccc' )
+      Metar::Raw::Noaa.fetch( 'the_cccc' )
     end
 
     it 'returns the data' do
@@ -95,7 +132,7 @@ describe Metar::Raw do
       end
       Net::FTP.stub!( :new ).and_return( ftp )
  
-      raw = Metar::Raw.fetch( 'the_cccc' )
+      raw = Metar::Raw::Noaa.fetch( 'the_cccc' )
 
       raw.                        should     == "chunk 1\nchunk 2\n"
     end
@@ -117,7 +154,7 @@ describe Metar::Raw do
       end
       Net::FTP.stub!( :new ).and_return( ftp )
  
-      raw = Metar::Raw.fetch( 'the_cccc' )
+      raw = Metar::Raw::Noaa.fetch( 'the_cccc' )
 
       raw.                        should     == "chunk 1\nchunk 2\n"
     end
@@ -138,7 +175,7 @@ describe Metar::Raw do
       Net::FTP.stub!( :new ).and_return( ftp )
 
       expect do
-        Metar::Raw.fetch( 'the_cccc' )
+        Metar::Raw::Noaa.fetch( 'the_cccc' )
       end.                        to         raise_error( RuntimeError, /failed 2 times/)
     end
 
@@ -147,32 +184,16 @@ describe Metar::Raw do
   context 'initialization' do
   
     it 'should accept CCCC codes' do
-      raw = Metar::Raw.new( 'XXXX' )
+      raw = Metar::Raw::Noaa.new( 'XXXX' )
 
       raw.cccc.                   should     == 'XXXX'
     end
       
     it 'should accept Stations' do
       station = stub( 'Metar::Station', :cccc => 'YYYY' )
-      raw = Metar::Raw.new( station )
+      raw = Metar::Raw::Noaa.new( station )
 
       raw.cccc.                   should     == 'YYYY'
-    end
-
-    it 'should parse data, if supplied' do
-      raw = Metar::Raw.new( nil, raw_metar )
-     
-      raw.data.                   should     == raw_metar 
-      raw.raw_time.               should     == @raw_time
-      raw.metar.                  should     == @metar 
-      raw.cccc.                   should     == 'ESSB'
-      raw.time.                   should     == Time.parse( @raw_time ) 
-    end
-
-    it 'should fail if neither the station, nor the data are supplied' do
-      expect do
-        Metar::Raw.new
-      end.                        to         raise_error( RuntimeError, /Supply either a Station or a METAR string/ )
     end
     
   end
@@ -180,23 +201,17 @@ describe Metar::Raw do
   context 'lazy loading' do
     
     it 'should fetch data on demand' do
-      raw = Metar::Raw.new( 'ESSB' )
+      raw = Metar::Raw::Noaa.new( 'ESSB' )
 
-      Metar::Raw.                 should_receive( :fetch ).
+      Metar::Raw::Noaa.           should_receive(:fetch).
                                   with( 'ESSB' ).
-                                  and_return( raw_metar )
+                                  and_return(noaa_metar)
 
       raw.metar
 
-      raw.data.                   should     == raw_metar 
+      raw.data.                   should     == noaa_metar 
     end
 
-  end
-
-  def raw_metar
-    @raw_time  = "2010/02/15 10:20"
-    @metar     = "ESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 Q1013 1271//55"
-    "#{ @raw_time }\n#{ @metar }"
   end
 
 end
