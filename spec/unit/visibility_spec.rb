@@ -37,7 +37,7 @@ describe Metar::Visibility do
       [ 'understands nSM',           '5SM',     [  8046.72, nil,   nil ] ],
       [ 'understands M1/4SM',        'M1/4SM',  [   402.34, nil,   :less_than ] ],
       [ 'understands n + KM',        '5KM',     [  5000.00, nil,   nil ] ],
-      [ 'understands n',             '5',       [  5000.00, nil,   nil ] ],
+      [ 'understands n',             '500',     [   500.00, nil,   nil ] ],
       [ 'understands n + compass',   '5NW',     [  5000.00, 315.0, nil ] ],
       [ 'returns nil for unmatched', 'FUBAR',   [  nil,     nil,   nil ] ],
     ].each do | docstring, raw, expected |

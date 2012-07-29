@@ -208,8 +208,8 @@ module Metar
         new( distance, nil, :less_than )
       when s =~ /^(\d+)KM$/
         new( Distance.kilometers( $1 ) )
-      when s =~ /^(\d+)$/ # Units?
-        new( Distance.kilometers( $1 ) )
+      when s =~ /^(\d+)$/ # We assume meters
+        new( Distance.new( $1 ) )
       when s =~ /^(\d+)(N|NE|E|SE|S|SW|W|NW)$/
         new( Distance.kilometers( $1 ), M9t::Direction.compass( $2 ) )
       else

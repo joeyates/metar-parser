@@ -108,6 +108,13 @@ describe Metar::Parser do
                                   should     be_within( 0.01 ).of( 1.75 )
       end
 
+      it 'in meters' do
+        parser = setup_parser('VABB 282210Z 22005KT 4000 HZ SCT018 FEW025TCU BKN100 28/25 Q1003 NOSIG')
+
+        parser.visibility.distance.value.
+                                  should     be_within(0.01).of(4000)
+       end
+
       it '//// with automatic observer' do
         parser = setup_parser("CYXS 151034Z AUTO 09003KT //// FZFG VV001 M03/M03 A3019 RMK SLP263 ICG")
 
