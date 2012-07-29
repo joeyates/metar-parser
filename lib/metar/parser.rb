@@ -88,19 +88,18 @@ module Metar
       new(raw)
     end
 
-    attr_reader :raw, :metar, :time
+    attr_reader :raw, :metar
     attr_reader :station_code, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
        :present_weather, :sky_conditions, :vertical_visibility, :temperature, :dew_point, :sea_level_pressure, :remarks
 
     def initialize(raw)
       @raw   = raw
       @metar = raw.metar.clone
-      @time  = raw.time.clone
       analyze
     end
 
-    def date
-      Date.new(@time.year, @time.month, @time.day)
+    def time
+      Time.gm(@raw.time.year, @raw.time.month, @day, @hour, @minute)
     end
 
     private
@@ -136,8 +135,9 @@ module Metar
 
     def seek_datetime
       case
-      when @chunks[0] =~ /^\d{6}Z$/
-        @datetime = @chunks.shift
+      when @chunks[0] =~ /^(\d{2})(\d{2})(\d{2})Z$/
+        @chunks.shift
+        @day, @hour, @minute = $1.to_i, $2.to_i, $3.to_i
       else
         raise ParseError.new("Expecting datetime, found '#{ @chunks[0] }'")
       end

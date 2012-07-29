@@ -39,10 +39,10 @@ describe Metar::Parser do
       end.                        to         raise_error( Metar::ParseError, /Expecting datetime/ )
     end
 
-    it 'date' do
+    it 'time' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
-      parser.date.                should     == Date.new(2011, 05, 06)
+      parser.time.                should     == Time.gm(2011, 05, 06, 16, 10)
     end
 
     context '.observer' do
