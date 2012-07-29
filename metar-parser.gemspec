@@ -38,6 +38,8 @@ Gem::Specification.new do |s|
   else
     s.add_development_dependency 'simplecov'
   end
+  s.add_development_dependency 'pry'
+  s.add_development_dependency 'pry-doc'
 
   s.rubyforge_project = 'nowarning'
 end
