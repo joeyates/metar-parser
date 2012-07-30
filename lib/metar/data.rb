@@ -413,9 +413,14 @@ module Metar
       case
       when CLEAR_SKIES.include?( sky_condition )
         new
-      when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+)(CB|TCU|\/{3}|)?$/
+      when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+|\/{3})(CB|TCU|)?$/
         quantity = QUANTITY[ $1 ]
-        height   = Distance.new( $2.to_i * 30.48 )
+        height   =
+          if $2 == '///'
+            nil
+          else
+            Distance.new( $2.to_i * 30.48 )
+          end
         type     = CONDITION[ $3 ]
         new(quantity, height, type)
       else
