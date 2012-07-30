@@ -63,7 +63,7 @@ Use Your Own Raw Data
 ---------------------
 ```ruby
 metar_string = "KHWD 280554Z AUTO 29007KT 10SM OVC008 14/12 A3002 RMK AO2 SLP176 T01390117 10211\n"
-raw    = Metar::Raw.new( metar_string )
+raw    = Metar::Raw::Data.new( metar_string )
 parser = Metar::Parser.new( raw )
 ```
 
