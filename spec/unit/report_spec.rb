@@ -162,8 +162,8 @@ describe Metar::Report do
     end
 
     it '#to_s' do
-          sky1 = stub( 'sky1', :to_summary => 'sky1' )
-          sky2 = stub( 'sky2', :to_summary => 'sky2' )
+      sky1 = stub( 'sky1', :to_summary => 'sky1' )
+      sky2 = stub( 'sky2', :to_summary => 'sky2' )
       @parser.stub!( :wind            => 'wind',
                      :visibility      => 'visibility',
                      :minimum_visibility => 'min visibility',
