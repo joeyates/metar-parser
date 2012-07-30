@@ -399,7 +399,7 @@ module Metar
     CONDITION = {
       'CB'  => 'cumulonimbus',
       'TCU' => 'towering cumulus',
-      '///' => nil,
+      '///' => nil, # cloud type unknown as observed by automatic system (15.9.1.7)
       ''    => nil
     }
     CLEAR_SKIES = [
@@ -413,7 +413,7 @@ module Metar
       case
       when CLEAR_SKIES.include?( sky_condition )
         new
-      when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+|\/{3})(CB|TCU|)?$/
+      when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+|\/{3})(CB|TCU|\/{3}|)?$/
         quantity = QUANTITY[ $1 ]
         height   =
           if $2 == '///'
@@ -421,7 +421,7 @@ module Metar
           else
             Distance.new( $2.to_i * 30.48 )
           end
-        type     = CONDITION[ $3 ]
+        type = CONDITION[ $3 ]
         new(quantity, height, type)
       else
         nil

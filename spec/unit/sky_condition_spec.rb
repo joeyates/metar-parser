@@ -28,6 +28,7 @@ describe Metar::SkyCondition do
       [ 'quantity + height',             'BKN12',    [ 'broken',    365.76,            nil ] ],
       [ 'quantity + height + type',      'BKN12CB',  [ 'broken',    365.76, 'cumulonimbus' ] ],
       [ 'quantity + ///',                'BKN///',   [ 'broken',       nil,            nil ] ],
+      [ 'quantity + height + ///',       'FEW038///',[ 'few',      1158.24,            nil ] ],
       [ 'returns nil for unmatched',     'FUBAR',    [ :expect_nil,    nil,            nil ] ],
     ].each do | docstring, raw, expected |
       example docstring do
