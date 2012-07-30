@@ -43,6 +43,8 @@ en:
       title: wind variation
     visibility:
       title: visibility
+    minimum_visibility:
+      title: minimum visibility
     sky_summary:
       title: sky
     sky_conditions:

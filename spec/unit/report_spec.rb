@@ -79,6 +79,7 @@ describe Metar::Report do
           :wind,
           :variable_wind,
           :visibility,
+          :minimum_visibility,
           :vertical_visibility,
           :temperature,
           :dew_point,
@@ -165,6 +166,7 @@ describe Metar::Report do
           sky2 = stub( 'sky2', :to_summary => 'sky2' )
       @parser.stub!( :wind            => 'wind',
                      :visibility      => 'visibility',
+                     :minimum_visibility => 'min visibility',
                      :present_weather => ['pw'],
                      :sky_conditions  => [ sky1, sky2 ],
                      :temperature     => 'temp' )
@@ -174,6 +176,7 @@ country: Wwwwww
 time: #{@metar_time}
 wind: wind
 visibility: visibility
+minimum visibility: min visibility
 weather: pw
 sky: sky2
 temperature: temp

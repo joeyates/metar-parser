@@ -43,6 +43,8 @@ it:
       title: variazione del vento
     visibility:
       title: visibilità
+    minimum_visibility:
+      title: visibilità minima
     sky_summary:
       title: cielo
     sky_conditions:

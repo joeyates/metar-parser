@@ -13,7 +13,8 @@ module Metar
     aasm_state :datetime,                                    :after_enter => [:seek_cor_auto, :seek_wind]
     aasm_state :wind,                                        :after_enter => :seek_variable_wind
     aasm_state :variable_wind,                               :after_enter => :seek_visibility
-    aasm_state :visibility,                                  :after_enter => :seek_runway_visible_range
+    aasm_state :visibility,                                  :after_enter => :seek_minimum_visibility
+    aasm_state :minimum_visibility,                          :after_enter => :seek_runway_visible_range
     aasm_state :runway_visible_range,                        :after_enter => :seek_present_weather
     aasm_state :present_weather,                             :after_enter => :seek_sky_conditions
     aasm_state :sky_conditions,                              :after_enter => :seek_vertical_visibility
@@ -44,11 +45,17 @@ module Metar
     end
 
     aasm_event :visibility do
-      transitions :from => [:wind, :variable_wind],  :to => :visibility
+      transitions :from => [:wind, :variable_wind],
+                                                :to => :visibility
+    end
+
+    aasm_event :minimum_visibility do
+      transitions :from => :visibility,         :to => :minimum_visibility
     end
 
     aasm_event :runway_visible_range do
-      transitions :from => [:visibility],         :to => :runway_visible_range
+      transitions :from => [:visibility, :minimum_visibility],
+                                                :to => :runway_visible_range
     end
 
     aasm_event :present_weather do
@@ -67,11 +74,13 @@ module Metar
     end
 
     aasm_event :temperature_dew_point do
-      transitions :from => [:wind, :sky_conditions, :vertical_visibility],   :to => :temperature_dew_point
+      transitions :from => [:wind, :sky_conditions, :vertical_visibility],
+                                                :to => :temperature_dew_point
     end
 
     aasm_event :sea_level_pressure do
-      transitions :from => :temperature_dew_point,   :to => :sea_level_pressure
+      transitions :from => :temperature_dew_point,
+                                                :to => :sea_level_pressure
     end
 
     aasm_event :remarks do
@@ -89,8 +98,9 @@ module Metar
     end
 
     attr_reader :raw, :metar
-    attr_reader :station_code, :observer, :wind, :variable_wind, :visibility, :runway_visible_range,
-       :present_weather, :sky_conditions, :vertical_visibility, :temperature, :dew_point, :sea_level_pressure, :remarks
+    attr_reader :station_code, :observer, :wind, :variable_wind, :visibility,
+      :minimum_visibility, :runway_visible_range, :present_weather, :sky_conditions,
+      :vertical_visibility, :temperature, :dew_point, :sea_level_pressure, :remarks
 
     def initialize(raw)
       @raw   = raw
@@ -112,6 +122,7 @@ module Metar
       @wind                 = nil
       @variable_wind        = nil
       @visibility           = nil
+      @minimum_visibility   = nil
       @runway_visible_range = []
       @present_weather      = []
       @sky_conditions       = []
@@ -208,6 +219,16 @@ module Metar
         end
       end
       visibility!
+    end
+
+    # Optional after visibility: 15.6.2
+    def seek_minimum_visibility
+      minimum_visibility = Visibility.parse(@chunks[0])
+      if minimum_visibility
+        @chunks.shift
+        @minimum_visibility = minimum_visibility
+      end
+      minimum_visibility!
     end
 
     def collect_runway_visible_range

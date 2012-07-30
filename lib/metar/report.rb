@@ -10,6 +10,7 @@ module Metar
       :time,
       :wind,
       :visibility,
+      :minimum_visibility,
       :present_weather,
       :sky_summary,
       :temperature
@@ -56,6 +57,10 @@ module Metar
 
     def visibility
       @parser.visibility.to_s
+    end
+
+    def minimum_visibility
+      @parser.minimum_visibility.to_s
     end
 
     def runway_visible_range
