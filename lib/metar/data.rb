@@ -211,7 +211,7 @@ module Metar
       when s =~ /^(\d+)$/ # We assume meters
         new( Distance.new( $1 ) )
       when s =~ /^(\d+)(N|NE|E|SE|S|SW|W|NW)$/
-        new( Distance.kilometers( $1 ), M9t::Direction.compass( $2 ) )
+        new( Distance.meters( $1 ), M9t::Direction.compass( $2 ) )
       else
         nil
       end
