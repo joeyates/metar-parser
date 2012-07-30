@@ -128,7 +128,7 @@ module Metar
       if @chunks[0] =~ /^[A-Z][A-Z0-9]{3}$/
         @station_code = @chunks.shift
       else
-        raise ParseError.new("Expecting location, found '#{ @chunks[0] }'")
+        raise ParseError.new("Expecting location, found '#{ @chunks[0] }' in #{@metar}")
       end
       location!
     end
@@ -139,7 +139,7 @@ module Metar
         @chunks.shift
         @day, @hour, @minute = $1.to_i, $2.to_i, $3.to_i
       else
-        raise ParseError.new("Expecting datetime, found '#{ @chunks[0] }'")
+        raise ParseError.new("Expecting datetime, found '#{ @chunks[0] }' in #{@metar}")
       end
       datetime!
     end
@@ -285,7 +285,7 @@ module Metar
         @temperature = Metar::Temperature.parse($1)
         @dew_point = Metar::Temperature.parse($2)
       else
-        raise ParseError.new("Expecting temperature/dew point, found '#{ @chunks[0] }'")
+        raise ParseError.new("Expecting temperature/dew point, found '#{ @chunks[0] }' in #{@metar}")
       end
       temperature_dew_point!
     end
