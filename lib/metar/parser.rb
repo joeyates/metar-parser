@@ -186,6 +186,7 @@ module Metar
       variable_wind!
     end
 
+    # 15.6.1
     def seek_visibility
       if @chunks[0] == 'CAVOK'
         @chunks.shift
@@ -277,6 +278,7 @@ module Metar
       end
     end
 
+    # Repeatable: 15.9.1.3
     def seek_sky_conditions
       if @observer == :auto # WMO 15.4
         if @chunks[0] == '///' or @chunks[0] == '//////'
