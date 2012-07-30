@@ -413,7 +413,7 @@ module Metar
       case
       when CLEAR_SKIES.include?( sky_condition )
         new
-      when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+|\/{3})(CB|TCU|)?$/
+      when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+\/*|\/{3})(CB|TCU|)?$/
         quantity = QUANTITY[ $1 ]
         height   =
           if $2 == '///'

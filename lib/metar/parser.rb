@@ -207,6 +207,11 @@ module Metar
           @visibility = visibility
         end
       end
+
+      while @chunks[0] =~ /(\d+)(N|NE|E|SE|S|SW|W|NW)$/
+        @chunks.shift
+      end
+
       visibility!
     end
 
