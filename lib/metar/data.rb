@@ -193,7 +193,7 @@ module Metar
         new( Distance.new( 10000 ), nil, :more_than )
       when s =~ /(\d{4})NDV/ # WMO
         new( Distance.new( $1.to_f ) ) # Assuming meters
-      when (s =~ /^((1|2)\s|)([13])\/([248])SM$/) # US
+      when (s =~ /^((1|2)\s|)([1357])\/([248]|16)SM$/) # US
         miles          = $1.to_f + $3.to_f / $4.to_f
         distance       = Distance.miles( miles )
         distance.units = :miles
