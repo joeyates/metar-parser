@@ -160,9 +160,11 @@ module Metar
       when @chunks[0] == 'AUTO' # WMO 15.4
         @chunks.shift
         @observer = :auto
-      when @chunks[0] == 'COR'
+      when @chunks[0] == 'COR' or @chunks[0] == 'CCA'
         @chunks.shift
         @observer = :corrected
+      when @cunhks[0] == 'RTD'   #  Delayed observation, no comments on observer
+        @chunks.shift
       else
         nil
       end
