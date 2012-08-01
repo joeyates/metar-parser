@@ -20,7 +20,8 @@ module Metar
     aasm_state :sky_conditions,                              :after_enter => :seek_vertical_visibility
     aasm_state :vertical_visibility,                         :after_enter => :seek_temperature_dew_point
     aasm_state :temperature_dew_point,                       :after_enter => :seek_sea_level_pressure
-    aasm_state :sea_level_pressure,                          :after_enter => :seek_remarks
+    aasm_state :sea_level_pressure,                          :after_enter => :seek_recent_weather
+    aasm_state :recent_weather,                              :after_enter => :seek_remarks
     aasm_state :remarks,                                     :after_enter => :seek_end
     aasm_state :end
 
@@ -83,8 +84,13 @@ module Metar
                                                 :to => :sea_level_pressure
     end
 
-    aasm_event :remarks do
+    aasm_event :recent_weather do
       transitions :from => [:temperature_dew_point, :sea_level_pressure],
+                                                :to => :recent_weather
+    end
+
+    aasm_event :remarks do
+      transitions :from => [:temperature_dew_point, :sea_level_pressure, :recent_weather],
                                                 :to => :remarks
     end
 
@@ -100,7 +106,8 @@ module Metar
     attr_reader :raw, :metar
     attr_reader :station_code, :observer, :wind, :variable_wind, :visibility,
       :minimum_visibility, :runway_visible_range, :present_weather, :sky_conditions,
-      :vertical_visibility, :temperature, :dew_point, :sea_level_pressure, :remarks
+      :vertical_visibility, :temperature, :dew_point, :sea_level_pressure,
+      :recent_weather, :remarks
 
     def initialize(raw)
       @raw   = raw
@@ -318,6 +325,18 @@ module Metar
         @sea_level_pressure = sea_level_pressure
       end
       sea_level_pressure!
+    end
+
+    def seek_recent_weather
+      m = /^RE/.match(@chunks[0])
+      if m
+        recent_weather = Metar::WeatherPhenomenon.parse(m.post_match)
+        if recent_weather
+          @chunks.shift
+          @recent_weather = recent_weather
+        end
+      end
+      recent_weather!
     end
 
     def seek_remarks

@@ -234,6 +234,14 @@ describe Metar::Parser do
                                   should     == 29.10
     end
 
+    it 'recent weather' do
+      parser = setup_parser("CYQH 310110Z 00000KT 20SM SCT035CB BKN050 RETS RMK CB4SC1")
+
+      parser.recent_weather.      should_not be_nil
+      parser.recent_weather.phenomenon.
+                                  should    == 'thunderstorm'
+    end
+
     it 'remarks' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
