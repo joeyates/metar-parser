@@ -33,6 +33,7 @@ describe Metar::Visibility do
       [ 'understands 9999',          '9999',    [ 10000.00, nil,   :more_than ] ],
       [ 'understands nnnn + NDV',    '0123NDV', [   123.00, nil,   nil ] ],
       [ 'understands n/nSM',         '3/4SM',   [  1207.01, nil,   nil ] ],
+      [ 'understands 3/16SM',        '3/16SM',  [  301.752, nil,   nil ] ],
       [ 'understands n n/nSM',       '1 1/4SM', [  2011.68, nil,   nil ] ],
       [ 'understands nSM',           '5SM',     [  8046.72, nil,   nil ] ],
       [ 'understands M1/4SM',        'M1/4SM',  [   402.34, nil,   :less_than ] ],
