@@ -350,7 +350,6 @@ module Metar
       'SH'   => 'shower',
       'SN'   => 'snow',
       'SG'   => 'snow grains',
-      'SNRA' => 'snow and rain',
       'SQ'   => 'squall',
       'UP'   => 'unknown phenomenon', # => AUTO
       'VA'   => 'volcanic ash',
@@ -358,28 +357,24 @@ module Metar
       'SS'   => 'sand storm',
       'DS'   => 'dust storm',
       'TS'   => 'thunderstorm',
-      'TSGR' => 'thunderstorm and hail',
-      'TSGS' => 'thunderstorm and small hail',
-      'TSRA' => 'thunderstorm and rain',
-      'TSRA' => 'thunderstorm and snow',
-      'TSRA' => 'thunderstorm and unknown phenomenon', # => AUTO
     }
 
     # Accepts all standard (and some non-standard) present weather codes
     def WeatherPhenomenon.parse(s)
-      codes = Phenomena.keys.join('|')
+      phenomena   = Phenomena.keys.join('|')
       descriptors = Descriptors.keys.join('|')
-      modifiers = Modifiers.keys.join('|')
+      modifiers   = Modifiers.keys.join('|')
       modifiers.gsub!(/([\+\-])/) { "\\#$1" }
-      rxp = Regexp.new("^(#{ modifiers })?(#{ descriptors })?(#{ codes })$")
-      if rxp.match(s)
-        modifier_code = $1
-        descriptor_code = $2
-        phenomenon_code = $3
-        Metar::WeatherPhenomenon.new(Phenomena[phenomenon_code], Modifiers[modifier_code], Descriptors[descriptor_code])
-      else
-        nil
-      end
+      rxp = Regexp.new("^(#{ modifiers })?(#{ descriptors })?((?:#{ phenomena }){1,2})$")
+      m   = rxp.match(s)
+      return nil if m.nil?
+
+      modifier_code    = m[1]
+      descriptor_code  = m[2]
+      phenomena_codes  = m[3].scan(/../)
+      phenomena_phrase = phenomena_codes.map{ |c| Phenomena[c] }.join(' and ')
+
+      Metar::WeatherPhenomenon.new(phenomena_phrase, Modifiers[modifier_code], Descriptors[descriptor_code])
     end
 
     attr_reader :phenomenon, :modifier, :descriptor
