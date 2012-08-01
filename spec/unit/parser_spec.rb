@@ -218,12 +218,6 @@ describe Metar::Parser do
                                   should     == 30.48
     end
 
-    it 'temperature_obligatory' do
-      expect do
-        setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 A2910 RMK AO2 P0000")
-      end.                        to         raise_error( Metar::ParseError )
-    end
-
     it 'temperature' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
       parser.temperature.value.   should     == -17

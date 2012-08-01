@@ -307,8 +307,6 @@ module Metar
         @chunks.shift
         @temperature = Metar::Temperature.parse($1)
         @dew_point = Metar::Temperature.parse($2)
-      else
-        raise ParseError.new("Expecting temperature/dew point, found '#{ @chunks[0] }' in #{@metar}")
       end
       temperature_dew_point!
     end
