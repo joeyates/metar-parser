@@ -172,6 +172,7 @@ module Metar
         @observer = :corrected
       when @chunks[0] == 'CCA'
         @chunks.shift
+        @observer = :corrected
       when @chunks[0] == 'RTD'   #  Delayed observation, no comments on observer
         @chunks.shift
       else

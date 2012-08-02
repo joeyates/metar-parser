@@ -64,6 +64,12 @@ describe Metar::Parser do
 
         parser.observer.          should     == :corrected
       end
+
+      it 'corrected (Canadian)' do
+        parser = setup_parser('CYZU 310100Z CCA 26004KT 15SM FEW009 BKN040TCU BKN100 OVC210 15/12 A2996 RETS RMK SF1TCU4AC2CI1 SLP149')
+
+        parser.observer.          should     == :corrected
+      end
       
     end
 
