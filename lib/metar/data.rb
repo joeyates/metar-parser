@@ -420,6 +420,9 @@ module Metar
           end
         type = CONDITION[ $3 ]
         new(quantity, height, type)
+      when sky_condition =~ /^(CB|TCU)$/
+        type = CONDITION[ $1 ]
+        new(nil, nil, type)
       else
         nil
       end
