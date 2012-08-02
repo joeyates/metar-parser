@@ -67,11 +67,6 @@ raw    = Metar::Raw::Data.new( metar_string )
 parser = Metar::Parser.new( raw )
 ```
 
-Implementation
-==============
-
-* Parses METAR strings using a state machine.
-
 Changelog
 =========
 
