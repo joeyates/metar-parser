@@ -243,8 +243,9 @@ describe Metar::Parser do
     it 'recent weather' do
       parser = setup_parser("CYQH 310110Z 00000KT 20SM SCT035CB BKN050 RETS RMK CB4SC1")
 
-      parser.recent_weather.      should_not be_nil
-      parser.recent_weather.phenomenon.
+      parser.recent_weather.      should    be_a Array
+      parser.recent_weather.size. should    == 1
+      parser.recent_weather[0].phenomenon.
                                   should    == 'thunderstorm'
     end
 

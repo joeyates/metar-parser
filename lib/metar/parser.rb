@@ -137,6 +137,7 @@ module Metar
       @temperature          = nil
       @dew_point            = nil
       @sea_level_pressure   = nil
+      @recent_weather       = []
       @remarks              = []
 
       aasm_enter_initial_state
@@ -331,16 +332,22 @@ module Metar
       end
       sea_level_pressure!
     end
-
-    def seek_recent_weather
-      m = /^RE/.match(@chunks[0])
-      if m
+ 
+    def collect_recent_weather
+      loop do
+        return if @chunks.size == 0
+        m = /^RE/.match(@chunks[0])
+        return if m.nil?
         recent_weather = Metar::WeatherPhenomenon.parse(m.post_match)
         if recent_weather
           @chunks.shift
-          @recent_weather = recent_weather
+          @recent_weather << recent_weather
         end
       end
+    end
+
+    def seek_recent_weather
+      collect_recent_weather
       recent_weather!
     end
 
