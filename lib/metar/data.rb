@@ -263,7 +263,7 @@ module Metar
         distance   = Distance.send( units, count )
         visibility = Visibility.new(distance, nil, comparator)
         new(designator, visibility, nil, tendency)
-      when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(N|U|D)?(FT)?$/
+      when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(N|U|D)?(FT|)$/
         designator  = $1
         comparator1 = COMPARATOR[$2]
         count1      = $3.to_f
