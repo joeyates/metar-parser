@@ -26,7 +26,8 @@ describe Metar::WeatherPhenomenon do
     [
       [ 'simple phenomenon',                  'BR',     [ nil,      nil,            'mist' ] ],
       [ 'descriptor + phenomenon',            'BCFG',   [ nil,      'patches of',   'fog'  ] ],
-      [ 'modifier + phenomenon',              '+RA',    [ 'heavy',  nil,            'rain' ] ],
+      [ 'intensity + phenomenon',             '+RA',    [ 'heavy',  nil,            'rain' ] ],
+      [ 'intensity + proximity + phenomenon', '-VCTSRA', [ 'nearby light', 'thunderstorm and', 'rain' ] ],
       [ '2 phenomena: SN RA',                 'SNRA',   [ nil,      nil,            'snow and rain' ] ],
       [ '2 phenomena: RA DZ',                 'RADZ',   [ nil,      nil,            'rain and drizzle' ] ],
       [ 'modifier + descriptor + phenomenon', 'VCDRFG', [ 'nearby', 'low drifting', 'fog'  ] ],

@@ -316,9 +316,11 @@ module Metar
   class WeatherPhenomenon
 
     Modifiers = {
-      '+' => 'heavy',
-      '-'  => 'light',
-      'VC' => 'nearby'
+      '+'   => 'heavy',
+      '-'   => 'light',
+      'VC'  => 'nearby',
+      '-VC' => 'nearby light',
+      '+VC' => 'nearby heavy',
     }
 
     Descriptors = {
