@@ -84,6 +84,12 @@ The old functionality has been moved to Metar::Raw::Noaa. The new class,
 Metar::Raw::Data accepts a METAR string as a parameter - allowing the user to
 parse METAR strings without necessarily contacting the NOAA.
 
+Contributors
+============
+
+* [Joe Yates](https://github.com/joeyates)
+* [Derek Johnson](https://github.com/EpicDraws)
+
 Alternative Software
 ====================
 
