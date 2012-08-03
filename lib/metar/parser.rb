@@ -238,10 +238,9 @@ module Metar
         m = /^RE/.match(@chunks[0])
         break if m.nil?
         recent_weather = Metar::WeatherPhenomenon.parse(m.post_match)
-        if recent_weather
-          @chunks.shift
-          @recent_weather << recent_weather
-        end
+        break if recent_weather.nil?
+        @chunks.shift
+        @recent_weather << recent_weather
       end
     end
 
