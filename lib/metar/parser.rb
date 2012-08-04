@@ -9,6 +9,21 @@ module Metar
       new(raw)
     end
 
+    COMPLIANCE = [:strict, :loose]
+
+    def self.thread_attributes
+      Thread.current[:metar_parser] ||= {}
+    end
+
+    def self.compliance
+      thread_attributes[:compliance] ||= :loose
+    end
+
+    def self.compliance=(compliance)
+      raise 'Unknown compliance' unless COMPLIANCE.find(compliance)
+      thread_attributes[:compliance] = compliance
+    end
+
     attr_reader :raw, :metar
     attr_reader :station_code, :observer, :wind, :variable_wind, :visibility,
       :minimum_visibility, :runway_visible_range, :present_weather, :sky_conditions,
