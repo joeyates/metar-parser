@@ -267,6 +267,10 @@ module Metar
       @chunks = []
     end
 
+    def strict?
+      self.class.compliance == :strict
+    end
+
   end
 
 end
