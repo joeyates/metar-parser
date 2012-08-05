@@ -67,6 +67,18 @@ raw    = Metar::Raw::Data.new( metar_string )
 parser = Metar::Parser.new( raw )
 ```
 
+Compliance
+==========
+
+By default, the parser runs in 'loose' compliance mode. That means that it tries to
+accept non-standard input.
+
+If you only want to accept standards-compliant METAR strings, do this:
+
+```ruby
+Metar::Parse.compliance = strict
+``
+
 Changelog
 =========
 
