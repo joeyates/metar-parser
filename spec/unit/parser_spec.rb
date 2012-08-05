@@ -33,16 +33,62 @@ describe Metar::Parser do
       end.                        to         raise_error( Metar::ParseError, /Expecting location/ )
     end
 
-    it '.time missing' do
-      expect do
-        setup_parser("PAIL 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
-      end.                        to         raise_error( Metar::ParseError, /Expecting datetime/ )
-    end
+    context 'datetime' do
 
-    it 'time' do
-      parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+      it 'is parsed' do
+        parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
-      parser.time.                should     == Time.gm(2011, 05, 06, 16, 10)
+        parser.time.              should     == Time.gm(2011, 05, 06, 16, 10)
+      end
+
+      it 'throws an error is missing' do
+        expect do
+          setup_parser("PAIL 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
+        end.                      to         raise_error( Metar::ParseError, /Expecting datetime/ )
+      end
+
+      context 'in strict mode' do
+
+        before :each do
+          Metar::Parser.compliance = :strict
+        end
+
+        after :each do
+          Metar::Parser.compliance = :loose
+        end
+
+        it 'less than 6 numerals fails' do
+          expect do
+            parser = setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
+          end.                    to         raise_error(Metar::ParseError, /Expecting datetime/)
+        end
+
+      end
+
+      context 'in loose mode' do
+
+        before :each do
+          Metar::Parser.compliance = :loose
+        end
+
+        after :each do
+          Metar::Parser.compliance = :loose
+        end
+
+        it '5 numerals parses' do
+          parser = setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
+
+          parser.time.              should     == Time.gm(2011, 05, 02, 16, 45)
+        end
+
+        it "with 4 numerals parses, takes today's day" do
+          parser = setup_parser('HKML 1600Z 19010KT 9999 FEW022 25/22 Q1015')
+
+          parser.time.              should     == Time.gm(2011, 05, 06, 16, 00)
+        end
+
+      end
+
     end
 
     context '.observer' do

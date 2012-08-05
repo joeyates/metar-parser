@@ -90,12 +90,30 @@ module Metar
     end
 
     def seek_datetime
-      case
-      when @chunks[0] =~ /^(\d{2})(\d{2})(\d{2})Z$/
-        @chunks.shift
+      found = false
+      date_matcher =
+        if strict?
+          /^(\d{2})(\d{2})(\d{2})Z$/
+        else
+          /^(\d{1,2})(\d{2})(\d{2})Z$/
+        end
+      if @chunks[0] =~ date_matcher
         @day, @hour, @minute = $1.to_i, $2.to_i, $3.to_i
+        found = true
       else
-        raise ParseError.new("Expecting datetime, found '#{ @chunks[0] }' in #{@metar}")
+        if not strict?  
+          if @chunks[0] =~ /^(\d{1,2})(\d{2})Z$/
+            # The day is missing, use today's date
+            @day           = Time.now.day
+            @hour, @minute = $1.to_i, $2.to_i, $3.to_i
+            found = true
+          end
+        end
+      end
+      if found
+        @chunks.shift
+      else
+        raise ParseError.new("Expecting datetime, found '#{@chunks[0]}' in #{@metar}")
       end
     end
 
