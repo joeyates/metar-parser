@@ -3,6 +3,10 @@ load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
 
 describe Metar::Parser do
 
+  after :each do
+    Metar::Parser.compliance = :loose
+  end
+
   context '.for_cccc' do
 
     it 'returns a loaded parser' do
@@ -53,10 +57,6 @@ describe Metar::Parser do
           Metar::Parser.compliance = :strict
         end
 
-        after :each do
-          Metar::Parser.compliance = :loose
-        end
-
         it 'less than 6 numerals fails' do
           expect do
             parser = setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
@@ -66,14 +66,6 @@ describe Metar::Parser do
       end
 
       context 'in loose mode' do
-
-        before :each do
-          Metar::Parser.compliance = :loose
-        end
-
-        after :each do
-          Metar::Parser.compliance = :loose
-        end
 
         it '5 numerals parses' do
           parser = setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
@@ -295,20 +287,49 @@ describe Metar::Parser do
                                   should    == 'thunderstorm'
     end
 
-    it 'remarks' do
-      parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+    context 'remarks' do
 
-      parser.remarks.             should     be_a Array
-      parser.remarks.length.      should     == 2
-      parser.remarks[0].          should     == 'AO2'
-      parser.remarks[1].          should     == 'P0000'
-    end
+      it 'are collected' do
+        parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
-    it 'remarks_defaults_to_empty_array' do
-      parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910")
+        parser.remarks.             should     be_a Array
+        parser.remarks.length.      should     == 2
+        parser.remarks[0].          should     == 'AO2'
+        parser.remarks[1].          should     == 'P0000'
+      end
 
-      parser.remarks.             should     be_a Array
-      parser.remarks.length.      should     == 0
+      it 'remarks_defaults_to_empty_array' do
+        parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910")
+
+        parser.remarks.             should     be_a Array
+        parser.remarks.length.      should     == 0
+      end
+
+      context 'in strict mode' do
+
+        before :each do
+          Metar::Parser.compliance = :strict
+        end
+
+        it 'unparsed data causes an error' do
+          expect do
+            setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 FOO RMK AO2 P0000")
+          end.                    to        raise_error(Metar::ParseError, /Unparsable text found/)
+        end
+
+      end
+
+      context 'in loose mode' do
+
+        it 'unparsed data s collected' do
+          parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 FOO RMK AO2 P0000")
+
+          parser.unparsed.        should    == ['FOO']
+          parser.remarks.         should    == ['AO2', 'P0000']
+        end
+
+      end
+
     end
   
     def setup_parser(metar)

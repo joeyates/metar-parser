@@ -28,7 +28,7 @@ module Metar
     attr_reader :station_code, :observer, :wind, :variable_wind, :visibility,
       :minimum_visibility, :runway_visible_range, :present_weather, :sky_conditions,
       :vertical_visibility, :temperature, :dew_point, :sea_level_pressure,
-      :recent_weather, :remarks
+      :recent_weather, :unparsed, :remarks
 
     def initialize(raw)
       @raw   = raw
@@ -59,6 +59,7 @@ module Metar
       @dew_point            = nil
       @sea_level_pressure   = nil
       @recent_weather       = []
+      @unparsed             = []
       @remarks              = []
 
       seek_location
@@ -278,9 +279,17 @@ module Metar
     end
 
     def seek_remarks
-      if @chunks[0] == 'RMK'
-        @chunks.shift
+      if strict?
+        if @chunks.size > 0 and @chunks[0] != 'RMK'
+          raise ParseError.new("Unparsable text found: '#{@chunks.join(' ')}'")
+        end
+      else
+        while @chunks.size > 0 and @chunks[0] != 'RMK' do
+          @unparsed << @chunks.shift
+        end
       end
+      return if @chunks.size == 0
+      @chunks.shift # Drop 'RMK'
       @remarks += @chunks.clone
       @chunks = []
     end
