@@ -298,7 +298,7 @@ describe Metar::Parser do
         parser.remarks[1].          should     == 'P0000'
       end
 
-      it 'remarks_defaults_to_empty_array' do
+      it 'remarks defaults to empty array' do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910")
 
         parser.remarks.             should     be_a Array
@@ -321,7 +321,7 @@ describe Metar::Parser do
 
       context 'in loose mode' do
 
-        it 'unparsed data s collected' do
+        it 'unparsed data is collected' do
           parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 FOO RMK AO2 P0000")
 
           parser.unparsed.        should    == ['FOO']
