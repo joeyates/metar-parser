@@ -306,7 +306,7 @@ describe Metar::Parser do
       it 'parses known remarks' do
         parser = setup_parser('CYZT 052200Z 31010KT 20SM SKC 17/12 A3005 RMK SLP174 20046')
 
-        parser.remarks[0].        should    == 'SLP174'
+        parser.remarks[0].        should    be_a(Metar::SeaLevelPressure)
         parser.remarks[1].        should    be_temperature_extreme(:minimum, 4.6)
       end
 

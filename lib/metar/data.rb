@@ -506,6 +506,8 @@ module Metar
         temperature = Temperature.new(tenths($1))
         dew_point   = Temperature.new(tenths($2))
         HourlyTemperaturAndDewPoint.new(temperature, dew_point)
+      when /^SLP(\d{3})$/
+        SeaLevelPressure.new(Pressure.hectopascals(tenths($1)))
       else
         nil
       end
@@ -587,6 +589,16 @@ module Metar
 
     def initialize(temperature, dew_point)
       @temperature, @dew_point = temperature, dew_point
+    end
+
+  end
+
+  class SeaLevelPressure
+
+    attr_accessor :pressure
+
+    def initialize(pressure)
+      @pressure = pressure
     end
 
   end

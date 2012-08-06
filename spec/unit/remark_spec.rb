@@ -90,6 +90,17 @@ describe Metar::Remark do
 
     end
 
+    context 'sea-level pressure' do
+
+      it 'SLP125' do
+        slp = Metar::Remark.parse('SLP125')
+
+        slp.                      should    be_a(Metar::SeaLevelPressure)
+        slp.pressure.value.       should    == 0.0125
+      end
+
+    end
+
     context 'hourly temperature and dew point' do
 
       it 'T00640036' do
