@@ -502,9 +502,9 @@ module Metar
       when /^AO([12])$/
         type = [:with_precipitation_discriminator, :without_precipitation_discriminator][$1.to_i - 1]
         AutomatedStationType.new(type)
-      when /^T(\d{4})(\d{4})$/
-        temperature = Temperature.new(tenths($1))
-        dew_point   = Temperature.new(tenths($2))
+      when /^T([01])(\d{3})([01])(\d{3})$/
+        temperature = Temperature.new(sign($1) * tenths($2))
+        dew_point   = Temperature.new(sign($3) * tenths($4))
         HourlyTemperaturAndDewPoint.new(temperature, dew_point)
       when /^SLP(\d{3})$/
         SeaLevelPressure.new(Pressure.hectopascals(tenths($1)))

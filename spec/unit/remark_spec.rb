@@ -104,11 +104,11 @@ describe Metar::Remark do
     context 'hourly temperature and dew point' do
 
       it 'T00640036' do
-        htm = Metar::Remark.parse('T00640036')
+        htm = Metar::Remark.parse('T00641036')
 
         htm.                      should    be_a(Metar::HourlyTemperaturAndDewPoint)
-        htm.temperature.value.    should    == 6.4
-        htm.dew_point.value.      should    == 3.6
+        htm.temperature.value.    should    ==  6.4
+        htm.dew_point.value.      should    == -3.6
       end
 
     end
