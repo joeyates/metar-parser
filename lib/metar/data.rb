@@ -475,6 +475,11 @@ module Metar
         extreme = {'1' => :maximum, '2' => :minimum}[$1]
         value   = sign($2) * tenths($3)
         TemperatureExtreme.new(extreme, value)
+      when /^4([01])(\d{3})([01])(\d{3})$/
+        [
+          TemperatureExtreme.new(:maximum, sign($1) * tenths($2)),
+          TemperatureExtreme.new(:minimum, sign($3) * tenths($4))
+        ]
       else
         nil
       end
