@@ -499,6 +499,9 @@ module Metar
         PrecipitationRecent.new(Distance.new(inches_to_meters($1)))
       when /^7(\d{4})$/
         Precipitation24Hour.new(Distance.new(inches_to_meters($1)))
+      when /^AO([12])$/
+        type = [:with_precipitation_discriminator, :without_precipitation_discriminator][$1.to_i - 1]
+        AutomatedStationType.new(type)
       else
         nil
       end
@@ -561,6 +564,16 @@ module Metar
   end
 
   class Precipitation24Hour < Precipitation
+  end
+
+  class AutomatedStationType
+
+    attr_accessor :type
+
+    def initialize(type)
+      @type = type
+    end
+
   end
 
 end

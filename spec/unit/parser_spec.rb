@@ -293,9 +293,7 @@ describe Metar::Parser do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
         parser.remarks.             should     be_a Array
-        parser.remarks.length.      should     == 2
-        parser.remarks[0].          should     == 'AO2'
-        parser.remarks[1].          should     == 'P0000'
+        parser.remarks.size.        should     == 2
       end
 
       it 'remarks defaults to empty array' do
@@ -332,7 +330,7 @@ describe Metar::Parser do
           parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 FOO RMK AO2 P0000")
 
           parser.unparsed.        should    == ['FOO']
-          parser.remarks.         should    == ['AO2', 'P0000']
+          parser.remarks.size.    should    == 2
         end
 
       end

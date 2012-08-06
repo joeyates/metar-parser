@@ -74,6 +74,22 @@ describe Metar::Remark do
 
     end
 
+    context 'automated station' do
+
+      [
+        ['with precipitation dicriminator', 'AO1', [Metar::AutomatedStationType, :with_precipitation_discriminator]],
+        ['without precipitation dicriminator', 'AO2', [Metar::AutomatedStationType, :without_precipitation_discriminator]],
+      ].each do |docstring, raw, expected|
+        example docstring do
+          aut = Metar::Remark.parse(raw)
+
+          aut.                      should    be_a(expected[0])
+          aut.type.                 should    == expected[1]
+        end
+      end
+
+    end
+
   end
 
 end
