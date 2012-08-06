@@ -77,7 +77,7 @@ If you only want to accept standards-compliant METAR strings, do this:
 
 ```ruby
 Metar::Parse.compliance = :strict
-``
+```
 
 Changelog
 =========
