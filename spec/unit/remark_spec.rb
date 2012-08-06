@@ -40,6 +40,40 @@ describe Metar::Remark do
 
     end
 
+    context 'pressure tendency' do
+
+      it 'steady_then_decreasing' do
+        pt = Metar::Remark.parse('58033')
+
+        pt.                       should    be_a(Metar::PressureTendency)
+        pt.character.             should    == :steady_then_decreasing
+        pt.value.                 should    == 3.3
+      end
+
+    end
+
+    context '3-hour and 6-hour precipitation' do
+
+      it '60009' do
+        pr = Metar::Remark.parse('60009')
+        
+        pr.                       should    be_a(Metar::PrecipitationRecent)
+        pr.amount.value.          should    == 0.002286
+      end
+
+    end
+
+    context '24-hour precipitation' do
+
+      it '70015' do
+        pr = Metar::Remark.parse('70015')
+        
+        pr.                       should    be_a(Metar::Precipitation24Hour)
+        pr.amount.value.          should    == 0.003810
+      end
+
+    end
+
   end
 
 end

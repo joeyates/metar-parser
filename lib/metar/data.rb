@@ -469,6 +469,18 @@ module Metar
 
   class Remark
 
+    PRESSURE_CHANGE_CHARACTER = [
+      :increasing_then_decreasing, # 0
+      :increasing_then_steady,     # 1
+      :increasing,                 # 2
+      :decreasing_or_steady_then_increasing, # 3
+      :steady,                     # 4
+      :decreasing_then_increasing, # 5
+      :decreasing_then_steady,     # 6
+      :decreasing,                 # 7
+      :steady_then_decreasing,     # 8
+    ]
+
     def self.parse(s)
       case s
       when /^([12])([01])(\d{3})$/
@@ -480,6 +492,13 @@ module Metar
           TemperatureExtreme.new(:maximum, sign($1) * tenths($2)),
           TemperatureExtreme.new(:minimum, sign($3) * tenths($4))
         ]
+      when /^5([0-8])(\d{3})$/
+        character = PRESSURE_CHANGE_CHARACTER[$1.to_i]
+        PressureTendency.new(character, tenths($2))
+      when /^6(\d{4})$/
+        PrecipitationRecent.new(Distance.new(inches_to_meters($1)))
+      when /^7(\d{4})$/
+        Precipitation24Hour.new(Distance.new(inches_to_meters($1)))
       else
         nil
       end
@@ -500,17 +519,48 @@ module Metar
       digits.to_f / 10.0
     end
 
+    def self.inches_to_meters(digits)
+      digits.to_f * 0.000254
+    end
+
   end
 
-  class TemperatureExtreme < Remark
+  class TemperatureExtreme
 
-    attr_accessor :extreme
     attr_accessor :value
+    attr_accessor :extreme
 
     def initialize(extreme, value)
       @extreme, @value = extreme, value
     end
 
+  end
+
+  class PressureTendency
+
+    attr_accessor :value
+    attr_accessor :character
+
+    def initialize(character, value)
+      @character, @value = character, value
+    end
+
+  end
+
+  class Precipitation
+
+    attr_accessor :amount
+
+    def initialize(amount)
+      @amount = amount
+    end
+
+  end
+
+  class PrecipitationRecent < Precipitation
+  end
+
+  class Precipitation24Hour < Precipitation
   end
 
 end
