@@ -14,22 +14,6 @@ module Metar
 
       @nsd_cccc = nil # Contains the text of the station list
 
-      def download_local
-        nsd_cccc = Metar::Station.download_stations
-        File.open(Metar::Station.local_nsd_path, 'w') do |fil|
-          fil.write nsd_cccc
-        end
-      end
-
-      # Load local copy of the station list
-      # and download it first if missing
-      def load_local
-        download_local if not File.exist?(Metar::Station.local_nsd_path)
-        @nsd_cccc = File.open(Metar::Station.local_nsd_path) do |fil|
-          fil.read
-        end
-      end
-
       def countries
         all_structures.reduce( Set.new ) { |a, s| a.add( s[ :country ] ) }.to_a.sort
       end
@@ -94,11 +78,6 @@ module Metar
 
       def download_stations
         open(NOAA_STATION_LIST_URL) { |fil| fil.read }
-      end
-
-      # Path for saving a local copy of the nsc_cccc station list
-      def local_nsd_path
-        File.join(File.expand_path(File.dirname(__FILE__) + '/../../'), 'data', 'nsd_cccc.txt')
       end
 
       def all_structures

@@ -21,74 +21,10 @@ describe Metar::Station do
     @file = stub( 'file' )
   end
 
-  context '.download_local' do
-
-    it 'downloads the station list' do
-      File.stub!( :open => @file )
-
-      Metar::Station.             should_receive( :open ).
-                                  with( /^http/ )
-
-      Metar::Station.download_local
-    end
-
-    it 'saves the list to disk' do
-      Metar::Station.stub!( :open ).and_return( 'aaa' )
-
-      File.                       should_receive( :open ) do | path, mode, &block |
-        path.                     should     =~ %r(data/nsd_cccc.txt$)
-        mode.                     should     == 'w'
-        block.call @file
-      end
-      @file.                      should_receive( :write ).
-                                  with( 'aaa' )
-
-      Metar::Station.download_local
-    end
-
-  end
-
-  context '.load_local' do
-
-    it 'downloads the station list, if missing, then loads it' do
-      File.                       should_receive( :exist? ).
-                                  and_return( false )
-      # open-uri call
-      Metar::Station.             should_receive( :open ).
-                                  and_return( 'aaa' )
-
-      outfile = stub( 'outfile' )
-      File.                       should_receive( :open ).once.with( %r(nsd_cccc.txt), 'w' ) do | *args, &block |
-        block.call outfile
-      end
-      outfile.                    should_receive( :write ).
-                                  with( 'aaa' )
-
-      infile = stub( 'infile' )
-      File.                       should_receive( :open ).once.with( %r(nsd_cccc.txt) ) do | *args, &block |
-        block.call infile
-      end
-      infile.                     should_receive( :read ).
-                                  and_return( 'bbb' )
-
-      Metar::Station.load_local.  should     == 'bbb'
-    end
-
-    it 'loads the file, if already present' do
-      File.                       should_receive( :exist? ).
-                                  and_return( true )
-
-      File.                       should_receive( :open ).once.with( %r(nsd_cccc.txt) )
-
-      Metar::Station.load_local
-    end
-
-  end
-
   context 'using structures' do
 
     before :each do
-      preload_data
+      Metar::Station.stub!(:open).with(Metar::Station::NOAA_STATION_LIST_URL).and_return(nsd_file)
     end
 
     context '.countries' do
@@ -141,12 +77,6 @@ AAAB;00;000;Airport A2;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P
 BBBA;00;000;Airport B1;;Bbbbb;1;11-03S;055-24E;11-03S;055-24E;000;000;P
 EOT
       StringIO.new( nsd_text )
-    end
-
-    def preload_data
-      File.stub!( :exist? ).and_return( true )
-      File.stub!( :open ).with( %r(nsd_cccc.txt) ).and_return( nsd_file )
-      Metar::Station.load_local
     end
 
   end
