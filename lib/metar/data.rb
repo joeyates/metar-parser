@@ -502,6 +502,10 @@ module Metar
       when /^AO([12])$/
         type = [:with_precipitation_discriminator, :without_precipitation_discriminator][$1.to_i - 1]
         AutomatedStationType.new(type)
+      when /^T(\d{4})(\d{4})$/
+        temperature = Temperature.new(tenths($1))
+        dew_point   = Temperature.new(tenths($2))
+        HourlyTemperaturAndDewPoint.new(temperature, dew_point)
       else
         nil
       end
@@ -572,6 +576,17 @@ module Metar
 
     def initialize(type)
       @type = type
+    end
+
+  end
+
+  class HourlyTemperaturAndDewPoint
+
+    attr_accessor :temperature
+    attr_accessor :dew_point
+
+    def initialize(temperature, dew_point)
+      @temperature, @dew_point = temperature, dew_point
     end
 
   end
