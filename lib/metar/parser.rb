@@ -290,7 +290,10 @@ module Metar
       end
       return if @chunks.size == 0
       @chunks.shift # Drop 'RMK'
-      @remarks += @chunks.clone
+      @chunks.each do |chunk|
+        r = Metar::Remark.parse(chunk)
+        @remarks << (r || chunk)
+      end
       @chunks = []
     end
 

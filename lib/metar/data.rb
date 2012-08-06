@@ -467,5 +467,46 @@ module Metar
 
   end
 
+  class Remark
+
+    def self.parse(s)
+      case s
+      when /^([12])([01])(\d{3})$/
+        extreme = {'1' => :maximum, '2' => :minimum}[$1]
+        value   = sign($2) * tenths($3)
+        TemperatureExtreme.new(extreme, value)
+      else
+        nil
+      end
+    end
+
+    def self.sign(digit)
+      case digit
+      when '0'
+        1.0
+      when '1'
+        -1.0
+      else
+        raise "Unexpected sign: #{digit}"
+      end
+    end
+
+    def self.tenths(digits)
+      digits.to_f / 10.0
+    end
+
+  end
+
+  class TemperatureExtreme < Remark
+
+    attr_accessor :extreme
+    attr_accessor :value
+
+    def initialize(extreme, value)
+      @extreme, @value = extreme, value
+    end
+
+  end
+
 end
 
