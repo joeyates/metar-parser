@@ -117,3 +117,55 @@ describe Metar::Remark do
 
 end
 
+describe Metar::Lightning do
+
+  context '.parse_chunks' do
+
+    [
+      ['direction',                        'LTG SE',            [:default,      nil, ['SE']]],
+      ['distance direction',               'LTG DSNT SE',       [:default, 16093.44, ['SE']]],
+      ['distance direction and direction', 'LTG DSNT NE AND W', [:default, 16093.44, ['NE', 'W']]],
+      ['distance direction-direction',     'LTG DSNT SE-SW',    [:default, 16093.44, ['SE', 'SW']]],
+      ['distance all quandrants',          'LTG DSNT ALQDS',    [:default, 16093.44, ['N', 'E', 'S', 'W']]],
+    ].each do |docstring, section, expected|
+      example docstring do
+        chunks = section.split(' ')
+        r = Metar::Lightning.parse_chunks(chunks)
+
+        r.                        should    be_a(Metar::Lightning)
+        r.type.                   should    == expected[0]
+        if expected[1]
+          r.distance.value.       should    == expected[1]
+        else
+          r.distance.             should    be_nil
+        end
+        r.directions.             should    == expected[2]
+      end
+    end
+
+    it 'should remove parsed chunks' do
+      chunks = ['LTG', 'DSNT', 'SE', 'FOO']
+
+      r = Metar::Lightning.parse_chunks(chunks)
+
+      chunks.                     should    == ['FOO']
+    end
+
+    it 'should fail if the first chunk is not LTGnnn' do
+      expect do
+        Metar::Lightning.parse_chunks(['FOO'])
+      end.                        to        raise_error(RuntimeError, /not lightning/)
+    end
+
+    it 'should not fail if all chunks are parsed' do
+      chunks = ['LTG', 'DSNT', 'SE']
+
+      r = Metar::Lightning.parse_chunks(chunks)
+
+      chunks.                     should    == []
+    end
+
+  end
+
+end
+

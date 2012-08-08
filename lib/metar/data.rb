@@ -481,6 +481,14 @@ module Metar
       :steady_then_decreasing,     # 8
     ]
 
+    INDICATOR_TYPE = {
+      'TS' => :thunderstorm_information,
+      'PWI' => :precipitation_identifier,
+      'P'   => :precipitation_amount,
+    }
+
+    COLOR_CODE = ['RED', 'AMB', 'YLO', 'GRN', 'WHT', 'BLU']
+
     def self.parse(s)
       case s
       when /^([12])([01])(\d{3})$/
@@ -508,6 +516,15 @@ module Metar
         HourlyTemperaturAndDewPoint.new(temperature, dew_point)
       when /^SLP(\d{3})$/
         SeaLevelPressure.new(Pressure.hectopascals(tenths($1)))
+      when /^(#{INDICATOR_TYPE.keys.join('|')})NO$/
+        type = INDICATOR_TYPE[$1]
+        SensorStatusIndicator.new(:type, :not_available)
+      when /^(#{COLOR_CODE.join('|')})$/
+        ColorCode.new($1)
+      when 'SKC'
+        SkyCondition.new
+      when '$'
+        MaintenanceNeeded.new
       else
         nil
       end
@@ -599,6 +616,115 @@ module Metar
 
     def initialize(pressure)
       @pressure = pressure
+    end
+
+  end
+
+  class SensorStatusIndicator
+
+    attr_accessor :type
+    attr_accessor :state
+
+    def initialize(type, state)
+      @type, @state = type, state
+    end
+
+  end
+
+  class MaintenanceNeeded
+  end
+
+  class Lightning
+
+    TYPE = {'' => :default}
+
+    def self.parse_chunks(chunks)
+      ltg = chunks.shift
+      m = ltg.match(/^LTG(|CG|IC|CC|CA)$/)
+      raise 'first chunk is not lightning' if m.nil?
+      type = TYPE[m[1]]
+
+      frequency = nil
+      distance = nil
+      directions = []
+
+      if chunks[0] == 'DSNT'
+        distance = Distance.miles(10) # Should be >10SM, not 10SM
+        chunks.shift
+      end
+
+      loop do
+        if is_compass?(chunks[0])
+          directions << chunks.shift
+        elsif chunks[0] == 'ALQDS'
+          directions += ['N', 'E', 'S', 'W']
+          chunks.shift
+        elsif chunks[0] =~ /^([NESW]{1,2})-([NESW]{1,2})$/
+          if is_compass?($1) and is_compass?($2)
+            directions += [$1, $2]
+            chunks.shift
+          else
+            break
+          end
+        elsif chunks[0] == 'AND'
+          chunks.shift
+        else
+          break
+        end
+      end
+
+      new(frequency, type, distance, directions)
+    end
+
+    def self.is_compass?(s)
+      s =~ /^([NESW]|NE|SE|SW|NW)$/
+    end
+
+    attr_accessor :frequency
+    attr_accessor :type
+    attr_accessor :distance
+    attr_accessor :directions
+
+    def initialize(frequency, type, distance, directions)
+      @frequency, @type, @distance, @directions = frequency, type, distance, directions
+    end
+
+  end
+
+  class VisibilityRemark < Visibility
+
+    def self.parse(chunk)
+      chunk =~ /^(\d{4})([NESW]?)$/
+      distance = Distance.new($1)
+
+      new(distance, $2, :more_than)
+    end
+
+  end
+
+  class DensityAltitude
+
+    def self.parse(chunk)
+      chunk =~ /^(\d+)(FT)$/
+      height = Distance.feet($1)
+
+      new(height)
+    end
+
+    attr_accessor :height
+
+    def initialize(height)
+      @height = height
+    end
+
+  end
+
+  class ColorCode
+
+    attr_accessor :code
+
+    def initialize(code)
+      @code = code
     end
 
   end

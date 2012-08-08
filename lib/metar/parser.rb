@@ -79,6 +79,7 @@ module Metar
       seek_temperature_dew_point
       seek_sea_level_pressure
       seek_recent_weather
+      seek_to_remarks
       seek_remarks
     end
 
@@ -278,7 +279,7 @@ module Metar
       end
     end
 
-    def seek_remarks
+    def seek_to_remarks
       if strict?
         if @chunks.size > 0 and @chunks[0] != 'RMK'
           raise ParseError.new("Unparsable text found: '#{@chunks.join(' ')}'")
@@ -288,13 +289,40 @@ module Metar
           @unparsed << @chunks.shift
         end
       end
+    end
+
+    def seek_remarks
       return if @chunks.size == 0
+      raise 'seek_remarks calls without remark' if @chunks[0] != 'RMK'
+
       @chunks.shift # Drop 'RMK'
-      @chunks.each do |chunk|
-        r = Metar::Remark.parse(chunk) || chunk
-        @remarks += [*r]
+      @remarks = []
+      loop do
+        break if @chunks.size == 0
+        r = Metar::Remark.parse(@chunks[0])
+        if r
+          @remarks += [*r]
+          @chunks.shift
+          next 
+        end
+        if @chunks[0] == 'VIS' and @chunks.size >= 3 and @chunks[1] == 'MIN'
+          @chunks.shift(3)
+          r = Metar::VisibilityRemark.parse(@chunks[2])
+          @remarks << r
+        end
+        if @chunks[0] == 'DENSITY' and @chunks.size >= 3 and @chunks[1] == 'ALT'
+          @chunks.shift(3)
+          r = Metar::DensityAltitude.parse(@chunks[2])
+          @remarks << r
+        end
+        case
+        when @chunks[0] =~ /^LTG(|CG|IC|CC|CA)$/
+          r = Metar::Lightning.parse_chunks(@chunks)
+          @remarks << r
+        else
+          @remarks << @chunks.shift
+        end
       end
-      @chunks = []
     end
 
     def strict?
