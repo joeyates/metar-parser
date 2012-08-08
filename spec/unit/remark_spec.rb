@@ -57,7 +57,8 @@ describe Metar::Remark do
       it '60009' do
         pr = Metar::Remark.parse('60009')
         
-        pr.                       should    be_a(Metar::PrecipitationRecent)
+        pr.                       should    be_a(Metar::Precipitation)
+        pr.period.                should    == 3
         pr.amount.value.          should    == 0.002286
       end
 
@@ -68,7 +69,8 @@ describe Metar::Remark do
       it '70015' do
         pr = Metar::Remark.parse('70015')
         
-        pr.                       should    be_a(Metar::Precipitation24Hour)
+        pr.                       should    be_a(Metar::Precipitation)
+        pr.period.                should    == 24
         pr.amount.value.          should    == 0.003810
       end
 

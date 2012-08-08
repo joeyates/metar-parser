@@ -504,12 +504,14 @@ module Metar
         character = PRESSURE_CHANGE_CHARACTER[$1.to_i]
         PressureTendency.new(character, tenths($2))
       when /^6(\d{4})$/
-        PrecipitationRecent.new(Distance.new(inches_to_meters($1)))
+        Precipitation.new(3, Distance.new(inches_to_meters($1))) # actually 3 or 6 depending on reporting time
       when /^7(\d{4})$/
-        Precipitation24Hour.new(Distance.new(inches_to_meters($1)))
-      when /^AO([12])$/
+        Precipitation.new(24, Distance.new(inches_to_meters($1)))
+      when /^A[0O]([12])$/
         type = [:with_precipitation_discriminator, :without_precipitation_discriminator][$1.to_i - 1]
         AutomatedStationType.new(type)
+      when /^P(\d{4})$/
+        Precipitation.new(1, Distance.new(inches_to_meters($1)))
       when /^T([01])(\d{3})([01])(\d{3})$/
         temperature = Temperature.new(sign($1) * tenths($2))
         dew_point   = Temperature.new(sign($3) * tenths($4))
@@ -575,18 +577,13 @@ module Metar
 
   class Precipitation
 
+    attr_accessor :period
     attr_accessor :amount
 
-    def initialize(amount)
-      @amount = amount
+    def initialize(period, amount)
+      @period, @amount = period, amount
     end
 
-  end
-
-  class PrecipitationRecent < Precipitation
-  end
-
-  class Precipitation24Hour < Precipitation
   end
 
   class AutomatedStationType
