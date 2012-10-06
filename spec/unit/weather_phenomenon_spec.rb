@@ -20,12 +20,11 @@ RSpec::Matchers.define :be_weather_phenomenon do | modifier, descriptor, phenome
 end
 
 describe Metar::WeatherPhenomenon do
-
   context '.parse' do
-
     [
       [ 'simple phenomenon',                  'BR',     [ nil,      nil,            'mist' ] ],
       [ 'descriptor + phenomenon',            'BCFG',   [ nil,      'patches of',   'fog'  ] ],
+      [ 'thunderstorm and rain',              'TSRA',   [ nil,      'thunderstorm and', 'rain' ] ],
       [ 'intensity + phenomenon',             '+RA',    [ 'heavy',  nil,            'rain' ] ],
       [ 'intensity + proximity + phenomenon', '-VCTSRA', [ 'nearby light', 'thunderstorm and', 'rain' ] ],
       [ '2 phenomena: SN RA',                 'SNRA',   [ nil,      nil,            'snow and rain' ] ],
@@ -40,7 +39,6 @@ describe Metar::WeatherPhenomenon do
   end
 
   context '#to_s' do
-
     before :all do
       @locale = I18n.locale
       I18n.locale = :it
@@ -54,6 +52,7 @@ describe Metar::WeatherPhenomenon do
       [ 'simple phenomenon',       :en, [ nil,    nil,          'mist' ],    'mist' ],
       [ 'simple phenomenon',       :it, [ nil,    nil,          'mist' ],    'foschia' ],
       [ 'descriptor + phenomenon', :en, [ nil,    'patches of', 'fog' ],     'patches of fog' ],
+      [ 'thunderstorm and rain',   :en, [ nil,    'thunderstorm and', 'rain' ],  'thunderstorm and rain' ],
       [ 'modifier + phenomenon',   :en, ['heavy', nil,          'drizzle' ], 'heavy drizzle' ],
       [ 'modifier + descriptor + phenomenon', :en, ['heavy', 'freezing', 'drizzle' ], 'heavy freezing drizzle' ],
     ].each do | docstring, locale, ( modifier, descriptor, phenomenon ), expected |
@@ -63,8 +62,6 @@ describe Metar::WeatherPhenomenon do
                                   should     == expected
       end
     end
-
   end
-
 end
 
