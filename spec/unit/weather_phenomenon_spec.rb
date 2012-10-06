@@ -37,7 +37,6 @@ describe Metar::WeatherPhenomenon do
         Metar::WeatherPhenomenon.parse( raw ).should be_weather_phenomenon( *expected )
       end
     end
-
   end
 
   context '#to_s' do
@@ -52,10 +51,10 @@ describe Metar::WeatherPhenomenon do
     end
 
     [
-      [ 'simple phenomenon', :en, [ nil, nil, 'mist' ], 'mist' ],
-      [ 'simple phenomenon', :it, [ nil, nil, 'mist' ], 'foschia' ],
-      [ 'descriptor + phenomenon', :en, [ nil, 'patches of', 'fog' ], 'patches of fog' ],
-      [ 'modifier + phenomenon', :en, ['heavy', nil, 'drizzle' ], 'heavy drizzle' ],
+      [ 'simple phenomenon',       :en, [ nil,    nil,          'mist' ],    'mist' ],
+      [ 'simple phenomenon',       :it, [ nil,    nil,          'mist' ],    'foschia' ],
+      [ 'descriptor + phenomenon', :en, [ nil,    'patches of', 'fog' ],     'patches of fog' ],
+      [ 'modifier + phenomenon',   :en, ['heavy', nil,          'drizzle' ], 'heavy drizzle' ],
       [ 'modifier + descriptor + phenomenon', :en, ['heavy', 'freezing', 'drizzle' ], 'heavy freezing drizzle' ],
     ].each do | docstring, locale, ( modifier, descriptor, phenomenon ), expected |
       example docstring + " (#{locale})" do
