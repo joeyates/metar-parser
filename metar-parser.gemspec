@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 $:.unshift( File.join( File.dirname( __FILE__ ), 'lib' ) )
 require 'metar/version'
-require 'rake/file_list'
 
 Gem::Specification.new do |s|
   s.name          = 'metar-parser'
@@ -20,11 +19,13 @@ Gem::Specification.new do |s|
   s.email         = 'joe.g.yates@gmail.com'
 
   s.files         = ['README.md', 'COPYING', 'Rakefile'] +
-                    Rake::FileList['{bin,lib,spec}/**/*.rb'] +
-                    Rake::FileList['locales/**/*.{rb,yml}']
+                    Dir.glob("{bin,lib,spec}/**/*.rb") +
+                    Dir.glob("locales/**/*.{rb,yml}")
+
   s.require_paths = ['lib']
 
-  s.test_files    = Rake::FileList[ 'spec/**/*_spec.rb' ]
+  s.test_files    = Dir.glob("spec/**/*_spec.rb")
+
 
   s.add_runtime_dependency 'rake'
   s.add_runtime_dependency 'rdoc'
