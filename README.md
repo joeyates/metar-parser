@@ -32,7 +32,7 @@ Hello World
 This prints the latest weather report for Portland International Airport:
 
 ```ruby
-station = Metar::Station.find_by_cccc( 'KPDX' )
+station = Metar::Station.find_by_cccc('KPDX')
 puts station.report.to_s
 ```
 
@@ -48,13 +48,13 @@ puts Metar::Station.countries
 Find a country's weather stations:
 
 ```ruby
-spanish = Metar::Station.find_all_by_country( 'Spain' )
+spanish = Metar::Station.find_all_by_country('Spain')
 ```
 
 Get The Data
 ------------
 ```ruby
-station = Metar::Station.find_by_cccc( 'KPDX' )
+station = Metar::Station.find_by_cccc('KPDX')
 parser  = station.parser
 puts parser.temperature.value
 ```
@@ -63,8 +63,8 @@ Use Your Own Raw Data
 ---------------------
 ```ruby
 metar_string = "KHWD 280554Z AUTO 29007KT 10SM OVC008 14/12 A3002 RMK AO2 SLP176 T01390117 10211\n"
-raw    = Metar::Raw::Data.new( metar_string )
-parser = Metar::Parser.new( raw )
+raw    = Metar::Raw::Data.new(metar_string)
+parser = Metar::Parser.new(raw)
 ```
 
 Compliance
