@@ -42,17 +42,9 @@ describe Metar::Report do
     end
 
     context '#date' do
-
-      it 'localizes' do
-        I18n.locale = :en
-
-        subject.date.             should     == '06/05/2008'
-
-        I18n.locale = :it
-
-        subject.date.             should     == '06/05/2008'
+      it 'formats the date' do
+        expect(subject.date).to eq('06/05/2008')
       end
-
     end
 
     context '#time' do
