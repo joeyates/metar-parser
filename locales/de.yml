@@ -1,0 +1,161 @@
+# encoding: utf8
+de:
+  date:
+    formats:
+      default: '%d.%m.%Y'
+  comparison:
+    more_than: mehr als
+    less_than: weniger als
+  tendency:
+    no_change: keine Veränderung
+    improving: besser werdend
+    worsening: schlechter werdend
+  units:
+    pressure:
+      bar:
+        full: bar
+  metar:
+    station_code:
+      title: Stationskennzeichen
+    station_name:
+      title: Name
+    station_country:
+      title: Land
+    time:
+      title: Zeit
+    observer:
+      title: Beobachter
+      real: real
+      auto: automatisch
+      corrected: korrigiert
+    altitude:
+      at: at
+    distance:
+      title: Entfernung
+      unknown: unbekannt
+    wind:
+      title: Wind
+      variable_direction: unterschiedliche Richtung
+      unknown_direction: unbekannte Richtung
+      unknown_speed: unbekannte Geschwindigkeit
+      gusts: Böen
+    variable_wind:
+      title: Wind aus wechselnden Richtungen.
+    visibility:
+      title: Sichtweite
+    minimum_visibility:
+      title: minimale Sichtweite
+    sky_summary:
+      title: Himmel
+    sky_conditions:
+      title: Himelszustand
+      clear skies: klarer Himmel
+      broken: vereinzelte Bewölkung
+      broken cumulonimbus: vereinzelte Cumulonimbus
+      broken towering cumulus: vereinzelte auftürmende Cumulus-Wolken
+      few: wenige Wolken
+      few cumulonimbus: wenige Cumulonimbus
+      few towering cumulus: wenige auftürmende Cumulus-Wolken
+      scattered: aufgelockerte Bewölkung
+      scattered cumulonimbus: aufgelockerte Cumulonimbus
+      scattered towering cumulus: aufgelockerte auftürmende Cumulus-Wolken
+      overcast: bedeckt
+    runway_visible_range:
+      title: Pistensichtweite
+      runway: Landebahn
+      from: von
+      to: bis
+    present_weather:
+      title: Wetter
+      not observed: nicht beobachtet
+      mist: Nebel
+      dust: Staub
+      blowing dust: aufgewirbelter Staub
+      low drifting dust: niedrig treibender Staub
+      nearby blowing dust: naher aufgewirbelter Staub
+      heavy drizzle: heftiger Sprühregen
+      light drizzle: leichter Sprühregen
+      heavy freezing drizzle: heftiger gefrierender Sprühregen
+      light freezing drizzle: leichter gefrierender Sprühregen
+      fog: Nebel
+      patches of fog: Nebelfelder
+      freezing fog: gefrierender Nebel
+      shallow fog: flacher Bodennebel
+      partial fog: teilweise neblig
+      nearby fog: naher Nebel
+      smoke: Rauch
+      hail: Hagel
+      heavy shower of hail: heftiger Hagelschauer
+      light shower of hail: leichter Hagelschauer
+      heavy shower of small hail: heftiger Graupelschauer
+      light shower of small hail: leichter Graupelschauer
+      haze: Dunst
+      ice crystals: Eiskristalle
+      heavy ice pellets: schwere Eiskörner
+      light ice pellets: leichte Eiskörner
+      dust whirls: Staubwirbel
+      nearby dust whirls: nahe Staubwirbel
+      spray: Sprühregen
+      rain: Regen
+      heavy rain: starker Regen
+      light rain: leichter Regen
+      heavy shower of rain: schwerer Regenschauer
+      light shower of rain: leichter Regenschauer
+      heavy freezing rain: schwerer gefrierender Regen
+      light freezing rain: leichter gefrierender Regen
+      sand: Sand
+      blowing sand: aufgewirbelter Sand
+      low drifting sand: niedrig treibender Sand
+      nearby blowing sand: nahe treibender Sand
+      nearby shower: naher Schauer
+      snow: Schnee
+      heavy snow: starker Schneefall
+      light snow: leichter Schneefall
+      heavy shower of snow: schwerer Schneeschauer
+      light shower of snow: leichter Schneeschauer
+      blowing snow: Schneetreiben
+      low drifting snow: niedriges Schneetreiben
+      nearby blowing snow: nahes Schneetreiben
+      heavy snow grains: schwere Schneekörner
+      light snow grains: leichte Schneekörner
+      snow and rain: Schnee und Regen
+      squall: Sturmböe
+      unknown phenomenon: unbekanntes Phänomen
+      heavy freezing unknown phenomenon: schweres gefrierendes unbekanntes Phänomen
+      light freezing unknown phenomenon: leichtes gefrierendes unbekanntes Phänomen
+      heavy shower of freezing unknown phenomenon: schwerer Schauer eines gefrierenden unbekannten Phänomens
+      light shower of freezing unknown phenomenon: leichter Schauer eines gefrierenden unbekannten Phänomens
+      volcanic ash: Vulkanasche
+      nearby volcanic ash: nahe Vulkanasche
+      funnel cloud: Trichterwolke
+      nearby funnel cloud: nahe Trichterwolke
+      sand storm: Sandsturm
+      heavy sand storm: schwerer Sandsturm
+      light sand storm: leichter Sandsturm
+      nearby sand storm: naher Sandsturm
+      dust storm: Staubsturm
+      heavy dust storm: schwerer Staubsturm
+      light dust storm: leichter Staubsturm
+      nearby dust storm: naher Staubsturm
+      thunderstorm: Gewitter
+      thunderstorm and rain: Gewitter und Regen
+      nearby thunderstorm: nahes Gewitter
+      heavy thunderstorm and hail: schweres Gewitter mit Hagel
+      light thunderstorm and hail: leichtes Gewitter mit Hagel
+      heavy thunderstorm and small hail: schweres Gewitter mit Frostgraupeln
+      light thunderstorm and small hail: leichtes Gewitter mit Frostgraupeln
+      heavy thunderstorm and rain: schweres Gewitter mit Regen
+      light thunderstorm and rain: leichtes Gewitter mit Regen
+      heavy thunderstorm and snow: schweres Gewitter mit Schnee
+      light thunderstorm and snow: leichtes Gewitter mit Schnee
+      heavy thunderstorm and unknown phenomenon: schweres Gewitter und unbekanntes Phänomen
+      light thunderstorm and unknown phenomenon: leichtes Gewitter und unbekanntes Phänomen
+      heavy unknown phenomenon: schweres unbekanntes Phänomen
+      light unknown phenomenon: leichtes unbekanntes Phänomen
+    temperature:
+      title: Temperatur
+    dew_point:
+      title: Taupunkt
+    remarks:
+      title: Bemerkungen
+
