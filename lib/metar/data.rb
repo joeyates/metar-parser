@@ -226,21 +226,21 @@ module Metar
       when (@direction.nil? and @comparator.nil?)
         @distance.to_s(distance_options)
       when @comparator.nil?
-        "%s %s" % [
+        [
           @distance.to_s(distance_options),
           @direction.to_s(direction_options)
-        ]
+        ].join(' ')
       when @direction.nil?
-        "%s %s" % [
+        [
           I18n.t('comparison.' + @comparator.to_s),
           @distance.to_s(distance_options)
-        ]
+        ].join(' ')
       else
-        "%s %s %s" % [
+        [
           I18n.t('comparison.' + @comparator.to_s),
           @distance.to_s(distance_options),
           @direction.to_s(direction_options)
-        ]
+        ].join(' ')
       end
     end
   end
