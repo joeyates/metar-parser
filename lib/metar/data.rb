@@ -110,6 +110,12 @@ module Metar
         new( Direction.new( $1 ),
              Speed.parse( $2 + $4 ),
              Speed.parse( $3 ) )
+      when s =~ /^VRB(\d{2})G(\d{2,3})(|MPS|KMH|KT)$/
+        speed = $1 + $3
+        gusts = $2 + $3
+        new( :variable_direction,
+             Speed.parse(speed),
+             Speed.parse(gusts))
       when s =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
         new( :variable_direction,
              Speed.parse($1))
