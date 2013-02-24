@@ -4,7 +4,7 @@ require 'm9t'
 
 module Metar
   locales_path = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'locales'))
-  I18n.load_path += Dir.glob("#{ locales_path }/*.yml")
+  I18n.load_path += Dir.glob("#{locales_path}/*.yml")
 
   class Distance < M9t::Distance
     attr_accessor :units
@@ -124,7 +124,8 @@ module Metar
     def to_s(options = {})
       options = {
         :direction_units => :compass,
-        :speed_units     => :kilometers_per_hour}.merge(options)
+        :speed_units     => :kilometers_per_hour
+      }.merge(options)
       speed =
         case @speed
         when :unknown_speed
@@ -404,7 +405,7 @@ module Metar
 
     def self.parse(sky_condition)
       case
-      when CLEAR_SKIES.include?( sky_condition )
+      when CLEAR_SKIES.include?(sky_condition)
         new
       when sky_condition =~ /^(BKN|FEW|OVC|SCT)(\d+|\/{3})(CB|TCU|\/{3}|)?$/
         quantity = QUANTITY[$1]
@@ -474,7 +475,7 @@ module Metar
     ]
 
     INDICATOR_TYPE = {
-      'TS' => :thunderstorm_information,
+      'TS'  => :thunderstorm_information,
       'PWI' => :precipitation_identifier,
       'P'   => :precipitation_amount,
     }
