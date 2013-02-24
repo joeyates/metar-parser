@@ -40,7 +40,7 @@ module Metar
       'KT'  => :knots,
     }
 
-    def Speed.parse(s)
+    def self.parse(s)
       case
       when s =~ /^(\d+)(|KT|MPS|KMH)$/
         # Call the appropriate factory method for the supplied units
@@ -53,7 +53,7 @@ module Metar
 
   # Adds a parse method to the M9t base class
   class Temperature < M9t::Temperature
-    def Temperature.parse(s)
+    def self.parse(s)
       if s =~ /^(M?)(\d+)$/
         sign = $1
         value = $2.to_i
@@ -72,7 +72,7 @@ module Metar
 
   # Adds a parse method to the M9t base class
   class Pressure < M9t::Pressure
-    def Pressure.parse(pressure)
+    def self.parse(pressure)
       case
       when pressure =~ /^Q(\d{4})$/
         hectopascals($1.to_f)
@@ -92,7 +92,7 @@ module Metar
   end
 
   class Wind
-    def Wind.parse(s)
+    def self.parse(s)
       case
       when s =~ /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
         return nil if $1.to_i > 360
@@ -159,7 +159,7 @@ module Metar
   end
 
   class VariableWind
-    def VariableWind.parse(variable_wind)
+    def self.parse(variable_wind)
       if variable_wind =~ /^(\d+)V(\d+)$/
         new(Direction.new($1), Direction.new($2))
       else
@@ -179,7 +179,7 @@ module Metar
   end
 
   class Visibility
-    def Visibility.parse(s)
+    def self.parse(s)
       case
       when s == '9999'
         new(Distance.new(10000), nil, :more_than)
@@ -250,7 +250,7 @@ module Metar
     COMPARATOR = {'' => nil, 'P' => :more_than, 'M' => :less_than}
     UNITS      = {'' => :meters, 'FT' => :feet}
 
-    def RunwayVisibleRange.parse(runway_visible_range)
+    def self.parse(runway_visible_range)
       case
       when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})(N|U|D|)(FT|)$/
         designator = $1
@@ -360,7 +360,7 @@ module Metar
     }
 
     # Accepts all standard (and some non-standard) present weather codes
-    def WeatherPhenomenon.parse(s)
+    def self.parse(s)
       phenomena   = Phenomena.keys.join('|')
       descriptors = Descriptors.keys.join('|')
       modifiers   = Modifiers.keys.join('|')
@@ -374,7 +374,7 @@ module Metar
       phenomena_codes  = m[3].scan(/../)
       phenomena_phrase = phenomena_codes.map { |c| Phenomena[c] }.join(' and ')
 
-      Metar::WeatherPhenomenon.new(phenomena_phrase, Modifiers[modifier_code], Descriptors[descriptor_code])
+      new(phenomena_phrase, Modifiers[modifier_code], Descriptors[descriptor_code])
     end
 
     attr_reader :phenomenon, :modifier, :descriptor
@@ -402,7 +402,7 @@ module Metar
       'SKC',
     ]
 
-    def SkyCondition.parse(sky_condition)
+    def self.parse(sky_condition)
       case
       when CLEAR_SKIES.include?( sky_condition )
         new
@@ -448,7 +448,7 @@ module Metar
   end
 
   class VerticalVisibility
-    def VerticalVisibility.parse(vertical_visibility)
+    def self.parse(vertical_visibility)
       case
       when vertical_visibility =~ /^VV(\d{3})$/
         Distance.new($1.to_f * 30.48)
