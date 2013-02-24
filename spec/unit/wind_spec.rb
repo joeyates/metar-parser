@@ -47,7 +47,7 @@ describe Metar::Wind do
       [ 'understands 5 digits + G + 2 digits + MPS',          '12345G67MPS', [ 123.0, 45.00, 67.00 ] ],
       [ 'understands 5 digits + G + 2 digits + KT',           '12345G67KT',  [ 123.0, 23.15, 34.47 ] ],
       # Variable direction
-      [ 'understands VRB + 2 digits'                          'VRB12',       [ :variable_direction,  3.33, nil ] ],
+      [ 'understands VRB + 2 digits',                         'VRB12',       [ :variable_direction,  3.33, nil ] ],
       [ 'understands VRB + 2 digits + KMH',                   'VRB12KMH',    [ :variable_direction,  3.33, nil ] ],
       [ 'understands VRB + 2 digits + MPS',                   'VRB12MPS',    [ :variable_direction, 12.00, nil ] ],
       [ 'understands VRB + 2 digits + KT',                    'VRB12KT',     [ :variable_direction,  6.17, nil ] ],
