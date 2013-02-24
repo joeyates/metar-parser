@@ -301,7 +301,11 @@ module Metar
         break if @chunks.size == 0
         r = Metar::Remark.parse(@chunks[0])
         if r
-          @remarks += [*r]
+          if r.is_a?(Array)
+            @remarks += r
+          else
+            @remarks << r
+          end
           @chunks.shift
           next 
         end

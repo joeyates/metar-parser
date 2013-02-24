@@ -544,69 +544,16 @@ module Metar
     end
   end
 
-  class TemperatureExtreme
-    attr_accessor :value
-    attr_accessor :extreme
+  TemperatureExtreme = Struct.new(:extreme, :value)
+  PressureTendency = Struct.new(:character, :value)
+  Precipitation = Struct.new(:period, :amount)
+  AutomatedStationType = Struct.new(:type)
+  HourlyTemperaturAndDewPoint = Struct.new(:temperature, :dew_point)
+  SeaLevelPressure = Struct.new(:pressure)
+  SensorStatusIndicator = Struct.new(:type, :state)
+  ColorCode = Struct.new(:code)
 
-    def initialize(extreme, value)
-      @extreme, @value = extreme, value
-    end
-  end
-
-  class PressureTendency
-    attr_accessor :value
-    attr_accessor :character
-
-    def initialize(character, value)
-      @character, @value = character, value
-    end
-  end
-
-  class Precipitation
-    attr_accessor :period
-    attr_accessor :amount
-
-    def initialize(period, amount)
-      @period, @amount = period, amount
-    end
-  end
-
-  class AutomatedStationType
-    attr_accessor :type
-
-    def initialize(type)
-      @type = type
-    end
-  end
-
-  class HourlyTemperaturAndDewPoint
-    attr_accessor :temperature
-    attr_accessor :dew_point
-
-    def initialize(temperature, dew_point)
-      @temperature, @dew_point = temperature, dew_point
-    end
-  end
-
-  class SeaLevelPressure
-    attr_accessor :pressure
-
-    def initialize(pressure)
-      @pressure = pressure
-    end
-  end
-
-  class SensorStatusIndicator
-    attr_accessor :type
-    attr_accessor :state
-
-    def initialize(type, state)
-      @type, @state = type, state
-    end
-  end
-
-  class MaintenanceNeeded
-  end
+  class MaintenanceNeeded; end
 
   class Lightning
     TYPE = {'' => :default}
@@ -685,14 +632,6 @@ module Metar
 
     def initialize(height)
       @height = height
-    end
-  end
-
-  class ColorCode
-    attr_accessor :code
-
-    def initialize(code)
-      @code = code
     end
   end
 end
