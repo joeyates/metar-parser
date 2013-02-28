@@ -8,15 +8,15 @@ describe Metar::Parser do
 
   context '.for_cccc' do
     it 'returns a loaded parser' do
-      station = stub( 'station' )
-      raw = stub( 'raw', :metar => "XXXX 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000",
-                         :time  => '2010/02/06 16:10' )
-      Metar::Station.stub!( :new => station )
-      Metar::Raw::Noaa.stub!( :new => raw )
+      station = stub('station')
+      raw = stub('raw', :metar => "XXXX 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000",
+                         :time  => '2010/02/06 16:10')
+      Metar::Station.stub!(:new => station)
+      Metar::Raw::Noaa.stub!(:new => raw)
 
-      parser = Metar::Parser.for_cccc( 'XXXX' )
+      parser = Metar::Parser.for_cccc('XXXX')
 
-      parser.                     should     be_a( Metar::Parser )
+      parser.                     should     be_a(Metar::Parser)
       parser.station_code.        should     == 'XXXX'
     end
   end
@@ -30,7 +30,7 @@ describe Metar::Parser do
     it '.location missing' do
       expect do
         setup_parser("FUBAR 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
-      end.                        to         raise_error( Metar::ParseError, /Expecting location/ )
+      end.                        to         raise_error(Metar::ParseError, /Expecting location/)
     end
 
     context 'datetime' do
@@ -43,7 +43,7 @@ describe Metar::Parser do
       it 'throws an error is missing' do
         expect do
           setup_parser("PAIL 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
-        end.                      to         raise_error( Metar::ParseError, /Expecting datetime/ )
+        end.                      to         raise_error(Metar::ParseError, /Expecting datetime/)
       end
 
       context 'in strict mode' do
@@ -102,17 +102,17 @@ describe Metar::Parser do
     it 'wind' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
-      parser.wind.direction.value.should     be_within( 0.0001 ).of( 240 )
-      parser.wind.speed.to_knots. should     be_within( 0.0001 ).of( 6 )
+      parser.wind.direction.value.should     be_within(0.0001).of(240)
+      parser.wind.speed.to_knots. should     be_within(0.0001).of(6)
     end
 
     it 'variable_wind' do
       parser = setup_parser("LIRQ 061520Z 01007KT 350V050 9999 SCT035 BKN080 08/02 Q1005")
 
       parser.variable_wind.direction1.value.
-                                  should     be_within( 0.0001 ).of( 350 )
+                                  should     be_within(0.0001).of(350)
       parser.variable_wind.direction2.value.
-                                  should     be_within( 0.0001 ).of( 50 )
+                                  should     be_within(0.0001).of(50)
     end
 
     context '.visibility' do
@@ -120,7 +120,7 @@ describe Metar::Parser do
         parser = setup_parser("PAIL 061610Z 24006KT CAVOK M17/M20 A2910 RMK AO2 P0000")
 
         parser.visibility.distance.value.
-                                  should     be_within( 0.01 ).of( 10000.00 )
+                                  should     be_within(0.01).of(10000.00)
         parser.visibility.comparator.
                                   should     == :more_than
         parser.present_weather.size.
@@ -137,7 +137,7 @@ describe Metar::Parser do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
         parser.visibility.distance.to_miles.
-                                  should     be_within( 0.01 ).of( 1.75 )
+                                  should     be_within(0.01).of(1.75)
       end
 
       it 'in meters' do
