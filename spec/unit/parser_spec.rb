@@ -2,7 +2,7 @@
 require 'spec_helper'
 
 describe Metar::Parser do
-  after :each do
+  after do
     Metar::Parser.compliance = :loose
   end
 
@@ -22,7 +22,7 @@ describe Metar::Parser do
   end
 
   context 'attributes' do
-    before :each do
+    before do
       @call_time = Time.parse('2011-05-06 16:35')
       Time.stub!(:now).and_return(@call_time)
     end
@@ -47,7 +47,7 @@ describe Metar::Parser do
       end
 
       context 'in strict mode' do
-        before :each do
+        before do
           Metar::Parser.compliance = :strict
         end
 
@@ -294,7 +294,7 @@ describe Metar::Parser do
       end
 
       context 'in strict mode' do
-        before :each do
+        before do
           Metar::Parser.compliance = :strict
         end
 
