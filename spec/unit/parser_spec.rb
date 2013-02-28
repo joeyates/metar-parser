@@ -2,13 +2,11 @@
 require 'spec_helper'
 
 describe Metar::Parser do
-
   after :each do
     Metar::Parser.compliance = :loose
   end
 
   context '.for_cccc' do
-
     it 'returns a loaded parser' do
       station = stub( 'station' )
       raw = stub( 'raw', :metar => "XXXX 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000",
@@ -21,11 +19,9 @@ describe Metar::Parser do
       parser.                     should     be_a( Metar::Parser )
       parser.station_code.        should     == 'XXXX'
     end
-         
   end
 
   context 'attributes' do
-
     before :each do
       @call_time = Time.parse('2011-05-06 16:35')
       Time.stub!(:now).and_return(@call_time)
@@ -38,7 +34,6 @@ describe Metar::Parser do
     end
 
     context 'datetime' do
-
       it 'is parsed' do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
@@ -52,7 +47,6 @@ describe Metar::Parser do
       end
 
       context 'in strict mode' do
-
         before :each do
           Metar::Parser.compliance = :strict
         end
@@ -62,11 +56,9 @@ describe Metar::Parser do
             parser = setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
           end.                    to         raise_error(Metar::ParseError, /Expecting datetime/)
         end
-
       end
 
       context 'in loose mode' do
-
         it '5 numerals parses' do
           parser = setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
 
@@ -78,13 +70,10 @@ describe Metar::Parser do
 
           parser.time.              should     == Time.gm(2011, 05, 06, 16, 00)
         end
-
       end
-
     end
 
     context '.observer' do
-
       it 'real' do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
@@ -108,7 +97,6 @@ describe Metar::Parser do
 
         parser.observer.          should     == :corrected
       end
-      
     end
 
     it 'wind' do
@@ -195,7 +183,6 @@ describe Metar::Parser do
     end
 
     context '.present_weather' do
-
       it 'normal' do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
@@ -215,7 +202,6 @@ describe Metar::Parser do
         parser.present_weather[0].phenomenon.
                                   should     == 'not observed'
       end
-
     end
 
     it 'present_weather_defaults_to_empty_array' do
@@ -225,7 +211,6 @@ describe Metar::Parser do
     end
 
     context '.sky_conditions' do
-
       it 'normal' do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
@@ -247,7 +232,6 @@ describe Metar::Parser do
         parser.sky_conditions.size.
                                   should     == 0
       end
-
     end
 
     it 'sky_conditions_defaults_to_empty_array' do
@@ -288,7 +272,6 @@ describe Metar::Parser do
     end
 
     context 'remarks' do
-
       it 'are collected' do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
@@ -311,7 +294,6 @@ describe Metar::Parser do
       end
 
       context 'in strict mode' do
-
         before :each do
           Metar::Parser.compliance = :strict
         end
@@ -321,28 +303,22 @@ describe Metar::Parser do
             setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 FOO RMK AO2 P0000")
           end.                    to        raise_error(Metar::ParseError, /Unparsable text found/)
         end
-
       end
 
       context 'in loose mode' do
-
         it 'unparsed data is collected' do
           parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 FOO RMK AO2 P0000")
 
           parser.unparsed.        should    == ['FOO']
           parser.remarks.size.    should    == 2
         end
-
       end
-
     end
   
     def setup_parser(metar)
       raw = Metar::Raw::Data.new(metar)
       Metar::Parser.new(raw)
     end
-
   end
-
 end
 
