@@ -146,7 +146,7 @@ describe Metar::Parser do
 
     it 'runway_visible_range' do
       parser = setup_parser("ESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 Q1013 1271//55")
-      expect(parser.runway_visible_range.length).to eq(2)
+      expect(parser.runway_visible_range.size).to eq(2)
       expect(parser.runway_visible_range[0].designator).to eq('12')
       expect(parser.runway_visible_range[0].visibility1.distance.value).to eq(1000)
       expect(parser.runway_visible_range[0].tendency).to eq(:no_change)
@@ -155,7 +155,7 @@ describe Metar::Parser do
     it 'runway_visible_range_defaults_to_empty_array' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
-      expect(parser.runway_visible_range.length).to eq(0)
+      expect(parser.runway_visible_range.size).to eq(0)
     end
 
     it 'runway_visible_range_variable' do
@@ -184,7 +184,7 @@ describe Metar::Parser do
 
     it 'present_weather_defaults_to_empty_array' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
-      expect(parser.present_weather.length).to eq(0)
+      expect(parser.present_weather.size).to eq(0)
     end
 
     context '.sky_conditions' do
@@ -207,7 +207,7 @@ describe Metar::Parser do
 
     it 'sky_conditions_defaults_to_empty_array' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN M17/M20 A2910 RMK AO2 P0000")
-      expect(parser.sky_conditions.length).to eq(0)
+      expect(parser.sky_conditions.size).to eq(0)
     end
 
     it 'vertical_visibility' do
@@ -250,7 +250,7 @@ describe Metar::Parser do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910")
 
         expect(parser.remarks).to be_a Array
-        expect(parser.remarks.length).to eq(0)
+        expect(parser.remarks.size).to eq(0)
       end
 
       it 'parses known remarks' do
