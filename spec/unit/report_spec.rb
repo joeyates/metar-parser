@@ -49,6 +49,12 @@ describe Metar::Report do
 
     context '#time' do
       specify { subject.time.     should     == @metar_time }
+
+      it 'zero-pads single figure minutes' do
+        @parser.stub(:time => Time.parse('10:02'))
+
+        expect(subject.time).to eq('10:02')
+      end
     end
 
     context '#observer' do
