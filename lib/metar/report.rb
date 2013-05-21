@@ -40,7 +40,7 @@ module Metar
     end
 
     def time
-      "%u:%u" % [@parser.time.hour, @parser.time.min]
+      "%u:%02u" % [@parser.time.hour, @parser.time.min]
     end
 
     def observer
