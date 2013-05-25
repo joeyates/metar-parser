@@ -45,11 +45,10 @@ describe Metar::SkyCondition do
       ['quantity',        ['broken', nil, nil           ], 'broken cloud'       ],
       ['quantity + type', ['broken', nil, 'cumulonimbus'], 'broken cumulonimbus'],
     ].each do |docstring, (quantity, height, type), expected|
+      subject { Metar::SkyCondition.new(quantity, height, type) }
 
       example docstring do
-        sk = Metar::SkyCondition.new( quantity, height, type )
-      
-        sk.to_summary.            should     == expected
+        expect(subject.to_summary).to eq(expected)
       end
     end
   end
