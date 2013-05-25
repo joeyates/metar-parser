@@ -40,19 +40,18 @@ describe Metar::SkyCondition do
   end
 
   context '.to_summary' do
-
     [
-      [ 'all values nil',  [ nil,      nil, nil ],           'clear skies'         ],
-      [ 'quantity',        [ 'broken', nil, nil ],           'broken cloud'        ],
-      [ 'quantity + type', [ 'broken', nil, 'cumulonimbus'], 'broken cumulonimbus' ],
-    ].each do | docstring, ( quantity, height, type ), expected |
+      ['all values nil',  [nil,      nil, nil           ], 'clear skies'        ],
+      ['quantity',        ['broken', nil, nil           ], 'broken cloud'       ],
+      ['quantity + type', ['broken', nil, 'cumulonimbus'], 'broken cumulonimbus'],
+    ].each do |docstring, (quantity, height, type), expected|
+
       example docstring do
         sk = Metar::SkyCondition.new( quantity, height, type )
       
         sk.to_summary.            should     == expected
       end
     end
-
   end
 
   context '.to_s' do
