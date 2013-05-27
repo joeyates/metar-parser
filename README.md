@@ -67,6 +67,22 @@ raw    = Metar::Raw::Data.new(metar_string)
 parser = Metar::Parser.new(raw)
 ```
 
+Translations
+------------
+Translations are available for the following languages (and region):
+* :de
+* :en
+* :'en-US'
+* :it
+
+Thanks to the I18n gem's fallback mechanism, under regional locales, language generic
+translations will be used if a region-specific translation is not available.
+I.e.
+```
+I18n.locale = :'en-US'
+I18n.t('metar.station_code.title') # station code
+```
+
 Compliance
 ==========
 
