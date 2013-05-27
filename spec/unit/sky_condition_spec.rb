@@ -38,14 +38,19 @@ describe Metar::SkyCondition do
 
   context '.to_summary' do
     [
-      ['all values nil',  [nil,      nil, nil           ], 'clear skies'        ],
-      ['quantity',        ['broken', nil, nil           ], 'broken cloud'       ],
-      ['quantity + type', ['broken', nil, 'cumulonimbus'], 'broken cumulonimbus'],
-    ].each do |docstring, (quantity, height, type), expected|
-      subject { Metar::SkyCondition.new(quantity, height, type) }
+      ['all values nil',  [nil,      nil, nil           ], :en,      'clear skies'        ],
+      ['quantity',        ['broken', nil, nil           ], :en,      'broken cloud'       ],
+      ['quantity',        ['broken', nil, nil           ], :'en-US', 'broken clouds'      ],
+      ['quantity + type', ['broken', nil, 'cumulonimbus'], :en,      'broken cumulonimbus'],
+      ['quantity + type', ['broken', nil, 'cumulonimbus'], :'en-US', 'broken cumulonimbus clouds'],
+    ].each do |docstring, (quantity, height, type), locale, expected|
+      before { @old_locale = I18n.locale }
+      after  { I18n.locale = @old_locale }
 
-      example docstring do
-        expect(subject.to_summary).to eq(expected)
+      example "#{docstring} - #{locale}" do
+        condition = Metar::SkyCondition.new(quantity, height, type)
+        I18n.locale = locale
+        expect(condition.to_summary).to eq(expected)
       end
     end
   end

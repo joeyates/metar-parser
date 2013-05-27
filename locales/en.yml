@@ -50,18 +50,18 @@ en:
     sky_conditions:
       title: sky conditions
       clear skies: clear skies
-      broken: broken clouds
-      broken cumulonimbus: broken cumulonimbus clouds
-      broken towering cumulus: broken towering cumulus clouds
+      broken: broken cloud
+      broken cumulonimbus: broken cumulonimbus
+      broken towering cumulus: broken towering cumulus
       few: few clouds
-      few cumulonimbus: few cumulonimbus clouds
-      few towering cumulus: few towering cumulus clouds
-      scattered: scattered clouds
-      scattered cumulonimbus: scattered cumulonimbus clouds
-      scattered towering cumulus: scattered towering cumulus clouds
-      overcast: overcast clouds
-      overcast cumulonimbus: overcast cumulonimbus clouds
-      overcast towering cumulus: overcast towering cumulus clouds
+      few cumulonimbus: few cumulonimbus
+      few towering cumulus: few towering cumulus
+      scattered: scattered cloud
+      scattered cumulonimbus: scattered cumulonimbus
+      scattered towering cumulus: scattered towering cumulus
+      overcast: overcast
+      overcast cumulonimbus: overcast cumulonimbus
+      overcast towering cumulus: overcast towering cumulus
     runway_visible_range:
       title: runway visible range
       runway: runway
@@ -160,4 +160,12 @@ en:
       title: dew point
     remarks:
       title: remarks
+
+en-US:
+  metar:
+    sky_conditions:
+      clear skies: clear skies
+      broken: broken clouds
+      broken cumulonimbus: broken cumulonimbus clouds
+      broken towering cumulus: broken towering cumulus clouds
 
