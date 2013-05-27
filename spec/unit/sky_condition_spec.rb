@@ -57,9 +57,8 @@ describe Metar::SkyCondition do
       ['quantity + type', ['broken', 360, 'cumulonimbus'], 'broken cumulonimbus at 360'],
     ].each do |docstring, (quantity, height, type), expected|
       example docstring do
-        sk = Metar::SkyCondition.new( quantity, height, type )
-      
-        sk.to_s.                  should     == expected
+        condition = Metar::SkyCondition.new(quantity, height, type)
+        expect(condition.to_s).to eq(expected)
       end
     end
   end
