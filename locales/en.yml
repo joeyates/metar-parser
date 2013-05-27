@@ -164,7 +164,6 @@ en:
 en-US:
   metar:
     sky_conditions:
-      clear skies: clear skies
       broken: broken clouds
       broken cumulonimbus: broken cumulonimbus clouds
       broken towering cumulus: broken towering cumulus clouds
