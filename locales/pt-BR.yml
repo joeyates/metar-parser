@@ -22,6 +22,10 @@ pt-BR:
       degrees:
         full: graus celcius
         abbreviated: °C
+    distance:
+      kilometers:
+        full: kilômetros
+        abbreviated: km
   metar:
     station_code:
       title: código da estação
