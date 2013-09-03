@@ -26,6 +26,9 @@ pt-BR:
       kilometers:
         full: kilômetros
         abbreviated: km
+      meters:
+        full: metros
+        abbreviated: m
   metar:
     station_code:
       title: código da estação
