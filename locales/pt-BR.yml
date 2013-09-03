@@ -1,0 +1,163 @@
+# encoding: utf8
+pt-BR:
+  date:
+    formats:
+      default: '%d/%m/%Y'
+  comparison:
+    more_than: mais que
+    less_than: menos que
+  tendency:
+    no_change: sem mudanças
+    improving: melhorando
+    worsening: piorando
+  units:
+    pressure:
+      bar:
+        full: bar
+  metar:
+    station_code:
+      title: código da estação
+    station_name:
+      title: nome
+    station_country:
+      title: país
+    time:
+      title: hora
+    observer:
+      title: observador
+      real: real
+      auto: automático
+      corrected: corrigido
+    altitude:
+      at: a
+    distance:
+      title: distância
+      unknown: desconhecido
+    wind:
+      title: vento
+      variable_direction: direção variável
+      unknown_direction: direção desconhecida
+      unknown_speed: velocidade desconhecida
+      gusts: rajadas
+    variable_wind:
+      title: variação do vento
+    visibility:
+      title: visibilidade
+    minimum_visibility:
+      title: visibilidade minima
+    sky_summary:
+      title: céu
+    sky_conditions:
+      title: condições do céus
+      clear skies: céus limpos
+      broken: nublado
+      broken cumulonimbus: nublado cumulonimbus
+      broken towering cumulus: nublado com towering cumulus
+      few: poucas nuvens
+      few cumulonimbus: poucos cumulonimbus
+      few towering cumulus: poucos towering cumulus
+      scattered: nuvens esparsas
+      scattered cumulonimbus: cumulonimbus esparsos
+      scattered towering cumulus: tower cumulus esparsos
+      overcast: encoberto
+      overcast cumulonimbus: encoberto por cumulonimbus
+      overcast towering cumulus: encoberto por towering cumulus
+    runway_visible_range:
+      title: alcance de visibilidade da pista
+      runway: pista
+      from: de
+      to: para
+    present_weather:
+      title: clima
+      not observed: não observado
+      mist: misto
+      dust: poeira
+      blowing dust: sopro com poeira
+      low drifting dust: poeira baixa a deriva
+      nearby blowing dust: poeira baixa a deriva na vizinhança
+	  drizzle: chuvisco
+      heavy drizzle: chuvisco severo
+      light drizzle: chuvisco leve
+      heavy freezing drizzle: chuvisco congelante severo
+      light freezing drizzle: chuvisco congelante leve
+      fog: neblina
+      patches of fog: trilhas de neblina
+      freezing fog: neblina congelante
+      shallow fog: neblina superficial
+      partial fog: neblina parcial
+      nearby fog: neblina na vizinhança
+      smoke: fumaça
+      hail: granizo
+      heavy shower of hail: precipitação severa de granizo
+      light shower of hail: precipitação leve de granizo
+      heavy shower of small hail: precipitação severa de pequenos granizos
+      light shower of small hail: precipitação leve de pequenos granizos
+      haze: névoa
+      ice crystals: cristais de gelo
+      heavy ice pellets: esferas de gelo severas
+      light ice pellets: esferas de gelo leves
+      dust whirls: redemoinhos de poeira
+      nearby dust whirls: redemoinhos de poeira na vizinhança
+      spray: spray
+      rain: chuva
+      heavy rain: chuva forte
+      light rain: chuva leve
+      heavy shower of rain: heavy shower of rain
+      light shower of rain: light shower of rain
+      heavy freezing rain: chuva congelante severa
+      light freezing rain: chuva congelante leve
+      sand: areia
+      blowing sand: blowing sand
+      low drifting sand: areia rasa a deriva
+      nearby blowing sand: areia rasa a deriva na vizinhança
+      nearby shower: precipitação na vizinhança
+      snow: neve
+      heavy snow: neve severa
+      light snow: neve leve
+      heavy shower of snow: precipitação de neve severa
+      light shower of snow: precipitação de neve leve
+      blowing snow: sopro com neve
+      low drifting snow: neve rasa a deriva
+      nearby blowing snow: neve rasa a deriva na vizinhança
+      heavy snow grains: flocos de neve severos
+      light snow grains: flocos de neve leves
+      snow and rain: chuva e neve
+      squall: ventania
+      unknown phenomenon: fenômeno desconhecido
+      heavy freezing unknown phenomenon: fenômeno desconhecido fortemente congelante
+      light freezing unknown phenomenon: fenômeno desconhecido levemente congelante
+      heavy shower of freezing unknown phenomenon: precipitação congelante severa de fenômeno desconhecido
+      light shower of freezing unknown phenomenon: precipitação congelante leve de fenômeno desconhecido
+      volcanic ash: cinza vulcânica
+      nearby volcanic ash: cinza vulcânica na vizinhança
+      funnel cloud: nuvem funil
+      nearby funnel cloud: nuvem funil na vizinhança
+      sand storm: tempestade de areia
+      heavy sand storm: tempestade de areia severa
+      light sand storm: tempestade de areia leve
+      nearby sand storm: tempestade de areia na vizinhança
+      dust storm: tempestade de poeira
+      heavy dust storm: tempestade de poeira severa
+      light dust storm: tempestade de poeira leve
+      nearby dust storm: tempestade de poeira na vizinhança
+      thunderstorm: tempestade
+      thunderstorm and rain: tempestade e chuva
+      nearby thunderstorm: tempestade na vizinhança
+      heavy thunderstorm and hail: tempestade e granizo severo
+      light thunderstorm and hail: tempestade e granizo leve
+      heavy thunderstorm and small hail: tempestade severa com pequenos granizos
+      light thunderstorm and small hail: tempestade leve com pequenos granizos
+      heavy thunderstorm and rain: tempestade e chuva severa
+      light thunderstorm and rain: tempestade e chuva leve
+      heavy thunderstorm and snow: tempestade severa com neve
+      light thunderstorm and snow: tempestade leve com neve
+      heavy thunderstorm and unknown phenomenon: tempestade severa e fenômeno desconhecido
+      light thunderstorm and unknown phenomenon: tempestade leve e fenômeno desconhecido
+      heavy unknown phenomenon: fenômeno desconhecido severo
+      light unknown phenomenon: fenômeno desconhecido leve
+    temperature:
+      title: temperatura
+    dew_point:
+      title: ponto de orvalho
+    remarks:
+      title: observações
