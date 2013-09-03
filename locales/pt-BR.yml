@@ -14,6 +14,14 @@ pt-BR:
     pressure:
       bar:
         full: bar
+    speed:
+      kilometers_per_hour:
+        full: kilômetros por hora
+        abbreviated: km/h 
+    temperature:
+      degrees:
+        full: graus celcius
+        abbreviated: °C
   metar:
     station_code:
       title: código da estação
@@ -75,7 +83,7 @@ pt-BR:
       blowing dust: sopro com poeira
       low drifting dust: poeira baixa a deriva
       nearby blowing dust: poeira baixa a deriva na vizinhança
-	  drizzle: chuvisco
+      drizzle: chuvisco
       heavy drizzle: chuvisco severo
       light drizzle: chuvisco leve
       heavy freezing drizzle: chuvisco congelante severo
