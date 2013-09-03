@@ -20,7 +20,7 @@ pt-BR:
         abbreviated: km/h 
     temperature:
       degrees:
-        full: graus celcius
+        full: graus celsius
         abbreviated: °C
     distance:
       kilometers:
