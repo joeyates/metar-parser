@@ -29,6 +29,10 @@ pt-BR:
       meters:
         full: metros
         abbreviated: m
+    direction:
+      degrees: 
+        full: graus
+        abbreviated: °
   metar:
     station_code:
       title: código da estação
