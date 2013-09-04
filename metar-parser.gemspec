@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
     It also provides weather station listings and info (e.g. country, latitude and longitude).
 
-    Reports can be fully localized (currently English and Italian are available).
+    Reports can be fully localized (currently Brazilian Portuguese, English, German and Italian are available).
     EOT
   s.version       = Metar::VERSION::STRING
 
