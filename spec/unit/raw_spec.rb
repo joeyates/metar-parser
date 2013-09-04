@@ -39,7 +39,6 @@ describe Metar::Raw::Data do
 end
 
 describe Metar::Raw::Noaa do
-
   include MetarRawTestHelper
 
   let(:ftp) { double('ftp', :login => nil, :chdir => nil, :passive= => nil, :retrbinary => nil) }
@@ -53,20 +52,16 @@ describe Metar::Raw::Noaa do
   end
 
   context '.connection' do
-
     context 'uncached' do
-
       it 'sets up the connection' do
         Net::FTP.                   should_receive( :new ).
                                     and_return( ftp )
 
         Metar::Raw::Noaa.connect
       end
-
     end
 
     context 'cached' do
-
       before :each do
         Metar::Raw::Noaa.send(:class_variable_set, '@@connection', ftp)
       end
@@ -103,7 +98,6 @@ describe Metar::Raw::Noaa do
   end
 
   context '.fetch' do
-
     it 'uses the connection' do
       Metar::Raw::Noaa.fetch('the_cccc')
 
@@ -163,7 +157,6 @@ describe Metar::Raw::Noaa do
         Metar::Raw::Noaa.fetch( 'the_cccc' )
       end.                        to         raise_error( RuntimeError, /failed 2 times/)
     end
-
   end
 
   context 'initialization' do
