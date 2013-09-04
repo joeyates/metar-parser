@@ -25,7 +25,7 @@ describe Metar::Raw::Data do
 
     it 'should parse data, if supplied' do
       @call_time = Time.parse('2012-07-29 16:35')
-      Time.stub!(:now).and_return(@call_time)
+      Time.stub(:now).and_return(@call_time)
 
       raw = Metar::Raw::Data.new(raw_metar)
      
@@ -42,8 +42,14 @@ describe Metar::Raw::Noaa do
 
   include MetarRawTestHelper
 
+  let(:ftp) { double('ftp', :login => nil, :chdir => nil, :passive= => nil, :retrbinary => nil) }
+
+  before do
+    Net::FTP.stub(:new).and_return(ftp)
+  end
+
   after :each do
-    Metar::Raw::Noaa.send( :class_variable_set, '@@connection', nil )
+    Metar::Raw::Noaa.send(:class_variable_set, '@@connection', nil)
   end
 
   context '.connection' do
@@ -51,8 +57,6 @@ describe Metar::Raw::Noaa do
     context 'uncached' do
 
       it 'sets up the connection' do
-        ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil )
-
         Net::FTP.                   should_receive( :new ).
                                     and_return( ftp )
 
@@ -64,8 +68,7 @@ describe Metar::Raw::Noaa do
     context 'cached' do
 
       before :each do
-        @ftp = stub( 'ftp' )
-        Metar::Raw::Noaa.send( :class_variable_set, '@@connection', @ftp )
+        Metar::Raw::Noaa.send(:class_variable_set, '@@connection', ftp)
       end
 
       it 'does not connect to FTP' do
@@ -77,7 +80,7 @@ describe Metar::Raw::Noaa do
       it 'returns the cached connection' do
         connection = Metar::Raw::Noaa.connection
 
-        connection.               should     == @ftp
+        connection.               should     == ftp
       end
 
     end
@@ -87,8 +90,6 @@ describe Metar::Raw::Noaa do
   context '.connect' do
 
     it 'sets up the connection' do
-      ftp = stub( 'ftp' )
-
       Net::FTP.                   should_receive( :new ).
                                   and_return( ftp )
       ftp.                        should_receive( :login )
@@ -104,41 +105,28 @@ describe Metar::Raw::Noaa do
   context '.fetch' do
 
     it 'uses the connection' do
-      ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil, :retrbinary => nil )
+      Metar::Raw::Noaa.fetch('the_cccc')
 
-      Net::FTP.                   should_receive( :new ).
-                                  and_return( ftp )
-
-      Metar::Raw::Noaa.fetch( 'the_cccc' )
+      expect(Net::FTP).to have_received(:new)
     end
 
     it 'downloads the raw report' do
-      ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil )
-      Net::FTP.stub!( :new ).and_return( ftp )
+      Metar::Raw::Noaa.fetch('the_cccc')
 
-      ftp.                        should_receive( :retrbinary ) do | *args, &block |
-        args[ 0 ].                should     == 'RETR the_cccc.TXT'
-        args[ 1 ].                should     be_a Fixnum
-      end
-
-      Metar::Raw::Noaa.fetch( 'the_cccc' )
+      expect(ftp).to have_received(:retrbinary).with('RETR the_cccc.TXT', kind_of(Fixnum))
     end
 
     it 'returns the data' do
-      ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil )
       def ftp.retrbinary( *args, &block )
         block.call "chunk 1\n"
         block.call "chunk 2\n"
       end
-      Net::FTP.stub!( :new ).and_return( ftp )
- 
       raw = Metar::Raw::Noaa.fetch( 'the_cccc' )
 
       raw.                        should     == "chunk 1\nchunk 2\n"
     end
 
     it 'retries retrieval once' do
-      ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil )
       def ftp.attempt
         @attempt
       end
@@ -152,7 +140,6 @@ describe Metar::Raw::Noaa do
         block.call "chunk 1\n"
         block.call "chunk 2\n"
       end
-      Net::FTP.stub!( :new ).and_return( ftp )
  
       raw = Metar::Raw::Noaa.fetch( 'the_cccc' )
 
@@ -160,7 +147,6 @@ describe Metar::Raw::Noaa do
     end
 
     it 'fails with an error, if retrieval fails twice' do
-      ftp = stub( 'ftp', :login => nil, :chdir => nil, :passive= => nil )
       def ftp.attempt
         @attempt
       end
@@ -172,7 +158,6 @@ describe Metar::Raw::Noaa do
         self.attempt = self.attempt + 1
         raise Net::FTPTempError
       end
-      Net::FTP.stub!( :new ).and_return( ftp )
 
       expect do
         Metar::Raw::Noaa.fetch( 'the_cccc' )
@@ -190,7 +175,7 @@ describe Metar::Raw::Noaa do
     end
       
     it 'should accept Stations' do
-      station = stub( 'Metar::Station', :cccc => 'YYYY' )
+      station = double('Metar::Station', :cccc => 'YYYY')
       raw = Metar::Raw::Noaa.new( station )
 
       raw.cccc.                   should     == 'YYYY'
