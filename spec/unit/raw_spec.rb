@@ -5,11 +5,6 @@ require 'net/ftp'
 require 'time'
 
 module MetarRawTestHelper
-  def noaa_metar
-    raw_time  = "2010/02/15 10:20"
-    "#{raw_time}\n#{raw_metar}"
-  end
-
   def raw_metar
     "ESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 Q1013 1271//55"
   end
@@ -19,15 +14,15 @@ describe Metar::Raw::Data do
   include MetarRawTestHelper
 
   context 'initialization' do
+    let(:call_time) { Time.parse('2012-07-29 16:35') }
     it 'should parse data, if supplied' do
-      @call_time = Time.parse('2012-07-29 16:35')
-      Time.stub(:now).and_return(@call_time)
+      Time.stub(:now).and_return(call_time)
 
       raw = Metar::Raw::Data.new(raw_metar)
      
       expect(raw.metar).to eq(raw_metar)
       expect(raw.cccc).to eq('ESSB')
-      expect(raw.time).to eq(@call_time)
+      expect(raw.time).to eq(call_time)
     end
   end
 end
@@ -48,10 +43,9 @@ describe Metar::Raw::Noaa do
   context '.connection' do
     context 'uncached' do
       it 'sets up the connection' do
-        Net::FTP.                   should_receive(:new).
-                                    and_return(ftp)
-
         Metar::Raw::Noaa.connect
+
+        expect(Net::FTP).to have_received(:new)
       end
     end
 
@@ -61,9 +55,9 @@ describe Metar::Raw::Noaa do
       end
 
       it 'does not connect to FTP' do
-        Net::FTP.                   should_not_receive(:new)
-
         Metar::Raw::Noaa.connection
+
+        expect(Net::FTP).to_not have_received(:new)
       end
 
       it 'returns the cached connection' do
@@ -76,14 +70,12 @@ describe Metar::Raw::Noaa do
 
   context '.connect' do
     it 'sets up the connection' do
-      Net::FTP.                   should_receive(:new).
-                                  and_return(ftp)
-      ftp.                        should_receive(:login)
-      ftp.                        should_receive(:chdir)
-      ftp.                        should_receive(:passive=).
-                                  with(true)
-
       Metar::Raw::Noaa.connect
+
+      expect(Net::FTP).to have_received(:new)
+      expect(ftp).to have_received(:login).with()
+      expect(ftp).to have_received(:chdir).with('data/observations/metar/stations')
+      expect(ftp).to have_received(:passive=).with(true)
     end
   end
 
@@ -145,7 +137,7 @@ describe Metar::Raw::Noaa do
 
       expect do
         Metar::Raw::Noaa.fetch('the_cccc')
-      end.                        to         raise_error(RuntimeError, /failed 2 times/)
+      end.to raise_error(RuntimeError, /failed 2 times/)
     end
   end
 
@@ -165,16 +157,27 @@ describe Metar::Raw::Noaa do
   end
 
   context 'lazy loading' do
+    let(:noaa_metar) do
+      raw_time  = "2010/02/15 10:20"
+      "#{raw_time}\n#{raw_metar}"
+    end
+
+    before do
+      Metar::Raw::Noaa.stub(:fetch => noaa_metar)
+    end
+
+    subject { Metar::Raw::Noaa.new('ESSB') }
+
     it 'should fetch data on demand' do
-      raw = Metar::Raw::Noaa.new('ESSB')
+      subject.metar
 
-      Metar::Raw::Noaa.           should_receive(:fetch).
-                                  with('ESSB').
-                                  and_return(noaa_metar)
+      expect(Metar::Raw::Noaa).to have_received(:fetch).with('ESSB')
+    end
 
-      raw.metar
+    it 'sets data to the returned value' do
+      subject.metar
 
-      expect(raw.data).to eq(noaa_metar)
+      expect(subject.data).to eq(noaa_metar)
     end
   end
 end
