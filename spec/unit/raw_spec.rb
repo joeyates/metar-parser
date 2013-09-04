@@ -25,9 +25,9 @@ describe Metar::Raw::Data do
 
       raw = Metar::Raw::Data.new(raw_metar)
      
-      raw.metar.                  should     == raw_metar 
-      raw.cccc.                   should     == 'ESSB'
-      raw.time.                   should     == @call_time
+      expect(raw.metar).to eq(raw_metar)
+      expect(raw.cccc).to eq('ESSB')
+      expect(raw.time).to eq(@call_time)
     end
   end
 end
@@ -69,7 +69,7 @@ describe Metar::Raw::Noaa do
       it 'returns the cached connection' do
         connection = Metar::Raw::Noaa.connection
 
-        connection.               should     == ftp
+        expect(connection).to eq(ftp)
       end
     end
   end
@@ -107,7 +107,7 @@ describe Metar::Raw::Noaa do
       end
       raw = Metar::Raw::Noaa.fetch('the_cccc')
 
-      raw.                        should     == "chunk 1\nchunk 2\n"
+      expect(raw).to eq("chunk 1\nchunk 2\n")
     end
 
     it 'retries retrieval once' do
@@ -127,7 +127,7 @@ describe Metar::Raw::Noaa do
  
       raw = Metar::Raw::Noaa.fetch('the_cccc')
 
-      raw.                        should     == "chunk 1\nchunk 2\n"
+      expect(raw).to eq("chunk 1\nchunk 2\n")
     end
 
     it 'fails with an error, if retrieval fails twice' do
@@ -153,14 +153,14 @@ describe Metar::Raw::Noaa do
     it 'should accept CCCC codes' do
       raw = Metar::Raw::Noaa.new('XXXX')
 
-      raw.cccc.                   should     == 'XXXX'
+      expect(raw.cccc).to eq('XXXX')
     end
       
     it 'should accept Stations' do
       station = double('Metar::Station', :cccc => 'YYYY')
       raw = Metar::Raw::Noaa.new(station)
 
-      raw.cccc.                   should     == 'YYYY'
+      expect(raw.cccc).to eq('YYYY')
     end
   end
 
@@ -174,7 +174,7 @@ describe Metar::Raw::Noaa do
 
       raw.metar
 
-      raw.data.                   should     == noaa_metar 
+      expect(raw.data).to eq(noaa_metar)
     end
   end
 end
