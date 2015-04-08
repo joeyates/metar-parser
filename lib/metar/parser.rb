@@ -124,10 +124,11 @@ module Metar
       when @chunks[0] == 'AUTO' # WMO 15.4
         @chunks.shift
         @observer = :auto
-      when @chunks[0] == 'COR'
+      when @chunks[0] == 'COR'  # WMO specified code word for correction
         @chunks.shift
         @observer = :corrected
-      when @chunks[0] == 'CCA'
+      when @chunks[0] =~ /CC[A-Z]/  # Canadian correction
+        # Canada uses CCA for first correction, CCB for second, etc...
         @chunks.shift
         @observer = :corrected
       when @chunks[0] == 'RTD'   #  Delayed observation, no comments on observer
