@@ -92,8 +92,20 @@ describe Metar::Parser do
         expect(parser.observer).to eq(:corrected)
       end
 
-      it 'corrected (Canadian)' do
+      it 'corrected (Canadian, first correction)' do
         parser = setup_parser('CYZU 310100Z CCA 26004KT 15SM FEW009 BKN040TCU BKN100 OVC210 15/12 A2996 RETS RMK SF1TCU4AC2CI1 SLP149')
+
+        expect(parser.observer).to eq(:corrected)
+      end
+
+      it 'corrected (Canadian, second correction)' do
+        parser = setup_parser('CYCX 052000Z CCB 30014G27KT 15SM DRSN SCT035 M02/M09 A2992 RMK SC4 SLP133')
+
+        expect(parser.observer).to eq(:corrected)
+      end
+
+      it 'corrected (Canadian, rare third correction)' do
+        parser = setup_parser('CYEG 120000Z CCC 12005KT 15SM FEW110 BKN190 03/M01 A2980 RMK AC2AC3 SLP122')
 
         expect(parser.observer).to eq(:corrected)
       end

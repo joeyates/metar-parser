@@ -14,6 +14,9 @@ The METAR Data Format
   * http://weather.cod.edu/notes/metar.html
   * http://www.met.tamu.edu/class/METAR/metar-pg3.html - incomplete
 
+* Canada
+  * https://www.navcanada.ca/en/Media/Publications/AWS-Guide-EN.pdf
+
 Remarks Codes
 ==============
 * http://www.ncdc.noaa.gov/oa/climate/conversion/swometardecoder.html
