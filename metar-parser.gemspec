@@ -28,7 +28,11 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'rake'
   s.add_runtime_dependency 'rdoc'
-  s.add_runtime_dependency 'i18n', '>= 0.3.5'
+  if RUBY_VERSION < '1.9'
+    s.add_runtime_dependency 'i18n', ['>= 0.3.5', '< 0.7.0']
+  else
+    s.add_runtime_dependency 'i18n', '>= 0.3.5'
+  end
   s.add_runtime_dependency 'm9t',  '~> 0.3.1'
 
   s.add_development_dependency 'rspec',  '>= 2.11.0'
