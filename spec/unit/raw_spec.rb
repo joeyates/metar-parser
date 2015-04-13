@@ -15,8 +15,10 @@ describe Metar::Raw::Data do
 
   context 'initialization' do
     let(:call_time) { Time.parse('2012-07-29 16:35') }
+
     it 'should parse data, if supplied' do
-      Time.stub(:now).and_return(call_time)
+      now = call_time
+      Time.stub(:now) { now }
 
       raw = Metar::Raw::Data.new(raw_metar)
      
