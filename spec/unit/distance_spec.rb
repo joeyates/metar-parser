@@ -1,86 +1,76 @@
 # encoding: utf-8
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
+require "spec_helper"
 
 describe Metar::Distance do
+  let(:value) { 12345.6789 }
+
+  subject { described_class.new(value) }
 
   context '#value' do
-
-    it 'should treat the parameter as meters' do
-      @distance = Metar::Distance.new( 12345.67 )
-
-      @distance.units.            should     == :meters
-      @distance.value.            should     == 12345.67
+    it 'treats the parameter as meters' do
+      expect(subject.units).to eq(:meters)
+      expect(subject.value).to eq(12345.6789)
     end
-
   end
 
   context '#to_s' do
-
     it 'should default to meters' do
-      @distance = Metar::Distance.new( rand * 1000.0 )
-
-      @distance.to_s.             should     =~ %r(^\d+m)
+      expect(subject.to_s).to match(%r(^\d+m))
     end
 
-    it 'should round down to the nearest meter' do
-      @distance = Metar::Distance.new( 12.345 )
+    context 'when <= 0.5' do
+      let(:value) { 12.345678 }
 
-      @distance.to_s.             should     == '12m'
+      it 'should round down to the nearest meter' do
+        expect(subject.to_s).to eq('12m')
+      end
     end
 
-    it 'should round up to meters' do
-      @distance = Metar::Distance.new( 8.750 )
+    context 'when > 0.5' do
+      let(:value) { 8.750 }
 
-      @distance.to_s.             should     == '9m'
+      it 'should round up to meters' do
+        expect(subject.to_s).to eq('9m')
+      end
     end
 
-    it 'should allow units overrides' do
-      @distance = Metar::Distance.new( 12345.67 )
-
-      @distance.to_s( :units => :kilometers ).
-                                  should     == '12km'
+    it 'allows units overrides' do
+      expect(subject.to_s(units: :kilometers)).to eq('12km')
     end
 
-    it 'should allow precision overrides' do
-      @distance = Metar::Distance.new( 12.34567 )
-
-      @distance.to_s( :precision => 1 ).
-                                  should     == '12.3m'
+    it 'allows precision overrides' do
+      expect(subject.to_s(precision: 1)).to eq('12345.7m')
     end
 
-    it 'should handle nil' do
-      @distance = Metar::Distance.new( nil )
+    context 'when value is nil' do
+      let(:value) { nil }
 
-      @distance.to_s.             should     == 'unknown'
+      it 'is unknown' do
+        expect(subject.to_s).to eq('unknown')
+      end
     end
 
     context 'translated' do
-
-      before :each do
+      before do
         @locale     = I18n.locale
         I18n.locale = :it
       end
 
-      after :each do
+      after do
         I18n.locale = @locale
       end
 
-      it 'should allow precision overrides' do
-        @distance = Metar::Distance.new( 12.34567 )
-
-        @distance.to_s( :precision => 1 ).
-                                    should     == '12,3m'
+      it 'localizes the decimal separator' do
+        expect(subject.to_s(precision: 1)).to eq('12345,7m')
       end
 
-      it 'should handle nil' do
-        @distance = Metar::Distance.new( nil )
+      context 'when value is nil' do
+        let(:value) { nil }
 
-        @distance.to_s.           should     == 'sconosciuto'
+        it 'translates' do
+          expect(subject.to_s).to eq('sconosciuto')
+        end
       end
-
     end
-
   end
-
 end
-

@@ -1,5 +1,5 @@
 # encoding: utf-8
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
+require "spec_helper"
 
 RSpec::Matchers.define :be_weather_phenomenon do | modifier, descriptor, phenomenon  |
   match do | wp |
@@ -33,7 +33,7 @@ describe Metar::WeatherPhenomenon do
       [ 'returns nil for unmatched',          'FUBAR',  [ nil,      nil,            nil  ] ],
     ].each do | docstring, raw, expected |
       example docstring do
-        Metar::WeatherPhenomenon.parse( raw ).should be_weather_phenomenon( *expected )
+        expect(Metar::WeatherPhenomenon.parse( raw )).to be_weather_phenomenon(*expected)
       end
     end
   end
@@ -58,8 +58,7 @@ describe Metar::WeatherPhenomenon do
     ].each do | docstring, locale, ( modifier, descriptor, phenomenon ), expected |
       example docstring + " (#{locale})" do
         I18n.locale = locale
-        Metar::WeatherPhenomenon.new( phenomenon, modifier, descriptor ).to_s.
-                                  should     == expected
+        expect(Metar::WeatherPhenomenon.new( phenomenon, modifier, descriptor ).to_s).to eq(expected)
       end
     end
   end

@@ -1,5 +1,5 @@
 # encoding: utf-8
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
+require "spec_helper"
 
 RSpec::Matchers.define :be_runway_visible_range do | designator, visibility1, visibility2, tendency |
   match do | rvr |
@@ -44,7 +44,7 @@ describe Metar::RunwayVisibleRange do
       [ 'returns nil for nil',               nil,               [ nil,   nil,                        nil,                nil ] ],
     ].each do | docstring, raw, expected |
       example docstring do
-        Metar::RunwayVisibleRange.parse( raw ).should be_runway_visible_range( *expected )
+        expect(Metar::RunwayVisibleRange.parse(raw)).to be_runway_visible_range( *expected )
       end
     end
 
@@ -78,8 +78,7 @@ describe Metar::RunwayVisibleRange do
 
       example docstring + " (#{locale})" do
         I18n.locale = locale
-        Metar::RunwayVisibleRange.new( '14', v1, v2, tendency ).to_s.
-                                  should     == expected
+        expect(Metar::RunwayVisibleRange.new('14', v1, v2, tendency).to_s).to eq(expected)
       end
     end
 

@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   end
   s.add_runtime_dependency 'm9t',  '~> 0.3.1'
 
-  s.add_development_dependency 'rspec',  '~> 2.14.1'
+  s.add_development_dependency 'rspec',  '~> 3.2.0'
   if RUBY_VERSION < '1.9'
     s.add_development_dependency 'rcov'
   else

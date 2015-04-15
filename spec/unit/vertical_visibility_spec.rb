@@ -1,8 +1,7 @@
-# encoding: utf-8
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
+require "spec_helper"
 
-RSpec::Matchers.define :be_distance do | expected |
-  match do | distance |
+RSpec::Matchers.define :be_distance do |expected|
+  match do |distance|
     if    distance.nil? && expected == :expect_nil
       true
     elsif distance.nil? && expected != :expect_nil
@@ -18,20 +17,15 @@ RSpec::Matchers.define :be_distance do | expected |
 end
 
 describe Metar::VerticalVisibility do
-
   context '.parse' do
-
     [
-      [ 'VV + nnn',                  'VV300',  9144 ],
-      [ '///',                       '///',    nil ],
-      [ 'returns nil for unmatched', 'FUBAR',  :expect_nil ],
-    ].each do | docstring, raw, expected |
+      ['VV + nnn',                  'VV300',  9144],
+      ['///',                       '///',    nil],
+      ['returns nil for unmatched', 'FUBAR',  :expect_nil],
+    ].each do |docstring, raw, expected|
       example docstring do
-        Metar::VerticalVisibility.parse( raw ).should be_distance( expected )
+        expect(Metar::VerticalVisibility.parse(raw)).to be_distance(expected)
       end
     end
-
   end
-
 end
-

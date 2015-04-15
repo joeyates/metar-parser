@@ -1,44 +1,32 @@
 # encoding: utf-8
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
+require "spec_helper"
 
 describe Metar::Report do
-
-  context 'initialization' do
-    
-    it 'loads the Station' do
-      station = stub( 'station' )
-      parser = stub( 'parser', :station_code => 'SSSS' )
-
-      Metar::Station.             should_receive( :find_by_cccc ).
-                                  with( 'SSSS' ).
-                                  and_return( station )
-
-      Metar::Report.new( parser )
-    end
-    
-  end
-
   context 'attributes' do
+    let(:parser) do
+      double(
+        Metar::Parser,
+        :station_code => station_code,
+        :date         => Date.parse(metar_date),
+        :time         => Time.parse(metar_datetime),
+        :observer     => :real
+      )
+    end
+    let(:station_code) { "SSSS" }
+    let(:locale) { I18n.locale }
+    let(:metar_date) { "2008/05/06" }
+    let(:metar_time) { "10:56" }
+    let(:metar_datetime) { "#{metar_date} #{metar_time}" }
+    let(:station) { double(Metar::Station, :name => 'Airport 1', :country => 'Wwwwww') }
 
-    before :each do
-      @locale       = I18n.locale
-      @station_code = 'SSSS'
-      @metar_date   = '2008/05/06'
-      @metar_time   = '10:56'
-      @metar_datetime   = "#{@metar_date} #{@metar_time}"
-      @station      = stub( 'station', :name    => 'Airport 1',
-                                       :country => 'Wwwwww' )
-      @parser       = stub( 'parser', :station_code => @station_code,
-                                      :date         => Date.parse( @metar_date ),
-                                      :time         => Time.parse( @metar_datetime ),
-                                      :observer     => :real )
-      Metar::Station.stub( :find_by_cccc ).with( @station_code ).and_return( @station )
+    before do
+      allow(Metar::Station).to receive(:find_by_cccc).with(station_code) { station }
     end
 
-    subject { Metar::Report.new( @parser ) }
+    subject { described_class.new(parser) }
 
     after :each do
-      I18n.locale = @locale
+      I18n.locale = locale
     end
 
     context '#date' do
@@ -48,30 +36,42 @@ describe Metar::Report do
     end
 
     context '#time' do
-      specify { subject.time.     should     == @metar_time }
+      it "is equal to the METAR time" do
+        expect(subject.time).to eq(metar_time)
+      end
 
       it 'zero-pads single figure minutes' do
-        @parser.stub(:time => Time.parse('10:02'))
+        allow(parser).to receive(:time) { Time.parse('10:02') }
 
         expect(subject.time).to eq('10:02')
       end
     end
 
     context '#observer' do
-      specify { subject.observer. should     == 'real' }
+      it "returns the observer" do
+        expect(subject.observer).to eq('real')
+      end
     end
 
-    specify { subject.station_name.
-                                  should     == 'Airport 1' }
+    context "#station_name" do
+      it "returns the name" do
+        expect(subject.station_name).to eq('Airport 1')
+      end
+    end
 
-    specify { subject.station_country.
-                                  should     == 'Wwwwww' }
+    context "#station_country" do
+      it "returns the country" do
+        expect(subject.station_country).to eq('Wwwwww')
+      end
+    end
 
-    specify { subject.station_code.
-                                  should     == @station_code }
+    context "#station_code" do
+      it "returns the station code" do
+        expect(subject.station_code).to eq(station_code)
+      end
+    end
 
     context 'proxied from parser' do
-
       context 'singly' do
         [
           :wind,
@@ -84,94 +84,86 @@ describe Metar::Report do
           :sea_level_pressure,
         ].each do | attribute |
           example attribute do
-            @attr = stub( attribute.to_s )
-            @parser.stub!( attribute => @attr )
+            allow(parser).to receive(attribute) { attribute.to_s }
 
-            @attr.                   should_receive( :to_s )
-
-            subject.send( attribute )
+            expect(subject.send(attribute)).to eq(attribute.to_s)
           end
         end
 
-        context '#sky_summary' do
+        context "#sky_summary" do
+          let(:conditions1) { double(:to_summary => "skies1") }
 
-          it 'returns the summary' do
-            @skies1 = stub('sky_conditions')
-            @parser.stub!( :sky_conditions => [@skies1] )
+          it "returns the summary" do
+            allow(parser).to receive(:sky_conditions) { [conditions1] }
 
-            @skies1.              should_receive( :to_summary ).
-                                  and_return( 'skies1' )
-
-            subject.sky_summary.  should     == 'skies1'
+            expect(subject.sky_summary).to eq("skies1")
           end
 
-          it 'clear skies when missing' do
-            @parser.stub!( :sky_conditions => [] )
+          it "clear skies when missing" do
+            allow(parser).to receive(:sky_conditions) { [] }
 
-            subject.sky_summary.  should     == 'clear skies'
+            expect(subject.sky_summary).to eq("clear skies")
           end
 
-          it 'uses the last, if there is more than 1' do
-            @skies1 = stub('sky_conditions1' )
-            @skies2 = stub('sky_conditions2' )
-            @parser.stub!( :sky_conditions => [ @skies1, @skies2 ] )
+          it "uses the last, if there is more than 1" do
+            @skies1 = double("sky_conditions1")
+            @skies2 = double("sky_conditions2", :to_summary => "skies2")
+            allow(parser).to receive(:sky_conditions) { [@skies1, @skies2] }
 
-            @skies2.              should_receive( :to_summary ).
-                                  and_return( 'skies2' )
-
-            subject.sky_summary.  should     == 'skies2'
+            expect(subject.sky_summary).to eq("skies2")
           end
         end
       end
 
-      context 'joined' do
+      context "joined" do
+        it "#runway_visible_range" do
+          @rvr1 = double("rvr1", :to_s => "rvr1")
+          @rvr2 = double("rvr2", :to_s => "rvr2")
+          allow(parser).to receive(:runway_visible_range) { [@rvr1, @rvr2] }
 
-        it '#runway_visible_range' do
-          @rvr1 = stub( 'rvr1', :to_s => 'rvr1' )
-          @rvr2 = stub( 'rvr2', :to_s => 'rvr2' )
-          @parser.stub!( :runway_visible_range => [ @rvr1, @rvr2 ] )
-
-          subject.runway_visible_range.
-                                  should     == 'rvr1, rvr2'
+          expect(subject.runway_visible_range).to eq("rvr1, rvr2")
         end
 
-        it '#present_weather' do
-          @parser.stub!( :present_weather => [ 'pw1', 'pw2' ] )
+        it "#present_weather" do
+          allow(parser).to receive(:present_weather) { ["pw1", "pw2"] }
 
-          subject.present_weather.should     == 'pw1, pw2'
+          expect(subject.present_weather).to eq("pw1, pw2")
         end
 
-        it '#remarks' do
-          @parser.stub!( :remarks => [ 'rem1', 'rem2' ] )
+        it "#remarks" do
+          allow(parser).to receive(:remarks) { ["rem1", "rem2"] }
 
-          subject.remarks.        should     == 'rem1, rem2'
+          expect(subject.remarks).to eq("rem1, rem2")
         end
 
         it '#sky_conditions' do
-          sky1 = stub( 'sky1', :to_s => 'sky1' )
-          sky2 = stub( 'sky2', :to_s => 'sky2' )
-          @parser.stub!( :sky_conditions => [ sky1, sky2 ] )
+          sky1 = double('sky1', :to_s => 'sky1')
+          sky2 = double('sky2', :to_s => 'sky2')
+          allow(parser).to receive(:sky_conditions) { [sky1, sky2] }
 
-          subject.sky_conditions. should     == 'sky1, sky2'
+          expect(subject.sky_conditions).to eq("sky1, sky2")
         end
-
       end
-
     end
 
-    it '#to_s' do
-      sky1 = stub( 'sky1', :to_summary => 'sky1' )
-      sky2 = stub( 'sky2', :to_summary => 'sky2' )
-      @parser.stub!( :wind            => 'wind',
-                     :visibility      => 'visibility',
-                     :minimum_visibility => 'min visibility',
-                     :present_weather => ['pw'],
-                     :sky_conditions  => [ sky1, sky2 ],
-                     :temperature     => 'temp' )
-      expected = <<EOT
+    context '#to_s' do
+      let(:sky1) { double('sky1', :to_summary => 'sky1') }
+      let(:sky2) { double('sky2', :to_summary => 'sky2') }
+
+      before do
+        allow(parser).to receive(:wind) { "wind" }
+        allow(parser).to receive(:visibility) { "visibility" }
+        allow(parser).to receive(:minimum_visibility) { "min visibility" }
+        allow(parser).to receive(:present_weather) { ["pw"] }
+        allow(parser).to receive(:sky_conditions) { [sky1, sky2] }
+        allow(parser).to receive(:temperature) { "temp" }
+      end
+
+      it "returns the full report" do
+        expected = <<EOT
 name: Airport 1
 country: Wwwwww
-time: #{@metar_time}
+time: #{metar_time}
 wind: wind
 visibility: visibility
 minimum visibility: min visibility
@@ -179,10 +171,8 @@ weather: pw
 sky: sky2
 temperature: temp
 EOT
-      subject.to_s.               should     == expected
+        expect(subject.to_s).to eq(expected)
+      end
     end
-
   end
-
 end
-

@@ -16,10 +16,12 @@ describe Metar::Raw::Data do
   context 'initialization' do
     let(:call_time) { Time.parse('2012-07-29 16:35') }
 
-    it 'should parse data, if supplied' do
+    before do
       now = call_time
-      Time.stub(:now) { now }
+      allow(Time).to receive(:now) { now }
+    end
 
+    it 'should parse data, if supplied' do
       raw = Metar::Raw::Data.new(raw_metar)
      
       expect(raw.metar).to eq(raw_metar)
@@ -35,7 +37,7 @@ describe Metar::Raw::Noaa do
   let(:ftp) { double('ftp', :login => nil, :chdir => nil, :passive= => nil, :retrbinary => nil) }
 
   before do
-    Net::FTP.stub(:new).and_return(ftp)
+    allow(Net::FTP).to receive(:new) { ftp }
   end
 
   after :each do
@@ -75,7 +77,7 @@ describe Metar::Raw::Noaa do
       Metar::Raw::Noaa.connect
 
       expect(Net::FTP).to have_received(:new)
-      expect(ftp).to have_received(:login).with()
+      expect(ftp).to have_received(:login).with(no_args)
       expect(ftp).to have_received(:chdir).with('data/observations/metar/stations')
       expect(ftp).to have_received(:passive=).with(true)
     end
@@ -165,7 +167,7 @@ describe Metar::Raw::Noaa do
     end
 
     before do
-      Metar::Raw::Noaa.stub(:fetch => noaa_metar)
+      allow(Metar::Raw::Noaa).to receive(:fetch) { noaa_metar }
     end
 
     subject { Metar::Raw::Noaa.new('ESSB') }

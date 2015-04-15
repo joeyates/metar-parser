@@ -1,5 +1,5 @@
 # encoding: utf-8
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
+require "spec_helper"
 
 RSpec::Matchers.define :be_visibility do | distance, direction, comparator |
   match do | visibility |
@@ -26,27 +26,24 @@ RSpec::Matchers.define :be_visibility do | distance, direction, comparator |
 end
 
 describe Metar::Visibility do
-
   context '.parse' do
-
     [
-      [ 'understands 9999',          '9999',    [ 10000.00, nil,   :more_than ] ],
-      [ 'understands nnnn + NDV',    '0123NDV', [   123.00, nil,   nil ] ],
-      [ 'understands n/nSM',         '3/4SM',   [  1207.01, nil,   nil ] ],
-      [ 'understands 3/16SM',        '3/16SM',  [  301.752, nil,   nil ] ],
-      [ 'understands n n/nSM',       '1 1/4SM', [  2011.68, nil,   nil ] ],
-      [ 'understands nSM',           '5SM',     [  8046.72, nil,   nil ] ],
-      [ 'understands M1/4SM',        'M1/4SM',  [   402.34, nil,   :less_than ] ],
-      [ 'understands n + KM',        '5KM',     [  5000.00, nil,   nil ] ],
-      [ 'understands n',             '500',     [   500.00, nil,   nil ] ],
-      [ 'understands n + compass',   '500NW',   [   500.00, 315.0,        nil ] ],
-      [ 'returns nil for unmatched', 'FUBAR',   [      nil,   nil,        nil ] ],
-    ].each do | docstring, raw, expected |
+      ['understands 9999',          '9999',    [10000.00, nil,   :more_than]],
+      ['understands nnnn + NDV',    '0123NDV', [  123.00, nil,   nil]],
+      ['understands n/nSM',         '3/4SM',   [ 1207.01, nil,   nil]],
+      ['understands 3/16SM',        '3/16SM',  [ 301.752, nil,   nil]],
+      ['understands n n/nSM',       '1 1/4SM', [ 2011.68, nil,   nil]],
+      ['understands nSM',           '5SM',     [ 8046.72, nil,   nil]],
+      ['understands M1/4SM',        'M1/4SM',  [  402.34, nil,   :less_than]],
+      ['understands n + KM',        '5KM',     [ 5000.00, nil,   nil]],
+      ['understands n',             '500',     [  500.00, nil,   nil]],
+      ['understands n + compass',   '500NW',   [  500.00, 315.0, nil]],
+      ['returns nil for unmatched', 'FUBAR',   [     nil,   nil, nil]],
+    ].each do |docstring, raw, expected|
       example docstring do
-        Metar::Visibility.parse( raw ).should be_visibility( *expected )
+        expect(Metar::Visibility.parse(raw)).to be_visibility(*expected)
       end
     end
-
   end
 
   context '#to_s' do
@@ -73,9 +70,9 @@ describe Metar::Visibility do
 
       example docstring + " (#{locale})" do
         I18n.locale = locale
+        value = Metar::Visibility.new(distance, direction, comparator).to_s
 
-        Metar::Visibility.new( distance, direction, comparator ).to_s.
-                                  should     == expected
+        expect(value).to eq(expected)
       end
     end
 
