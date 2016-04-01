@@ -1,5 +1,5 @@
 # encoding: utf-8
-load File.expand_path( '../spec_helper.rb', File.dirname(__FILE__) )
+require "spec_helper"
 
 RSpec::Matchers.define :be_sky_condition do |quantity, height, type|
   match do |sk|
@@ -31,7 +31,7 @@ describe Metar::SkyCondition do
       ['returns nil for unmatched',     'FUBAR',    [:expect_nil,    nil,            nil]],
     ].each do |docstring, raw, expected|
       example docstring do
-        Metar::SkyCondition.parse(raw).should be_sky_condition(*expected)
+        expect(Metar::SkyCondition.parse(raw)).to be_sky_condition(*expected)
       end
     end
   end

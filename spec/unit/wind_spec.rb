@@ -1,5 +1,5 @@
 # encoding: utf-8
-load File.expand_path('../spec_helper.rb', File.dirname(__FILE__))
+require "spec_helper"
 
 RSpec::Matchers.define :be_wind do |direction, speed, gusts|
   match do |wind|
@@ -66,7 +66,7 @@ describe Metar::Wind do
       ['returns nil for nil',                                nil,           [nil, nil, nil]],
     ].each do |docstring, raw, expected|
       example docstring do
-        Metar::Wind.parse(raw).should be_wind(*expected)
+        expect(Metar::Wind.parse(raw)).to be_wind(*expected)
       end
     end
   end
@@ -82,24 +82,23 @@ describe Metar::Wind do
     end
 
     [
-      ['should format speed and direction', :en, [nil,                 nil,            nil                  ], '443km/h ESE'                  ],
-      ['should handle variable_direction',  :en, [:variable_direction, nil,            nil                  ], '443km/h variable direction'   ],
-      ['should handle unknown_direction',   :en, [:unknown_direction,  nil,            nil                  ], '443km/h unknown direction'    ],
-      ['should handle unknown_speed',       :en, [nil,                 :unknown_speed, nil                  ], 'unknown speed ESE'            ],
-      ['should include gusts',              :en, [nil,                 nil,            Metar::Speed.new(123)], '443km/h ESE gusts 443km/h'    ],
-      ['should format speed and direction', :it, [nil,                 nil,            nil                  ], '443km/h ESE'                  ],
-      ['should handle variable_direction',  :it, [:variable_direction, nil,            nil                  ], '443km/h direzione variabile'  ],
-      ['should handle unknown_direction',   :it, [:unknown_direction,  nil,            nil                  ], '443km/h direzione sconosciuta'],
-      ['should handle unknown_speed',       :it, [nil,                 :unknown_speed, nil                  ], 'velocità sconosciuta ESE'     ],
-      ['should include gusts',              :it, [nil,                 nil,            Metar::Speed.new(123)], '443km/h ESE folate di 443km/h'],
+      ['formats speed and direction', :en, [nil,                 nil,            nil                  ], '443km/h ESE'                  ],
+      ['handles variable_direction',  :en, [:variable_direction, nil,            nil                  ], '443km/h variable direction'   ],
+      ['handles unknown_direction',   :en, [:unknown_direction,  nil,            nil                  ], '443km/h unknown direction'    ],
+      ['handles unknown_speed',       :en, [nil,                 :unknown_speed, nil                  ], 'unknown speed ESE'            ],
+      ['includes gusts',              :en, [nil,                 nil,            Metar::Speed.new(123)], '443km/h ESE gusts 443km/h'    ],
+      ['formats speed and direction', :it, [nil,                 nil,            nil                  ], '443km/h ESE'                  ],
+      ['handles variable_direction',  :it, [:variable_direction, nil,            nil                  ], '443km/h direzione variabile'  ],
+      ['handles unknown_direction',   :it, [:unknown_direction,  nil,            nil                  ], '443km/h direzione sconosciuta'],
+      ['handles unknown_speed',       :it, [nil,                 :unknown_speed, nil                  ], 'velocità sconosciuta ESE'     ],
+      ['includes gusts',              :it, [nil,                 nil,            Metar::Speed.new(123)], '443km/h ESE folate di 443km/h'],
     ].each do |docstring, locale, (direction, speed, gusts), expected|
       direction ||= M9t::Direction.new(123)
       speed     ||= Metar::Speed.new(123)
 
       example docstring + " (#{locale})" do
         I18n.locale = locale
-        Metar::Wind.new(direction, speed, gusts).to_s.
-                                  should     == expected
+        expect(Metar::Wind.new(direction, speed, gusts).to_s).to eq(expected)
       end
     end
   end

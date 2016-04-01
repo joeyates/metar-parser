@@ -11,12 +11,4 @@ describe I18n do
     expect(I18n.load_path).to include(italian_path)
     expect(I18n.load_path).to include(german_path)
   end
-
-  it 'falls back to the language translation when a region-specific translation is not available' do
-    old_locale = I18n.locale
-    I18n.locale = :'en-FOO'
-    expect(I18n.t('metar.altitude.at')).to eq('at')
-    I18n.locale = old_locale
-  end
 end
-
