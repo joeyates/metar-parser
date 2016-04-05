@@ -1,6 +1,8 @@
 # encoding: utf-8
 require 'spec_helper'
 
+require 'timecop'
+
 describe Metar::Parser do
   after do
     Metar::Parser.compliance = :loose
@@ -26,11 +28,10 @@ describe Metar::Parser do
   end
 
   context 'attributes' do
-    let!(:call_time) { Time.parse('2011-05-06 16:35') }
+    let(:call_time) { Time.parse('2011-05-06 16:35') }
 
-    before do
-      allow(Time).to receive(:now) { call_time }
-    end
+    before { Timecop.freeze(call_time) }
+    after { Timecop.return }
 
     it '.location missing' do
       expect do
@@ -49,6 +50,21 @@ describe Metar::Parser do
         expect do
           setup_parser("PAIL 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
         end.to raise_error(Metar::ParseError, /Expecting datetime/)
+      end
+
+      context 'across a month rollover' do
+        let(:time)  { Time.parse("2016/03/31 23:59 PDT") }
+        let(:metar) { "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+        let(:raw) { double(Metar::Raw, metar: metar, time: time) }
+        let(:call_time) { Time.parse("2016/04/01 00:02:11 PDT") }
+
+        subject { described_class.new(raw) }
+
+        it 'has the correct date' do
+          expect(subject.time.year).to eq(2016)
+          expect(subject.time.month).to eq(3)
+          expect(subject.time.day).to eq(31)
+        end
       end
 
       context 'in strict mode' do
