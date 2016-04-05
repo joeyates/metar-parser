@@ -3,6 +3,7 @@ require 'spec_helper'
 
 require 'net/ftp'
 require 'time'
+require 'timecop'
 
 module MetarRawTestHelper
   def raw_metar
@@ -21,7 +22,7 @@ describe Metar::Raw::Data do
       allow(Time).to receive(:now) { now }
     end
 
-    it 'should parse data, if supplied' do
+    it 'parses data' do
       raw = Metar::Raw::Data.new(raw_metar)
      
       expect(raw.metar).to eq(raw_metar)
@@ -34,6 +35,7 @@ end
 describe Metar::Raw::Noaa do
   include MetarRawTestHelper
 
+  let(:cccc) { "ESSB" }
   let(:ftp) { double('ftp', :login => nil, :chdir => nil, :passive= => nil, :retrbinary => nil) }
 
   before do
@@ -160,29 +162,42 @@ describe Metar::Raw::Noaa do
     end
   end
 
-  context 'lazy loading' do
-    let(:noaa_metar) do
-      raw_time  = "2010/02/15 10:20"
-      "#{raw_time}\n#{raw_metar}"
-    end
+  context "fetching" do
+    let(:noaa_metar) { "#{raw_time}\n#{raw_metar}" }
+    let(:raw_time)   { "2010/02/15 10:20" }
 
     before do
       allow(Metar::Raw::Noaa).to receive(:fetch) { noaa_metar }
     end
 
-    subject { Metar::Raw::Noaa.new('ESSB') }
-
-    it 'should fetch data on demand' do
-      subject.metar
-
-      expect(Metar::Raw::Noaa).to have_received(:fetch).with('ESSB')
-    end
+    subject { Metar::Raw::Noaa.new(cccc) }
 
     it 'sets data to the returned value' do
       subject.metar
 
       expect(subject.data).to eq(noaa_metar)
     end
+
+    context "times" do
+      let(:cccc)      { "OPPS" }
+      let(:raw_time)  { "2016/03/31 23:59" }
+      let(:raw_metar) { "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      specify "are parsed as UTC" do
+        expect(subject.time.zone).to eq("UTC")
+      end
+
+      context "across month rollover" do
+        let(:after_midnight) { Time.parse("2016/04/01 00:02:11 UTC") }
+
+        specify "have correct date" do
+          Timecop.freeze(after_midnight) do
+            expect(subject.time.day).to eq(31)
+            expect(subject.time.month).to eq(3)
+            expect(subject.time.year).to eq(2016)
+          end
+        end
+      end
+    end
   end
 end
-

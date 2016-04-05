@@ -101,7 +101,7 @@ module Metar
 
       def parse
         raw_time, @metar = @data.split("\n")
-        @time            = Time.parse(raw_time)
+        @time            = Time.parse(raw_time + " UTC")
         super
       end
 
