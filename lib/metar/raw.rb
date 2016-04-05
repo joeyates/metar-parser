@@ -44,9 +44,9 @@ module Metar
         end
 
         def disconnect
-          return if @connection.nil
-          @connection.close
-          @cconnection = nil
+          return if @@connection.nil
+          @@connection.close
+          @@connection = nil
         end
 
         def fetch(cccc)
