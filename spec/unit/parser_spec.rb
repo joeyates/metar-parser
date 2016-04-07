@@ -53,7 +53,7 @@ describe Metar::Parser do
       end
 
       context 'across a month rollover' do
-        let(:time)  { Time.parse("2016/03/31 23:59 PDT") }
+        let(:time)  { Time.gm(2016, 3, 31, 23, 59) }
         let(:metar) { "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
         let(:raw) { double(Metar::Raw, metar: metar, time: time) }
         let(:call_time) { Time.parse("2016/04/01 00:02:11 PDT") }
