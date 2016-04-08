@@ -1,3 +1,4 @@
+require 'date'
 require 'net/ftp'
 require 'time'
 
@@ -9,6 +10,8 @@ module Metar
       alias :to_s :metar
     end
 
+    ##
+    # Use this class when you have a METAR string and the date of reading
     class Data < Base
       def initialize(metar, time = nil)
         if time == nil
@@ -19,6 +22,49 @@ module Metar
           time = Time.now
         end
         @metar, @time = metar, time
+      end
+    end
+
+    ##
+    # Use this class when you only have a METAR string.
+    # The date of the reading is decided as follows:
+    # * the day of the month is extracted from the METAR,
+    # * the most recent day with that day of the month is taken as the
+    #   date of the reading.
+    class Metar < Base
+      def initialize(metar)
+        @metar = metar
+        @time = nil
+      end
+
+      def time
+        return @time if @time
+        dom = day_of_month
+        date = Date.today
+        loop do
+          if date.day >= dom
+            @time = Date.new(date.year, date.month, dom)
+            break
+          end
+          # skip to the last day of the previous month
+          date = Date.new(date.year, date.month, 1).prev_day
+        end
+        @time
+      end
+
+      private
+
+      def datetime
+        datetime = metar[/^\w{4} (\d{6})Z/, 1]
+        raise "The METAR string must have a 6 digit datetime" if datetime.nil?
+        datetime
+      end
+
+      def day_of_month
+        dom = datetime[0..1].to_i
+        raise "Day of month must be at most 31" if dom > 31
+        raise "Day of month must be greater than 0" if dom == 0
+        dom
       end
     end
 

@@ -35,6 +35,72 @@ describe Metar::Raw::Data do
   end
 end
 
+describe Metar::Raw::Metar do
+  context "time" do
+    let(:call_time) { Time.parse("2016-04-01 16:35") }
+    let(:raw_metar) { "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+    subject { described_class.new(raw_metar) }
+
+    before { Timecop.freeze(call_time) }
+    after { Timecop.return }
+
+    it "is the last day with the day of month from the METAR datetime" do
+      expect(subject.time.year).to eq(2016)
+      expect(subject.time.month).to eq(3)
+      expect(subject.time.day).to eq(31)
+    end
+
+    context "when the current day of month is greater than the METAR's day of month" do
+      let(:call_time) { Time.parse("2016-04-11 16:35") }
+      let(:raw_metar) { "OPPS 092359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      it "uses the date from the current month" do
+        expect(subject.time.year).to eq(2016)
+        expect(subject.time.month).to eq(4)
+        expect(subject.time.day).to eq(9)
+      end
+    end
+
+    context "when the previous month did not have the day of the month" do
+      let(:call_time) { Time.parse("2016-05-01 16:35") }
+
+      it "skips back to a previous month" do
+        expect(subject.time.year).to eq(2016)
+        expect(subject.time.month).to eq(3)
+        expect(subject.time.day).to eq(31)
+      end
+    end
+
+    context "when the datetime doesn't have 6 numerals" do
+      let(:raw_metar) { "OPPS 3123Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      it "throws an error" do
+        expect { subject.time }.
+          to raise_error(RuntimeError, /6 digit/)
+      end
+    end
+
+    context "when the day of month in the datetime is > 31" do
+      let(:raw_metar) { "OPPS 332359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      it "throws an error" do
+        expect { subject.time }.
+          to raise_error(RuntimeError, /at most 31/)
+      end
+    end
+
+    context "when the day of month in the datetime is 0" do
+      let(:raw_metar) { "OPPS 002359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      it "throws an error" do
+        expect { subject.time }.
+          to raise_error(RuntimeError, /greater than 0/)
+      end
+    end
+  end
+end
+
 describe Metar::Raw::Noaa do
   include MetarRawTestHelper
 
