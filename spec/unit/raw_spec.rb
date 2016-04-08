@@ -15,18 +15,22 @@ describe Metar::Raw::Data do
   include MetarRawTestHelper
 
   context 'initialization' do
-    let(:call_time) { Time.parse('2012-07-29 16:35') }
+    let(:time) { Time.parse('2012-07-29 16:35') }
 
-    before do
-      now = call_time
-      allow(Time).to receive(:now) { now }
+    subject { described_class.new(raw_metar, time) }
+
+    it "accepts a METAR string" do
+      expect(subject.metar).to eq(raw_metar)
     end
 
-    it 'parses data' do
-      raw = Metar::Raw::Data.new(raw_metar)
-     
-      expect(raw.metar).to eq(raw_metar)
-      expect(raw.time).to eq(call_time)
+    it "accepts a reading time" do
+      expect(subject.time).to eq(time)
+    end
+
+    context "when called without a time parameter" do
+      it "warns that the usage is deprecated" do
+        expect { described_class.new(raw_metar) }.to output(/deprecated/).to_stderr
+      end
     end
   end
 end

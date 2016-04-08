@@ -316,7 +316,7 @@ describe Metar::Parser do
     end
   
     def setup_parser(metar)
-      raw = Metar::Raw::Data.new(metar)
+      raw = Metar::Raw::Data.new(metar, Time.now)
       Metar::Parser.new(raw)
     end
   end

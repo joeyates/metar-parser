@@ -10,7 +10,14 @@ module Metar
     end
 
     class Data < Base
-      def initialize(metar, time = Time.now)
+      def initialize(metar, time = nil)
+        if time == nil
+          warn <<-EOT
+          Using Metar::Raw::Data without a time parameter is deprecated.
+          Please supply the reading time as the second parameter.
+          EOT
+          time = Time.now
+        end
         @metar, @time = metar, time
       end
     end
