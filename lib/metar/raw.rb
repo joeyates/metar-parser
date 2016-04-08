@@ -2,25 +2,16 @@ require 'net/ftp'
 require 'time'
 
 module Metar
-
   module Raw
-
     class Base
-      attr_reader :cccc
       attr_reader :metar
       attr_reader :time
       alias :to_s :metar
-
-      def parse
-        @cccc = @metar[/\w+/]
-      end
     end
 
     class Data < Base
       def initialize(metar, time = Time.now)
         @metar, @time = metar, time
-
-        parse
       end
     end
 
@@ -102,12 +93,7 @@ module Metar
       def parse
         raw_time, @metar = @data.split("\n")
         @time            = Time.parse(raw_time + " UTC")
-        super
       end
-
     end
-
   end
-
 end
-

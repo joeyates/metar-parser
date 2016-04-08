@@ -26,7 +26,6 @@ describe Metar::Raw::Data do
       raw = Metar::Raw::Data.new(raw_metar)
      
       expect(raw.metar).to eq(raw_metar)
-      expect(raw.cccc).to eq('ESSB')
       expect(raw.time).to eq(call_time)
     end
   end
@@ -36,13 +35,15 @@ describe Metar::Raw::Noaa do
   include MetarRawTestHelper
 
   let(:cccc) { "ESSB" }
-  let(:ftp) { double('ftp', :login => nil, :chdir => nil, :passive= => nil, :retrbinary => nil) }
+  let(:ftp) do
+    double(Net::FTP, login: nil, chdir: nil, :passive= => nil, retrbinary: nil)
+  end
 
   before do
     allow(Net::FTP).to receive(:new) { ftp }
   end
 
-  after :each do
+  after do
     Metar::Raw::Noaa.send(:class_variable_set, '@@connection', nil)
   end
 
@@ -147,30 +148,21 @@ describe Metar::Raw::Noaa do
     end
   end
 
-  context 'initialization' do
-    it 'should accept CCCC codes' do
-      raw = Metar::Raw::Noaa.new('XXXX')
-
-      expect(raw.cccc).to eq('XXXX')
-    end
-      
-    it 'should accept Stations' do
-      station = double('Metar::Station', :cccc => 'YYYY')
-      raw = Metar::Raw::Noaa.new(station)
-
-      expect(raw.cccc).to eq('YYYY')
-    end
-  end
-
   context "fetching" do
     let(:noaa_metar) { "#{raw_time}\n#{raw_metar}" }
     let(:raw_time)   { "2010/02/15 10:20" }
 
     before do
-      allow(Metar::Raw::Noaa).to receive(:fetch) { noaa_metar }
+      allow(ftp).to receive(:retrbinary).and_yield(noaa_metar)
     end
 
     subject { Metar::Raw::Noaa.new(cccc) }
+
+    it "queries for the station's data" do
+      subject.metar
+
+      expect(ftp).to have_received(:retrbinary).with("RETR #{cccc}.TXT", 1024)
+    end
 
     it 'sets data to the returned value' do
       subject.metar
