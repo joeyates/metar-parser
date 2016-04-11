@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-$:.unshift( File.join( File.dirname( __FILE__ ), 'lib' ) )
+$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
 require 'metar/version'
 
 Gem::Specification.new do |s|

@@ -9,7 +9,7 @@ if RUBY_VERSION > '1.9'
   end
 end
 
-require File.expand_path( File.dirname(__FILE__) + '/../lib/metar' )
+require File.expand_path(File.dirname(__FILE__) + '/../lib/metar')
 
 RSpec::Matchers.define :be_temperature_extreme do |extreme, value|
   match do |remark|

@@ -35,7 +35,7 @@ describe Metar::Parser do
 
     it '.location missing' do
       expect do
-        setup_parser("FUBAR 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
+        setup_parser("FUBAR 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
       end.to raise_error(Metar::ParseError, /Expecting location/)
     end
 
@@ -48,7 +48,7 @@ describe Metar::Parser do
 
       it 'throws an error is missing' do
         expect do
-          setup_parser("PAIL 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000") 
+          setup_parser("PAIL 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
         end.to raise_error(Metar::ParseError, /Expecting datetime/)
       end
 
@@ -314,7 +314,7 @@ describe Metar::Parser do
         end
       end
     end
-  
+
     def setup_parser(metar)
       raw = Metar::Raw::Data.new(metar, Time.now)
       Metar::Parser.new(raw)

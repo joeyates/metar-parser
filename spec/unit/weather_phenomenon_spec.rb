@@ -33,7 +33,7 @@ describe Metar::WeatherPhenomenon do
       [ 'returns nil for unmatched',          'FUBAR',  [ nil,      nil,            nil  ] ],
     ].each do | docstring, raw, expected |
       example docstring do
-        expect(Metar::WeatherPhenomenon.parse( raw )).to be_weather_phenomenon(*expected)
+        expect(Metar::WeatherPhenomenon.parse(raw)).to be_weather_phenomenon(*expected)
       end
     end
   end
@@ -55,10 +55,10 @@ describe Metar::WeatherPhenomenon do
       [ 'thunderstorm and rain',   :en, [ nil,    'thunderstorm and', 'rain' ],  'thunderstorm and rain' ],
       [ 'modifier + phenomenon',   :en, ['heavy', nil,          'drizzle' ], 'heavy drizzle' ],
       [ 'modifier + descriptor + phenomenon', :en, ['heavy', 'freezing', 'drizzle' ], 'heavy freezing drizzle' ],
-    ].each do | docstring, locale, ( modifier, descriptor, phenomenon ), expected |
+    ].each do | docstring, locale, (modifier, descriptor, phenomenon), expected |
       example docstring + " (#{locale})" do
         I18n.locale = locale
-        expect(Metar::WeatherPhenomenon.new( phenomenon, modifier, descriptor ).to_s).to eq(expected)
+        expect(Metar::WeatherPhenomenon.new(phenomenon, modifier, descriptor).to_s).to eq(expected)
       end
     end
   end

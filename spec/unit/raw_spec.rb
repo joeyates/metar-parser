@@ -193,7 +193,7 @@ describe Metar::Raw::Noaa do
         block.call "chunk 1\n"
         block.call "chunk 2\n"
       end
- 
+
       raw = Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(raw).to eq("chunk 1\nchunk 2\n")

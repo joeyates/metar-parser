@@ -5,9 +5,9 @@ require "stringio"
 
 RSpec::Matchers.define :have_attribute do |attribute|
   match do | object |
-    if ! object.respond_to?( attribute )
+    if ! object.respond_to?(attribute)
       false
-    elsif object.method( attribute ).arity != 0
+    elsif object.method(attribute).arity != 0
       false
     else
       true
@@ -78,7 +78,7 @@ AAAA;00;000;Airport A1;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P
 AAAB;00;000;Airport A2;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P
 BBBA;00;000;Airport B1;;Bbbbb;1;11-03S;055-24E;11-03S;055-24E;000;000;P
 EOT
-      StringIO.new( nsd_text )
+      StringIO.new(nsd_text)
     end
 
   end
@@ -126,20 +126,20 @@ EOT
      it { should have_attribute(:latitude) }
      it { should have_attribute(:raw)      }
   end
-  
+
   context "initialization" do
      it "should fail if cccc is missing" do
        expect do
-         Metar::Station.new( nil, {} )
-       end.to raise_error(RuntimeError, /must not be nil/)      
+         Metar::Station.new(nil, {})
+       end.to raise_error(RuntimeError, /must not be nil/)
      end
-  
+
      it "should fail if cccc is empty" do
        expect do
          Metar::Station.new("", {})
-       end.to raise_error( RuntimeError, /must not be empty/)      
+       end.to raise_error(RuntimeError, /must not be empty/)
      end
-   
+
     context "with noaa data" do
       subject { Metar::Station.new("DDDD", noaa_data) }
 

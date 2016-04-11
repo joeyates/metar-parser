@@ -7,4 +7,3 @@ module Metar
     STRING = [MAJOR, MINOR, TINY].join('.')
   end
 end
-

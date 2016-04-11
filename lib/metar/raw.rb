@@ -98,7 +98,7 @@ module Metar
           while attempts < 2
             begin
               s = ''
-              connection.retrbinary( "RETR #{ cccc }.TXT", 1024 ) do |chunk|
+              connection.retrbinary("RETR #{ cccc }.TXT", 1024) do |chunk|
                 s << chunk
               end
               return s

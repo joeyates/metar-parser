@@ -6,16 +6,14 @@ require 'set'
 # As soon of any of the attributes are read, the data is downloaded (if necessary), and attributes are set.
 
 module Metar
-
   class Station
     NOAA_STATION_LIST_URL = 'http://weather.noaa.gov/data/nsd_cccc.txt'
 
     class << self
-
       @nsd_cccc = nil # Contains the text of the station list
 
       def countries
-        all_structures.reduce( Set.new ) { |a, s| a.add( s[ :country ] ) }.to_a.sort
+        all_structures.reduce(Set.new) { |a, s| a.add(s[ :country ]) }.to_a.sort
       end
 
       def all
@@ -35,7 +33,7 @@ module Metar
         not find_data_by_cccc(cccc).nil?
       end
 
-      def find_all_by_country( country )
+      def find_all_by_country(country)
         all.select { | s | s.country == country }
       end
 
@@ -54,7 +52,7 @@ module Metar
     alias :code :cccc
 
     # No check is made on the existence of the station
-    def initialize( cccc, noaa_data )
+    def initialize(cccc, noaa_data)
       raise "Station identifier must not be nil"   if cccc.nil?
       raise "Station identifier must not be empty" if cccc.to_s == ''
       @cccc = cccc
@@ -62,18 +60,17 @@ module Metar
     end
 
     def parser
-      raw = Metar::Raw::Noaa.new( @cccc )
-      Metar::Parser.new( raw )
+      raw = Metar::Raw::Noaa.new(@cccc)
+      Metar::Parser.new(raw)
     end
 
     def report
-      Metar::Report.new( parser )
+      Metar::Report.new(parser)
     end
 
     private
 
     class << self
-
       @structures = nil
 
       def download_stations
@@ -108,7 +105,7 @@ module Metar
 
     end
 
-    def load!( noaa_data )
+    def load!(noaa_data)
       @name      = noaa_data[:name]
       @state     = noaa_data[:state]
       @country   = noaa_data[:country]
@@ -116,8 +113,5 @@ module Metar
       @latitude  = Station.to_latitude(noaa_data[:latitude])
       @raw       = noaa_data[:raw]
     end
-
   end
-
 end
-

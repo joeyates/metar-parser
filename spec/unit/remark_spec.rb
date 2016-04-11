@@ -1,5 +1,5 @@
 require "spec_helper"
- 
+
 describe Metar::Remark do
   context '.parse' do
     it 'delegate to subclasses' do
@@ -51,7 +51,7 @@ describe Metar::Remark do
 
       it '60009' do
         pr = Metar::Remark.parse('60009')
-        
+
         expect(pr).to be_a(Metar::Precipitation)
         expect(pr.period).to eq(3)
         expect(pr.amount.value).to eq(0.002286)
@@ -63,7 +63,7 @@ describe Metar::Remark do
 
       it '70015' do
         pr = Metar::Remark.parse('70015')
-        
+
         expect(pr).to be_a(Metar::Precipitation)
         expect(pr.period).to eq(24)
         expect(pr.amount.value).to eq(0.003810)
