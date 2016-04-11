@@ -6,10 +6,10 @@ describe Metar::Report do
     let(:parser) do
       double(
         Metar::Parser,
-        :station_code => station_code,
-        :date         => Date.parse(metar_date),
-        :time         => Time.parse(metar_datetime),
-        :observer     => :real
+        station_code: station_code,
+        date:         Date.parse(metar_date),
+        time:         Time.parse(metar_datetime),
+        observer:     :real
       )
     end
     let(:station_code) { "SSSS" }
@@ -17,7 +17,9 @@ describe Metar::Report do
     let(:metar_date) { "2008/05/06" }
     let(:metar_time) { "10:56" }
     let(:metar_datetime) { "#{metar_date} #{metar_time}" }
-    let(:station) { double(Metar::Station, :name => 'Airport 1', :country => 'Wwwwww') }
+    let(:station) do
+      double(Metar::Station, name: 'Airport 1', country: 'Wwwwww')
+    end
 
     before do
       allow(Metar::Station).to receive(:find_by_cccc).with(station_code) { station }
@@ -82,7 +84,7 @@ describe Metar::Report do
           :temperature,
           :dew_point,
           :sea_level_pressure,
-        ].each do | attribute |
+        ].each do |attribute|
           example attribute do
             allow(parser).to receive(attribute) { attribute.to_s }
 
@@ -91,7 +93,7 @@ describe Metar::Report do
         end
 
         context "#sky_summary" do
-          let(:conditions1) { double(:to_summary => "skies1") }
+          let(:conditions1) { double(to_summary: "skies1") }
 
           it "returns the summary" do
             allow(parser).to receive(:sky_conditions) { [conditions1] }
@@ -107,7 +109,7 @@ describe Metar::Report do
 
           it "uses the last, if there is more than 1" do
             @skies1 = double("sky_conditions1")
-            @skies2 = double("sky_conditions2", :to_summary => "skies2")
+            @skies2 = double("sky_conditions2", to_summary: "skies2")
             allow(parser).to receive(:sky_conditions) { [@skies1, @skies2] }
 
             expect(subject.sky_summary).to eq("skies2")
@@ -117,28 +119,28 @@ describe Metar::Report do
 
       context "joined" do
         it "#runway_visible_range" do
-          @rvr1 = double("rvr1", :to_s => "rvr1")
-          @rvr2 = double("rvr2", :to_s => "rvr2")
+          @rvr1 = double("rvr1", to_s: "rvr1")
+          @rvr2 = double("rvr2", to_s: "rvr2")
           allow(parser).to receive(:runway_visible_range) { [@rvr1, @rvr2] }
 
           expect(subject.runway_visible_range).to eq("rvr1, rvr2")
         end
 
         it "#present_weather" do
-          allow(parser).to receive(:present_weather) { ["pw1", "pw2"] }
+          allow(parser).to receive(:present_weather) { %w(pw1 pw2) }
 
           expect(subject.present_weather).to eq("pw1, pw2")
         end
 
         it "#remarks" do
-          allow(parser).to receive(:remarks) { ["rem1", "rem2"] }
+          allow(parser).to receive(:remarks) { %w(rem1 rem2) }
 
           expect(subject.remarks).to eq("rem1, rem2")
         end
 
         it '#sky_conditions' do
-          sky1 = double('sky1', :to_s => 'sky1')
-          sky2 = double('sky2', :to_s => 'sky2')
+          sky1 = double('sky1', to_s: 'sky1')
+          sky2 = double('sky2', to_s: 'sky2')
           allow(parser).to receive(:sky_conditions) { [sky1, sky2] }
 
           expect(subject.sky_conditions).to eq("sky1, sky2")
@@ -147,8 +149,8 @@ describe Metar::Report do
     end
 
     context '#to_s' do
-      let(:sky1) { double('sky1', :to_summary => 'sky1') }
-      let(:sky2) { double('sky2', :to_summary => 'sky2') }
+      let(:sky1) { double('sky1', to_summary: 'sky1') }
+      let(:sky2) { double('sky2', to_summary: 'sky2') }
 
       before do
         allow(parser).to receive(:wind) { "wind" }

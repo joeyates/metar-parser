@@ -1,8 +1,8 @@
 # encoding: utf-8
 require "spec_helper"
 
-RSpec::Matchers.define :be_visibility do | distance, direction, comparator |
-  match do | visibility |
+RSpec::Matchers.define :be_visibility do |distance, direction, comparator|
+  match do |visibility|
     if    visibility.nil? && [ distance, direction, comparator ].all?(&:nil?)
       true
     elsif visibility.nil? != [ distance, direction, comparator ].all?(&:nil?)
@@ -47,7 +47,6 @@ describe Metar::Visibility do
   end
 
   context '#to_s' do
-
     before :each do
       @locale = I18n.locale
       I18n.locale = :it
@@ -58,13 +57,13 @@ describe Metar::Visibility do
     end
 
     [
-      [ 'with distance',                           :en, [ :set, nil,  nil ],        '4km' ],
-      [ 'with distance and direction',             :en, [ :set, :set, nil ],        '4km ESE' ],
-      [ 'with distance and comparator',            :en, [ :set, nil,  :less_than ], 'less than 4km' ],
-      [ 'with distance, direction and comparator', :en, [ :set, :set, :more_than ], 'more than 4km ESE' ],
-      [ 'with distance and direction',             :it, [ :set, :set, nil ],        '4km ESE' ],
-      [ 'with distance, direction and comparator', :it, [ :set, :set, :more_than ], 'piú di 4km ESE' ],
-    ].each do | docstring, locale, (distance, direction, comparator), expected |
+      ['with distance',                           :en, [ :set, nil,  nil ],        '4km'],
+      ['with distance and direction',             :en, [ :set, :set, nil ],        '4km ESE'],
+      ['with distance and comparator',            :en, [ :set, nil,  :less_than ], 'less than 4km'],
+      ['with distance, direction and comparator', :en, [ :set, :set, :more_than ], 'more than 4km ESE'],
+      ['with distance and direction',             :it, [ :set, :set, nil ],        '4km ESE'],
+      ['with distance, direction and comparator', :it, [ :set, :set, :more_than ], 'piú di 4km ESE'],
+    ].each do |docstring, locale, (distance, direction, comparator), expected|
       distance  = Metar::Distance.new(4321) if distance  == :set
       direction = M9t::Direction.new(123)   if direction == :set
 
@@ -75,8 +74,5 @@ describe Metar::Visibility do
         expect(value).to eq(expected)
       end
     end
-
   end
-
 end
-

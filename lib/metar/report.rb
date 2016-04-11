@@ -11,7 +11,7 @@ module Metar
       :minimum_visibility,
       :present_weather,
       :sky_summary,
-      :temperature
+      :temperature,
     ]
 
     attr_reader :parser, :station
@@ -107,7 +107,7 @@ module Metar
     private
 
     def attributes
-      a = Metar::Report::ATTRIBUTES.map do | key |
+      a = Metar::Report::ATTRIBUTES.map do |key|
         value = self.send(key).to_s
         {:attribute => key, :value => value} if not value.empty?
       end

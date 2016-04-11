@@ -21,22 +21,18 @@ describe Metar::Remark do
           expect(Metar::Remark.parse(raw)).to be_temperature_extreme(*expected)
         end
       end
-
     end
 
     context '24-hour maximum and minimum' do
-
       it 'returns minimum and maximum' do
         max, min = Metar::Remark.parse('400461006')
 
         expect(max).to be_temperature_extreme(:maximum,  4.6)
         expect(min).to be_temperature_extreme(:minimum, -0.6)
       end
-
     end
 
     context 'pressure tendency' do
-
       it 'steady_then_decreasing' do
         pt = Metar::Remark.parse('58033')
 
@@ -44,11 +40,9 @@ describe Metar::Remark do
         expect(pt.character).to eq(:steady_then_decreasing)
         expect(pt.value).to eq(3.3)
       end
-
     end
 
     context '3-hour and 6-hour precipitation' do
-
       it '60009' do
         pr = Metar::Remark.parse('60009')
 
@@ -56,11 +50,9 @@ describe Metar::Remark do
         expect(pr.period).to eq(3)
         expect(pr.amount.value).to eq(0.002286)
       end
-
     end
 
     context '24-hour precipitation' do
-
       it '70015' do
         pr = Metar::Remark.parse('70015')
 
@@ -68,7 +60,6 @@ describe Metar::Remark do
         expect(pr.period).to eq(24)
         expect(pr.amount.value).to eq(0.003810)
       end
-
     end
 
     context 'automated station' do
@@ -84,22 +75,18 @@ describe Metar::Remark do
           expect(aut.type).to eq(expected[1])
         end
       end
-
     end
 
     context 'sea-level pressure' do
-
       it 'SLP125' do
         slp = Metar::Remark.parse('SLP125')
 
         expect(slp).to be_a(Metar::SeaLevelPressure)
         expect(slp.pressure.value).to eq(0.0125)
       end
-
     end
 
     context 'hourly temperature and dew point' do
-
       it 'T00640036' do
         htm = Metar::Remark.parse('T00641036')
 
@@ -107,17 +94,12 @@ describe Metar::Remark do
         expect(htm.temperature.value).to eq(6.4)
         expect(htm.dew_point.value).to eq(-3.6)
       end
-
     end
-
   end
-
 end
 
 describe Metar::Lightning do
-
   context '.parse_chunks' do
-
     [
       ['direction',                        'LTG SE',            [:default,      nil, ['SE']]],
       ['distance direction',               'LTG DSNT SE',       [:default, 16093.44, ['SE']]],
@@ -151,7 +133,7 @@ describe Metar::Lightning do
     it 'fails if the first chunk is not LTGnnn' do
       expect do
         Metar::Lightning.parse_chunks(['FOO'])
-      end.                        to        raise_error(RuntimeError, /not lightning/)
+      end.to raise_error(RuntimeError, /not lightning/)
     end
 
     it "doesn't not fail if all chunks are parsed" do
@@ -161,8 +143,5 @@ describe Metar::Lightning do
 
       expect(chunks).to eq([])
     end
-
   end
-
 end
-

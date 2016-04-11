@@ -34,7 +34,7 @@ module Metar
       end
 
       def find_all_by_country(country)
-        all.select { | s | s.country == country }
+        all.select { |s| s.country == country }
       end
 
       def to_longitude(s)
@@ -86,13 +86,13 @@ module Metar
         @nsd_cccc.each_line do |station|
           fields = station.split(';')
           @structures << {
-            :cccc      => fields[0],
-            :name      => fields[3],
-            :state     => fields[4],
-            :country   => fields[5],
-            :latitude  => fields[7],
-            :longitude => fields[8],
-            :raw       => station.clone
+            cccc:      fields[0],
+            name:      fields[3],
+            state:     fields[4],
+            country:   fields[5],
+            latitude:  fields[7],
+            longitude: fields[8],
+            raw:       station.clone,
           }
         end
 

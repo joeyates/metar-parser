@@ -68,4 +68,3 @@ describe Metar::SkyCondition do
     end
   end
 end
-

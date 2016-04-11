@@ -76,8 +76,8 @@ describe Metar::Raw::Metar do
       let(:raw_metar) { "OPPS 3123Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
 
       it "throws an error" do
-        expect { subject.time }.
-          to raise_error(RuntimeError, /6 digit/)
+        expect { subject.time }
+          .to raise_error(RuntimeError, /6 digit/)
       end
     end
 
@@ -85,8 +85,8 @@ describe Metar::Raw::Metar do
       let(:raw_metar) { "OPPS 332359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
 
       it "throws an error" do
-        expect { subject.time }.
-          to raise_error(RuntimeError, /at most 31/)
+        expect { subject.time }
+          .to raise_error(RuntimeError, /at most 31/)
       end
     end
 
@@ -94,8 +94,8 @@ describe Metar::Raw::Metar do
       let(:raw_metar) { "OPPS 002359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
 
       it "throws an error" do
-        expect { subject.time }.
-          to raise_error(RuntimeError, /greater than 0/)
+        expect { subject.time }
+          .to raise_error(RuntimeError, /greater than 0/)
       end
     end
   end
@@ -157,6 +157,10 @@ describe Metar::Raw::Noaa do
   end
 
   context '.fetch' do
+    before do
+      allow(ftp).to receive(:retrbinary).and_yield("chunk 1\n").and_yield("chunk 2\n")
+    end
+
     it 'uses the connection' do
       Metar::Raw::Noaa.fetch('the_cccc')
 
@@ -170,51 +174,40 @@ describe Metar::Raw::Noaa do
     end
 
     it 'returns the data' do
-      def ftp.retrbinary(*args, &block)
-        block.call "chunk 1\n"
-        block.call "chunk 2\n"
-      end
       raw = Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(raw).to eq("chunk 1\nchunk 2\n")
     end
 
-    it 'retries retrieval once' do
-      def ftp.attempt
-        @attempt
-      end
-      def ftp.attempt=(a)
-        @attempt = a
-      end
-      ftp.attempt = 0
-      def ftp.retrbinary(*args, &block)
-        self.attempt = self.attempt + 1
-        raise Net::FTPTempError if self.attempt == 1
-        block.call "chunk 1\n"
-        block.call "chunk 2\n"
+    context 'if retrieval fails once' do
+      before do
+        @attempt = 0
+
+        allow(ftp).to receive(:retrbinary) do |_args, &block|
+          @attempt += 1
+          raise Net::FTPTempError if @attempt == 1
+          block.call "chunk 1\n"
+          block.call "chunk 2\n"
+        end
       end
 
-      raw = Metar::Raw::Noaa.fetch('the_cccc')
+      it 'retries' do
+        raw = Metar::Raw::Noaa.fetch('the_cccc')
 
-      expect(raw).to eq("chunk 1\nchunk 2\n")
+        expect(raw).to eq("chunk 1\nchunk 2\n")
+      end
     end
 
-    it 'fails with an error, if retrieval fails twice' do
-      def ftp.attempt
-        @attempt
-      end
-      def ftp.attempt=(a)
-        @attempt = a
-      end
-      ftp.attempt = 0
-      def ftp.retrbinary(*args, &block)
-        self.attempt = self.attempt + 1
-        raise Net::FTPTempError
+    context 'if retrieval fails twice' do
+      before do
+        allow(ftp).to receive(:retrbinary).and_raise(Net::FTPTempError)
       end
 
-      expect do
-        Metar::Raw::Noaa.fetch('the_cccc')
-      end.to raise_error(RuntimeError, /failed 2 times/)
+      it 'fails with an error' do
+        expect do
+          Metar::Raw::Noaa.fetch('the_cccc')
+        end.to raise_error(RuntimeError, /failed 2 times/)
+      end
     end
   end
 
