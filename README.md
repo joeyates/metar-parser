@@ -15,18 +15,15 @@ metar-parser [![Build Status](https://secure.travis-ci.org/joeyates/metar-parser
 
 The information comes from the National Oceanic and Atmospheric Association's raw data source.
 
-Usage
-=====
+# Installation
 
 ```ruby
 require 'metar'
 ```
 
-Examples
-========
+# Examples
 
-Hello World
------------
+## Hello World
 
 This prints the latest weather report for Portland International Airport:
 
@@ -35,8 +32,44 @@ station = Metar::Station.find_by_cccc('KPDX')
 puts station.report.to_s
 ```
 
-Countries
----------
+## Using Your Own Raw Data
+
+The parser needs to know the full date when the reading was taken. Unfortunately,
+the METAR string itself only contains the day of the month.
+
+### When you know the date of the reading
+
+Use `Metar::Raw::Data` and supply the date as the second parameter:
+
+```ruby
+metar_string = "KHWD 280554Z AUTO 29007KT 10SM OVC008 14/12 A3002 RMK AO2 SLP176 T01390117 10211\n"
+raw    = Metar::Raw::Data.new(metar_string, reading_date)
+parser = Metar::Parser.new(raw)
+```
+
+### When you do not know the date
+
+Use `Metar::Raw::Metar` - the library will choose the date as the most recent
+day with the day of the month indicated in the METAR string:
+
+I.e. on 11th April 2016:
+
+```ruby
+metar_string = "KHWD 280554Z AUTO 29007KT 10SM OVC008 14/12 A3002 RMK AO2 SLP176 T01390117 10211\n"
+raw    = Metar::Raw::Metar.new(metar_string)
+raw.time.to_s                              # => "2016-03-28"
+parser = Metar::Parser.new(raw)
+```
+
+## Access Specific Data
+
+```ruby
+station = Metar::Station.find_by_cccc('KPDX')
+parser  = station.parser
+puts parser.temperature.value
+```
+
+# Countries
 
 List countries:
 
@@ -50,24 +83,8 @@ Find a country's weather stations:
 spanish = Metar::Station.find_all_by_country('Spain')
 ```
 
-Get The Data
-------------
-```ruby
-station = Metar::Station.find_by_cccc('KPDX')
-parser  = station.parser
-puts parser.temperature.value
-```
+# Translations
 
-Use Your Own Raw Data
----------------------
-```ruby
-metar_string = "KHWD 280554Z AUTO 29007KT 10SM OVC008 14/12 A3002 RMK AO2 SLP176 T01390117 10211\n"
-raw    = Metar::Raw::Data.new(metar_string)
-parser = Metar::Parser.new(raw)
-```
-
-Translations
-------------
 Translations are available for the following languages (and region):
 * :de
 * :en
@@ -83,8 +100,7 @@ I18n.locale = :'en-US'
 I18n.t('metar.station_code.title') # station code
 ```
 
-Compliance
-==========
+# Compliance
 
 By default, the parser runs in 'loose' compliance mode. That means that it tries to
 accept non-standard input.
