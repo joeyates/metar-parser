@@ -1,9 +1,7 @@
 # encoding: utf-8
 
 module Metar
-
   class Report
-
     ATTRIBUTES = [
       :station_name,
       :station_country,
@@ -13,7 +11,7 @@ module Metar
       :minimum_visibility,
       :present_weather,
       :sky_summary,
-      :temperature
+      :temperature,
     ]
 
     attr_reader :parser, :station
@@ -68,7 +66,7 @@ module Metar
     end
 
     def present_weather
-      @parser.present_weather.join( ', ' )
+      @parser.present_weather.join(', ')
     end
 
     def sky_summary
@@ -109,13 +107,11 @@ module Metar
     private
 
     def attributes
-      a = Metar::Report::ATTRIBUTES.map do | key |
+      a = Metar::Report::ATTRIBUTES.map do |key|
         value = self.send(key).to_s
         {:attribute => key, :value => value} if not value.empty?
       end
       a.compact
     end
-
   end
-
 end

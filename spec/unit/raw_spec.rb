@@ -3,6 +3,7 @@ require 'spec_helper'
 
 require 'net/ftp'
 require 'time'
+require 'timecop'
 
 module MetarRawTestHelper
   def raw_metar
@@ -14,19 +15,88 @@ describe Metar::Raw::Data do
   include MetarRawTestHelper
 
   context 'initialization' do
-    let(:call_time) { Time.parse('2012-07-29 16:35') }
+    let(:time) { Time.parse('2012-07-29 16:35') }
 
-    before do
-      now = call_time
-      allow(Time).to receive(:now) { now }
+    subject { described_class.new(raw_metar, time) }
+
+    it "accepts a METAR string" do
+      expect(subject.metar).to eq(raw_metar)
     end
 
-    it 'should parse data, if supplied' do
-      raw = Metar::Raw::Data.new(raw_metar)
-     
-      expect(raw.metar).to eq(raw_metar)
-      expect(raw.cccc).to eq('ESSB')
-      expect(raw.time).to eq(call_time)
+    it "accepts a reading time" do
+      expect(subject.time).to eq(time)
+    end
+
+    context "when called without a time parameter" do
+      it "warns that the usage is deprecated" do
+        expect { described_class.new(raw_metar) }.to output(/deprecated/).to_stderr
+      end
+    end
+  end
+end
+
+describe Metar::Raw::Metar do
+  context "time" do
+    let(:call_time) { Time.parse("2016-04-01 16:35") }
+    let(:raw_metar) { "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+    subject { described_class.new(raw_metar) }
+
+    before { Timecop.freeze(call_time) }
+    after { Timecop.return }
+
+    it "is the last day with the day of month from the METAR datetime" do
+      expect(subject.time.year).to eq(2016)
+      expect(subject.time.month).to eq(3)
+      expect(subject.time.day).to eq(31)
+    end
+
+    context "when the current day of month is greater than the METAR's day of month" do
+      let(:call_time) { Time.parse("2016-04-11 16:35") }
+      let(:raw_metar) { "OPPS 092359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      it "uses the date from the current month" do
+        expect(subject.time.year).to eq(2016)
+        expect(subject.time.month).to eq(4)
+        expect(subject.time.day).to eq(9)
+      end
+    end
+
+    context "when the previous month did not have the day of the month" do
+      let(:call_time) { Time.parse("2016-05-01 16:35") }
+
+      it "skips back to a previous month" do
+        expect(subject.time.year).to eq(2016)
+        expect(subject.time.month).to eq(3)
+        expect(subject.time.day).to eq(31)
+      end
+    end
+
+    context "when the datetime doesn't have 6 numerals" do
+      let(:raw_metar) { "OPPS 3123Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      it "throws an error" do
+        expect { subject.time }
+          .to raise_error(RuntimeError, /6 digit/)
+      end
+    end
+
+    context "when the day of month in the datetime is > 31" do
+      let(:raw_metar) { "OPPS 332359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      it "throws an error" do
+        expect { subject.time }
+          .to raise_error(RuntimeError, /at most 31/)
+      end
+    end
+
+    context "when the day of month in the datetime is 0" do
+      let(:raw_metar) { "OPPS 002359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      it "throws an error" do
+        expect { subject.time }
+          .to raise_error(RuntimeError, /greater than 0/)
+      end
     end
   end
 end
@@ -34,13 +104,16 @@ end
 describe Metar::Raw::Noaa do
   include MetarRawTestHelper
 
-  let(:ftp) { double('ftp', :login => nil, :chdir => nil, :passive= => nil, :retrbinary => nil) }
+  let(:cccc) { "ESSB" }
+  let(:ftp) do
+    double(Net::FTP, login: nil, chdir: nil, :passive= => nil, retrbinary: nil)
+  end
 
   before do
     allow(Net::FTP).to receive(:new) { ftp }
   end
 
-  after :each do
+  after do
     Metar::Raw::Noaa.send(:class_variable_set, '@@connection', nil)
   end
 
@@ -84,6 +157,10 @@ describe Metar::Raw::Noaa do
   end
 
   context '.fetch' do
+    before do
+      allow(ftp).to receive(:retrbinary).and_yield("chunk 1\n").and_yield("chunk 2\n")
+    end
+
     it 'uses the connection' do
       Metar::Raw::Noaa.fetch('the_cccc')
 
@@ -97,85 +174,57 @@ describe Metar::Raw::Noaa do
     end
 
     it 'returns the data' do
-      def ftp.retrbinary(*args, &block)
-        block.call "chunk 1\n"
-        block.call "chunk 2\n"
-      end
       raw = Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(raw).to eq("chunk 1\nchunk 2\n")
     end
 
-    it 'retries retrieval once' do
-      def ftp.attempt
-        @attempt
-      end
-      def ftp.attempt=(a)
-        @attempt = a
-      end
-      ftp.attempt = 0
-      def ftp.retrbinary(*args, &block)
-        self.attempt = self.attempt + 1
-        raise Net::FTPTempError if self.attempt == 1
-        block.call "chunk 1\n"
-        block.call "chunk 2\n"
-      end
- 
-      raw = Metar::Raw::Noaa.fetch('the_cccc')
+    context 'if retrieval fails once' do
+      before do
+        @attempt = 0
 
-      expect(raw).to eq("chunk 1\nchunk 2\n")
+        allow(ftp).to receive(:retrbinary) do |_args, &block|
+          @attempt += 1
+          raise Net::FTPTempError if @attempt == 1
+          block.call "chunk 1\n"
+          block.call "chunk 2\n"
+        end
+      end
+
+      it 'retries' do
+        raw = Metar::Raw::Noaa.fetch('the_cccc')
+
+        expect(raw).to eq("chunk 1\nchunk 2\n")
+      end
     end
 
-    it 'fails with an error, if retrieval fails twice' do
-      def ftp.attempt
-        @attempt
-      end
-      def ftp.attempt=(a)
-        @attempt = a
-      end
-      ftp.attempt = 0
-      def ftp.retrbinary(*args, &block)
-        self.attempt = self.attempt + 1
-        raise Net::FTPTempError
+    context 'if retrieval fails twice' do
+      before do
+        allow(ftp).to receive(:retrbinary).and_raise(Net::FTPTempError)
       end
 
-      expect do
-        Metar::Raw::Noaa.fetch('the_cccc')
-      end.to raise_error(RuntimeError, /failed 2 times/)
+      it 'fails with an error' do
+        expect do
+          Metar::Raw::Noaa.fetch('the_cccc')
+        end.to raise_error(RuntimeError, /failed 2 times/)
+      end
     end
   end
 
-  context 'initialization' do
-    it 'should accept CCCC codes' do
-      raw = Metar::Raw::Noaa.new('XXXX')
-
-      expect(raw.cccc).to eq('XXXX')
-    end
-      
-    it 'should accept Stations' do
-      station = double('Metar::Station', :cccc => 'YYYY')
-      raw = Metar::Raw::Noaa.new(station)
-
-      expect(raw.cccc).to eq('YYYY')
-    end
-  end
-
-  context 'lazy loading' do
-    let(:noaa_metar) do
-      raw_time  = "2010/02/15 10:20"
-      "#{raw_time}\n#{raw_metar}"
-    end
+  context "fetching" do
+    let(:noaa_metar) { "#{raw_time}\n#{raw_metar}" }
+    let(:raw_time)   { "2010/02/15 10:20" }
 
     before do
-      allow(Metar::Raw::Noaa).to receive(:fetch) { noaa_metar }
+      allow(ftp).to receive(:retrbinary).and_yield(noaa_metar)
     end
 
-    subject { Metar::Raw::Noaa.new('ESSB') }
+    subject { Metar::Raw::Noaa.new(cccc) }
 
-    it 'should fetch data on demand' do
+    it "queries for the station's data" do
       subject.metar
 
-      expect(Metar::Raw::Noaa).to have_received(:fetch).with('ESSB')
+      expect(ftp).to have_received(:retrbinary).with("RETR #{cccc}.TXT", 1024)
     end
 
     it 'sets data to the returned value' do
@@ -183,6 +232,27 @@ describe Metar::Raw::Noaa do
 
       expect(subject.data).to eq(noaa_metar)
     end
+
+    context "times" do
+      let(:cccc)      { "OPPS" }
+      let(:raw_time)  { "2016/03/31 23:59" }
+      let(:raw_metar) { "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+
+      specify "are parsed as UTC" do
+        expect(subject.time.zone).to eq("UTC")
+      end
+
+      context "across month rollover" do
+        let(:after_midnight) { Time.parse("2016/04/01 00:02:11 UTC") }
+
+        specify "have correct date" do
+          Timecop.freeze(after_midnight) do
+            expect(subject.time.day).to eq(31)
+            expect(subject.time.month).to eq(3)
+            expect(subject.time.year).to eq(2016)
+          end
+        end
+      end
+    end
   end
 end
-

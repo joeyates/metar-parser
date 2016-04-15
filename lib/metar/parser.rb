@@ -1,9 +1,7 @@
 require File.join(File.dirname(__FILE__), 'data')
 
 module Metar
-
   class Parser
-
     def self.for_cccc(cccc)
       raw = Metar::Raw::Noaa.new(cccc)
       new(raw)
@@ -103,7 +101,7 @@ module Metar
         @day, @hour, @minute = $1.to_i, $2.to_i, $3.to_i
         found = true
       else
-        if not strict?  
+        if not strict?
           if @chunks[0] =~ /^(\d{1,2})(\d{2})Z$/
             # The day is missing, use today's date
             @day           = Time.now.day
@@ -267,7 +265,7 @@ module Metar
         @sea_level_pressure = sea_level_pressure
       end
     end
- 
+
     def seek_recent_weather
       loop do
         return if @chunks.size == 0
@@ -308,7 +306,7 @@ module Metar
             @remarks << r
           end
           @chunks.shift
-          next 
+          next
         end
         if @chunks[0] == 'VIS' and @chunks.size >= 3 and @chunks[1] == 'MIN'
           @chunks.shift(3)
@@ -333,7 +331,5 @@ module Metar
     def strict?
       self.class.compliance == :strict
     end
-
   end
-
 end

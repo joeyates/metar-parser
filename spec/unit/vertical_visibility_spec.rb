@@ -8,7 +8,7 @@ RSpec::Matchers.define :be_distance do |expected|
       false
     elsif distance.value.nil? && expected.nil?
       true
-    elsif ( distance.value - expected ).abs > 0.01
+    elsif (distance.value - expected).abs > 0.01
       false
     else
       true

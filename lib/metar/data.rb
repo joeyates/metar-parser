@@ -23,9 +23,9 @@ module Metar
     # Handles nil case differently to M9t::Distance
     def to_s(options = {})
       options = {
-        :units       => @units,
-        :precision   => 0,
-        :abbreviated => true
+        units:       @units,
+        precision:   0,
+        abbreviated: true,
       }.merge(options)
       return I18n.t('metar.distance.unknown') if @value.nil?
       super(options)
@@ -66,7 +66,7 @@ module Metar
     end
 
     def to_s(options = {})
-      options = {:abbreviated => true, :precision => 0}.merge(options)
+      options = {abbreviated: true, precision: 0}.merge(options)
       super(options)
     end
   end
@@ -124,8 +124,8 @@ module Metar
 
     def to_s(options = {})
       options = {
-        :direction_units => :compass,
-        :speed_units     => :kilometers_per_hour
+        direction_units: :compass,
+        speed_units:     :kilometers_per_hour,
       }.merge(options)
       speed =
         case @speed
@@ -133,9 +133,9 @@ module Metar
           I18n.t('metar.wind.unknown_speed')
         else
           @speed.to_s(
-            :abbreviated => true,
-            :precision   => 0,
-            :units       => options[:speed_units]
+            abbreviated: true,
+            precision:   0,
+            units:       options[:speed_units]
           )
         end
       direction =
@@ -145,14 +145,14 @@ module Metar
         when :unknown_direction
           I18n.t('metar.wind.unknown_direction')
         else
-          @direction.to_s(:units => options[:direction_units])
+          @direction.to_s(units: options[:direction_units])
         end
       s = "#{speed} #{direction}"
       if not @gusts.nil?
         g = @gusts.to_s(
-          :abbreviated => true,
-          :precision   => 0,
-          :units       => options[:speed_units]
+          abbreviated: true,
+          precision:   0,
+          units:       options[:speed_units]
         )
         s += " #{I18n.t('metar.wind.gusts')} #{g}"
       end
@@ -176,7 +176,7 @@ module Metar
     end
 
     def to_s
-      "#{@direction1.to_s(:units => :compass)} - #{@direction2.to_s(:units => :compass)}"
+      "#{@direction1.to_s(units: :compass)} - #{@direction2.to_s(units: :compass)}"
     end
   end
 
@@ -219,29 +219,29 @@ module Metar
 
     def to_s(options = {})
       distance_options = {
-        :abbreviated => true,
-        :precision   => 0,
-        :units       => :kilometers
+        abbreviated: true,
+        precision:   0,
+        units:       :kilometers,
       }.merge(options)
-      direction_options = {:units => :compass}
+      direction_options = {units: :compass}
       case
       when (@direction.nil? and @comparator.nil?)
         @distance.to_s(distance_options)
       when @comparator.nil?
         [
           @distance.to_s(distance_options),
-          @direction.to_s(direction_options)
+          @direction.to_s(direction_options),
         ].join(' ')
       when @direction.nil?
         [
           I18n.t('comparison.' + @comparator.to_s),
-          @distance.to_s(distance_options)
+          @distance.to_s(distance_options),
         ].join(' ')
       else
         [
           I18n.t('comparison.' + @comparator.to_s),
           @distance.to_s(distance_options),
-          @direction.to_s(direction_options)
+          @direction.to_s(direction_options),
         ].join(' ')
       end
     end
@@ -288,9 +288,9 @@ module Metar
 
     def to_s
       distance_options = {
-        :abbreviated => true,
-        :precision   => 0,
-        :units       => @units
+        abbreviated: true,
+        precision:   0,
+        units:       @units,
       }
       s =
         if @visibility2.nil?
@@ -395,7 +395,7 @@ module Metar
       'CB'  => 'cumulonimbus',
       'TCU' => 'towering cumulus',
       '///' => nil, # cloud type unknown as observed by automatic system (15.9.1.7)
-      ''    => nil
+      ''    => nil,
     }
     CLEAR_SKIES = [
       'NSC', # WMO
@@ -492,7 +492,7 @@ module Metar
       when /^4([01])(\d{3})([01])(\d{3})$/
         [
           TemperatureExtreme.new(:maximum, sign($1) * tenths($2)),
-          TemperatureExtreme.new(:minimum, sign($3) * tenths($4))
+          TemperatureExtreme.new(:minimum, sign($3) * tenths($4)),
         ]
       when /^5([0-8])(\d{3})$/
         character = PRESSURE_CHANGE_CHARACTER[$1.to_i]
@@ -615,17 +615,17 @@ module Metar
 
   class VisibilityRemark < Visibility
     def self.parse(chunk)
-      chunk =~ /^(\d{4})([NESW]?)$/
-      distance = Distance.new($1)
+      metres, direction = chunk.scan(/^(\d{4})([NESW]?)$/)[0]
+      distance = Distance.new(metres)
 
-      new(distance, $2, :more_than)
+      new(distance, direction, :more_than)
     end
   end
 
   class DensityAltitude
     def self.parse(chunk)
-      chunk =~ /^(\d+)(FT)$/
-      height = Distance.feet($1)
+      feet = chunk[/^(\d+)(FT)$/, 1]
+      height = Distance.feet(feet)
 
       new(height)
     end
@@ -637,4 +637,3 @@ module Metar
     end
   end
 end
-

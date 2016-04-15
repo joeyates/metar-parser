@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-$:.unshift( File.join( File.dirname( __FILE__ ), 'lib' ) )
+$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
 require 'metar/version'
 
 Gem::Specification.new do |s|
@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
     Reports can be fully localized (currently Brazilian Portuguese, English, German and Italian are available).
     EOT
   s.version       = Metar::VERSION::STRING
+  s.required_ruby_version = '>= 1.9.3'
 
   s.homepage      = 'http://github.com/joeyates/metar-parser'
   s.author        = 'Joe Yates'
@@ -29,10 +30,12 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'rake'
   s.add_runtime_dependency 'rdoc'
   s.add_runtime_dependency 'i18n', '~> 0.7.0'
-  s.add_runtime_dependency 'm9t',  '~> 0.3.1'
+  s.add_runtime_dependency 'm9t',  '~> 0.3.5'
 
   s.add_development_dependency 'rspec',  '~> 3.2.0'
   s.add_development_dependency 'simplecov'
+  s.add_development_dependency 'rubocop'
+  s.add_development_dependency 'timecop'
   s.add_development_dependency 'pry'
   s.add_development_dependency 'pry-doc'
 

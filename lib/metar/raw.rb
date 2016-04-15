@@ -1,26 +1,70 @@
+require 'date'
 require 'net/ftp'
 require 'time'
 
 module Metar
-
   module Raw
-
     class Base
-      attr_reader :cccc
       attr_reader :metar
       attr_reader :time
       alias :to_s :metar
+    end
 
-      def parse
-        @cccc = @metar[/\w+/]
+    ##
+    # Use this class when you have a METAR string and the date of reading
+    class Data < Base
+      def initialize(metar, time = nil)
+        if time == nil
+          warn <<-EOT
+          Using Metar::Raw::Data without a time parameter is deprecated.
+          Please supply the reading time as the second parameter.
+          EOT
+          time = Time.now
+        end
+        @metar, @time = metar, time
       end
     end
 
-    class Data < Base
-      def initialize(metar, time = Time.now)
-        @metar, @time = metar, time
+    ##
+    # Use this class when you only have a METAR string.
+    # The date of the reading is decided as follows:
+    # * the day of the month is extracted from the METAR,
+    # * the most recent day with that day of the month is taken as the
+    #   date of the reading.
+    class Metar < Base
+      def initialize(metar)
+        @metar = metar
+        @time = nil
+      end
 
-        parse
+      def time
+        return @time if @time
+        dom = day_of_month
+        date = Date.today
+        loop do
+          if date.day >= dom
+            @time = Date.new(date.year, date.month, dom)
+            break
+          end
+          # skip to the last day of the previous month
+          date = Date.new(date.year, date.month, 1).prev_day
+        end
+        @time
+      end
+
+      private
+
+      def datetime
+        datetime = metar[/^\w{4} (\d{6})Z/, 1]
+        raise "The METAR string must have a 6 digit datetime" if datetime.nil?
+        datetime
+      end
+
+      def day_of_month
+        dom = datetime[0..1].to_i
+        raise "Day of month must be at most 31" if dom > 31
+        raise "Day of month must be greater than 0" if dom == 0
+        dom
       end
     end
 
@@ -44,9 +88,9 @@ module Metar
         end
 
         def disconnect
-          return if @connection.nil
-          @connection.close
-          @cconnection = nil
+          return if @@connection.nil
+          @@connection.close
+          @@connection = nil
         end
 
         def fetch(cccc)
@@ -54,7 +98,7 @@ module Metar
           while attempts < 2
             begin
               s = ''
-              connection.retrbinary( "RETR #{ cccc }.TXT", 1024 ) do |chunk|
+              connection.retrbinary("RETR #{ cccc }.TXT", 1024) do |chunk|
                 s << chunk
               end
               return s
@@ -101,13 +145,8 @@ module Metar
 
       def parse
         raw_time, @metar = @data.split("\n")
-        @time            = Time.parse(raw_time)
-        super
+        @time            = Time.parse(raw_time + " UTC")
       end
-
     end
-
   end
-
 end
-

@@ -2,20 +2,20 @@
 require "spec_helper"
 
 describe Metar::Distance do
-  let(:value) { 12345.6789 }
+  let(:value) { 12_345.6789 }
 
   subject { described_class.new(value) }
 
   context '#value' do
     it 'treats the parameter as meters' do
       expect(subject.units).to eq(:meters)
-      expect(subject.value).to eq(12345.6789)
+      expect(subject.value).to eq(12_345.6789)
     end
   end
 
   context '#to_s' do
     it 'should default to meters' do
-      expect(subject.to_s).to match(%r(^\d+m))
+      expect(subject.to_s).to match(/^\d+m/)
     end
 
     context 'when <= 0.5' do
