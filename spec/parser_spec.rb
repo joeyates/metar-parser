@@ -286,11 +286,25 @@ describe Metar::Parser do
         expect(parser.remarks.size).to eq(0)
       end
 
-      it 'parses known remarks' do
-        parser = setup_parser('CYZT 052200Z 31010KT 20SM SKC 17/12 A3005 RMK SLP174 20046')
+      context 'known remarks' do
+        it 'parses sea level pressure' do
+          parser = setup_parser('CYZT 052200Z 31010KT 20SM SKC 17/12 A3005 RMK SLP174 20046')
 
-        expect(parser.remarks[0]).to be_a(Metar::SeaLevelPressure)
-        expect(parser.remarks[1]).to be_temperature_extreme(:minimum, 4.6)
+          expect(parser.remarks[0]).to be_a(Metar::SeaLevelPressure)
+        end
+
+        it 'parses extreme temperature' do
+          parser = setup_parser('CYZT 052200Z 31010KT 20SM SKC 17/12 A3005 RMK SLP174 20046')
+
+          expect(parser.remarks[1]).to be_temperature_extreme(:minimum, 4.6)
+        end
+
+        it 'parses density altitude' do
+          parser = setup_parser('CYBW 010000Z AUTO VRB04KT 9SM SCT070 13/M01 A3028 RMK DENSITY ALT 4100FT=')
+
+          expect(parser.remarks[0]).to be_a(Metar::DensityAltitude)
+          expect(parser.remarks[0].height.value).to be_within(0.001).of(1249.68)
+        end
       end
 
       context 'in strict mode' do

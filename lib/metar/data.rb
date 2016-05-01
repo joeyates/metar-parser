@@ -624,7 +624,7 @@ module Metar
 
   class DensityAltitude
     def self.parse(chunk)
-      feet = chunk[/^(\d+)(FT)$/, 1]
+      feet = chunk[/^(\d+)(FT)/, 1]
       height = Distance.feet(feet)
 
       new(height)

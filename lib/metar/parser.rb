@@ -1,5 +1,9 @@
 require File.join(File.dirname(__FILE__), 'data')
 
+# References:
+# WMO = World Meteorological Organization Manual on Codes Volume I.1
+#   Section FM 15
+
 module Metar
   class Parser
     def self.for_cccc(cccc)
@@ -290,6 +294,7 @@ module Metar
       end
     end
 
+    # WMO: 15.15
     def seek_remarks
       return if @chunks.size == 0
       raise 'seek_remarks calls without remark' if @chunks[0] != 'RMK'
@@ -309,13 +314,13 @@ module Metar
           next
         end
         if @chunks[0] == 'VIS' and @chunks.size >= 3 and @chunks[1] == 'MIN'
-          @chunks.shift(3)
-          r = Metar::VisibilityRemark.parse(@chunks[2])
+          @chunks.shift(2)
+          r = Metar::VisibilityRemark.parse(@chunks[0])
           @remarks << r
         end
         if @chunks[0] == 'DENSITY' and @chunks.size >= 3 and @chunks[1] == 'ALT'
-          @chunks.shift(3)
-          r = Metar::DensityAltitude.parse(@chunks[2])
+          @chunks.shift(2)
+          r = Metar::DensityAltitude.parse(@chunks[0])
           @remarks << r
         end
         case
