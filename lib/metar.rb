@@ -5,7 +5,6 @@ require 'metar/report'
 require 'metar/version'
 
 module Metar
-
   # Base class for all Metar exceptions
   class MetarError < StandardError
   end
@@ -13,6 +12,4 @@ module Metar
   # Raised when an unrecognized value is found
   class ParseError < MetarError
   end
-
 end
-

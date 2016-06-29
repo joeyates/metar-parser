@@ -509,7 +509,7 @@ module Metar
       when /^T([01])(\d{3})([01])(\d{3})$/
         temperature = Temperature.new(sign($1) * tenths($2))
         dew_point   = Temperature.new(sign($3) * tenths($4))
-        HourlyTemperaturAndDewPoint.new(temperature, dew_point)
+        HourlyTemperatureAndDewPoint.new(temperature, dew_point)
       when /^SLP(\d{3})$/
         SeaLevelPressure.new(Pressure.hectopascals(tenths($1)))
       when /^(#{INDICATOR_TYPE.keys.join('|')})NO$/
@@ -550,7 +550,7 @@ module Metar
   PressureTendency = Struct.new(:character, :value)
   Precipitation = Struct.new(:period, :amount)
   AutomatedStationType = Struct.new(:type)
-  HourlyTemperaturAndDewPoint = Struct.new(:temperature, :dew_point)
+  HourlyTemperatureAndDewPoint = Struct.new(:temperature, :dew_point)
   SeaLevelPressure = Struct.new(:pressure)
   SensorStatusIndicator = Struct.new(:type, :state)
   ColorCode = Struct.new(:code)
@@ -610,7 +610,6 @@ module Metar
     def initialize(frequency, type, distance, directions)
       @frequency, @type, @distance, @directions = frequency, type, distance, directions
     end
-
   end
 
   class VisibilityRemark < Visibility
