@@ -32,14 +32,15 @@ end
 describe Metar::RunwayVisibleRange do
   context '.parse' do
     [
-      ['understands R + nn + / + nnnn',     'R12/3400',        ['12',  [3400.00, nil, nil],        nil,                nil]],
-      ['understands runway positions: RLC', 'R12L/3400',       ['12L', [3400.00, nil, nil],        nil,                nil]],
-      ['understands comparators: PM',       'R12/P3400',       ['12',  [3400.00, nil, :more_than], nil,                nil]],
-      ['understands tendencies: NUD',       'R12/3400U',       ['12',  [3400.00, nil, nil],        nil,                :improving]],
-      ['understands feet',                  'R12/3400FT',      ['12',  [1036.32, nil, nil],        nil,                nil]],
-      ['understands second visibilities (m)',  'R26/0750V1200U',  ['12', [ 750.0,  nil, nil],     [1200.0, nil, nil], :improving]],
-      ['understands second visibilities (ft)', 'R12/3400V1800FT', ['12', [1036.32, nil, nil],     [548.64, nil, nil], nil]],
-      ['returns nil for nil',               nil,               [nil,   nil,                        nil,                nil]],
+      ['understands R + nn + / + nnnn',           'R12/3400',           ['12',  [3400.00, nil, nil],        nil,                  nil]],
+      ['understands runway positions: RLC',       'R12L/3400',          ['12L', [3400.00, nil, nil],        nil,                  nil]],
+      ['understands comparators: PM',             'R12/P3400',          ['12',  [3400.00, nil, :more_than], nil,                  nil]],
+      ['understands tendencies: NUD',             'R12/3400U',          ['12',  [3400.00, nil, nil],        nil,                  :improving]],
+      ['understands feet',                        'R12/3400FT',         ['12',  [1036.32, nil, nil],        nil,                  nil]],
+      ['understands second visibilities (m)',     'R26/0750V1200U',     ['12',  [ 750.0,  nil, nil],        [1200.0, nil, nil],   :improving]],
+      ['understands second visibilities (ft)',    'R12/1800V3400FT',    ['12',  [548.64, nil, nil],         [1036.32, nil, nil],  nil]],
+      ['understands second RVR (ft) w/ tendency', 'R29/1800V3400FT/U',  ['29',  [548.64, nil, nil],         [1036.32, nil, nil],  nil]],
+      ['returns nil for nil',                     nil,                  [nil,   nil,                        nil,                  nil]],
     ].each do |docstring, raw, expected|
       example docstring do
         expect(Metar::RunwayVisibleRange.parse(raw)).to be_runway_visible_range(*expected)
