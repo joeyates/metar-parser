@@ -109,7 +109,7 @@ module Metar
           if @chunks[0] =~ /^(\d{1,2})(\d{2})Z$/
             # The day is missing, use today's date
             @day           = Time.now.day
-            @hour, @minute = $1.to_i, $2.to_i, $3.to_i
+            @hour, @minute = $1.to_i, $2.to_i
             found = true
           end
         end
