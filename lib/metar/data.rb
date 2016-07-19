@@ -254,23 +254,23 @@ module Metar
 
     def self.parse(runway_visible_range)
       case
-      when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})(N|U|D|)(FT|)$/
+      when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})(FT|)\/?(N|U|D|)$/
         designator = $1
         comparator = COMPARATOR[$2]
         count      = $3.to_f
-        tendency   = TENDENCY[$4]
-        units      = UNITS[$5]
+        units      = UNITS[$4]
+        tendency   = TENDENCY[$5]
         distance   = Distance.send(units, count)
         visibility = Visibility.new(distance, nil, comparator)
         new(designator, visibility, nil, tendency)
-      when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(N|U|D)?(FT|)$/
+      when runway_visible_range =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)\/?(N|U|D)?$/
         designator  = $1
         comparator1 = COMPARATOR[$2]
         count1      = $3.to_f
         comparator2 = COMPARATOR[$4]
         count2      = $5.to_f
-        tendency    = TENDENCY[$6]
-        units       = UNITS[$7]
+        units       = UNITS[$6]
+        tendency    = TENDENCY[$7]
         distance1   = Distance.send(units, count1)
         distance2   = Distance.send(units, count2)
         visibility1 = Visibility.new(distance1, nil, comparator1)
