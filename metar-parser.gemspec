@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.version       = Metar::VERSION::STRING
   s.required_ruby_version = '>= 1.9.3'
 
-  s.homepage      = 'http://github.com/joeyates/metar-parser'
+  s.homepage      = 'https://github.com/joeyates/metar-parser'
   s.author        = 'Joe Yates'
   s.email         = 'joe.g.yates@gmail.com'
 
