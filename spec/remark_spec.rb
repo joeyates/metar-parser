@@ -90,7 +90,7 @@ describe Metar::Remark do
       it 'T00640036' do
         htm = Metar::Remark.parse('T00641036')
 
-        expect(htm).to be_a(Metar::HourlyTemperaturAndDewPoint)
+        expect(htm).to be_a(Metar::HourlyTemperatureAndDewPoint)
         expect(htm.temperature.value).to eq(6.4)
         expect(htm.dew_point.value).to eq(-3.6)
       end
