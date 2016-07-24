@@ -33,6 +33,9 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'm9t',  '~> 0.3.5'
 
   s.add_development_dependency 'rspec',  '~> 3.2.0'
+  if RUBY_VERSION < "2.0"
+    s.add_development_dependency "json", "< 2"
+  end
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'rubocop'
   s.add_development_dependency 'timecop'
