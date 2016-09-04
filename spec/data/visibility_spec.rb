@@ -25,7 +25,7 @@ RSpec::Matchers.define :be_visibility do |distance, direction, comparator|
   end
 end
 
-describe Metar::Visibility do
+describe Metar::Data::Visibility do
   context '.parse' do
     [
       ['understands 9999',          '9999',    [10000.00, nil,   :more_than]],
@@ -41,7 +41,7 @@ describe Metar::Visibility do
       ['returns nil for unmatched', 'FUBAR',   [     nil,   nil, nil]],
     ].each do |docstring, raw, expected|
       example docstring do
-        expect(Metar::Visibility.parse(raw)).to be_visibility(*expected)
+        expect(described_class.parse(raw)).to be_visibility(*expected)
       end
     end
   end
@@ -69,9 +69,11 @@ describe Metar::Visibility do
 
       example docstring + " (#{locale})" do
         I18n.locale = locale
-        value = Metar::Visibility.new(distance, direction, comparator).to_s
+        subject = described_class.new(
+          nil, distance: distance, direction: direction, comparator: comparator
+        )
 
-        expect(value).to eq(expected)
+        expect(subject.to_s).to eq(expected)
       end
     end
   end

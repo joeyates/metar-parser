@@ -29,7 +29,7 @@ RSpec::Matchers.define :be_wind do |direction, speed, gusts|
   end
 end
 
-describe Metar::Wind do
+describe Metar::Data::Wind do
   context '.parse' do
     [
       # Direction and speed
@@ -66,7 +66,7 @@ describe Metar::Wind do
       ['returns nil for nil',                                nil,           [nil, nil, nil]],
     ].each do |docstring, raw, expected|
       example docstring do
-        expect(Metar::Wind.parse(raw)).to be_wind(*expected)
+        expect(described_class.parse(raw)).to be_wind(*expected)
       end
     end
   end
@@ -98,7 +98,10 @@ describe Metar::Wind do
 
       example docstring + " (#{locale})" do
         I18n.locale = locale
-        expect(Metar::Wind.new(direction, speed, gusts).to_s).to eq(expected)
+        subject = described_class.new(
+          "chunk", direction: direction, speed: speed, gusts: gusts
+        )
+        expect(subject.to_s).to eq(expected)
       end
     end
   end

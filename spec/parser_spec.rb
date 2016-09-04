@@ -12,7 +12,7 @@ describe Metar::Parser do
     let(:station) { double(Metar::Station) }
     let(:raw) { double(Metar::Raw::Noaa, metar: metar, time: time) }
     let(:metar) { "XXXX 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000" }
-    let(:time) { '2010/02/06 16:10' }
+    let(:time) { Time.gm(2010, 02, 06) }
 
     before do
       allow(Metar::Station).to receive(:new) { station }
@@ -302,7 +302,7 @@ describe Metar::Parser do
         it 'parses density altitude' do
           parser = setup_parser('CYBW 010000Z AUTO VRB04KT 9SM SCT070 13/M01 A3028 RMK DENSITY ALT 4100FT=')
 
-          expect(parser.remarks[0]).to be_a(Metar::DensityAltitude)
+          expect(parser.remarks[0]).to be_a(Metar::Data::DensityAltitude)
           expect(parser.remarks[0].height.value).to be_within(0.001).of(1249.68)
         end
       end

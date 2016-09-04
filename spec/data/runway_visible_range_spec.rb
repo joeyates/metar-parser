@@ -29,7 +29,7 @@ RSpec::Matchers.define :be_runway_visible_range do |designator, visibility1, vis
   end
 end
 
-describe Metar::RunwayVisibleRange do
+describe Metar::Data::RunwayVisibleRange do
   context '.parse' do
     [
       ['understands R + nn + / + nnnn',           'R12/3400',           ['12',  [3400.00, nil, nil],        nil,                  nil]],
@@ -43,7 +43,7 @@ describe Metar::RunwayVisibleRange do
       ['returns nil for nil',                     nil,                  [nil,   nil,                        nil,                  nil]],
     ].each do |docstring, raw, expected|
       example docstring do
-        expect(Metar::RunwayVisibleRange.parse(raw)).to be_runway_visible_range(*expected)
+        expect(described_class.parse(raw)).to be_runway_visible_range(*expected)
       end
     end
   end
@@ -64,18 +64,28 @@ describe Metar::RunwayVisibleRange do
       ['v1 and tendency', :en, [[3400.00, nil, nil], nil,                 :improving ], 'runway 14: 3400m improving'],
     ].each do |docstring, locale, (visibility1, visibility2, tendency), expected|
       d1 = Metar::Distance.new(visibility1[0])
-      v1 = Metar::Visibility.new(d1, visibility1[1], visibility1[2])
+      v1 = Metar::Data::Visibility.new(
+        nil, distance: d1, direction: visibility1[1], comparator: visibility1[2]
+      )
       v2 =
         if ! visibility2.nil?
           d2 = Metar::Distance.new(visibility2[0])
-          Metar::Visibility.new(d2, visibility2[1], visibility2[2])
+          Metar::Data::Visibility.new(
+            nil,
+            distance: d2, direction: visibility2[1], comparator: visibility2[2]
+          )
         else
           nil
         end
 
       example docstring + " (#{locale})" do
         I18n.locale = locale
-        expect(Metar::RunwayVisibleRange.new('14', v1, v2, tendency).to_s).to eq(expected)
+        subject = described_class.new(
+          nil,
+          designator: '14',
+          visibility1: v1, visibility2: v2, tendency: tendency
+        )
+        expect(subject.to_s).to eq(expected)
       end
     end
   end

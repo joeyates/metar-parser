@@ -19,7 +19,7 @@ RSpec::Matchers.define :be_weather_phenomenon do |modifier, descriptor, phenomen
   end
 end
 
-describe Metar::WeatherPhenomenon do
+describe Metar::Data::WeatherPhenomenon do
   context '.parse' do
     [
       ['simple phenomenon',                  'BR',     [nil,      nil,            'mist']],
@@ -33,7 +33,7 @@ describe Metar::WeatherPhenomenon do
       ['returns nil for unmatched',          'FUBAR',  [nil,      nil,            nil]],
     ].each do |docstring, raw, expected|
       example docstring do
-        expect(Metar::WeatherPhenomenon.parse(raw)).to be_weather_phenomenon(*expected)
+        expect(described_class.parse(raw)).to be_weather_phenomenon(*expected)
       end
     end
   end
@@ -58,7 +58,11 @@ describe Metar::WeatherPhenomenon do
     ].each do |docstring, locale, (modifier, descriptor, phenomenon), expected|
       example docstring + " (#{locale})" do
         I18n.locale = locale
-        expect(Metar::WeatherPhenomenon.new(phenomenon, modifier, descriptor).to_s).to eq(expected)
+        subject = described_class.new(
+          nil,
+          phenomenon: phenomenon, modifier: modifier, descriptor: descriptor
+        )
+        expect(subject.to_s).to eq(expected)
       end
     end
   end

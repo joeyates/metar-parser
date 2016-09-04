@@ -12,4 +12,7 @@ module Metar
   # Raised when an unrecognized value is found
   class ParseError < MetarError
   end
+
+  autoload :Data, "metar/data"
 end
+

@@ -47,6 +47,7 @@ pt-BR:
       real: real
       auto: automático
       corrected: corrigido
+      rtd: ""
     altitude:
       at: a
     distance:

@@ -28,6 +28,7 @@ en:
       real: real
       auto: automatic
       corrected: corrected
+      rtd: ""
     altitude:
       at: at
     distance:

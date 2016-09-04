@@ -26,8 +26,9 @@ it:
     observer:
       title: osservatore
       real: reale
-      auto: automazzato
+      auto: automatizzato
       corrected: corretto
+      rtd: ""
     altitude:
       at: a
     distance:

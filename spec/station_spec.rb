@@ -185,7 +185,8 @@ describe Metar::Station do
     let(:metar) do
       "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910"
     end
-    let(:raw) { double(Metar::Raw, metar: metar, time: "2010/02/06 16:10") }
+    let(:time) { Date.new(2010, 02, 06) }
+    let(:raw) { double(Metar::Raw, metar: metar, time: time) }
 
     before do
       # TODO: hack - once parser returns station this can be removed

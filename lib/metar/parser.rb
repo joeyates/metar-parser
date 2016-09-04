@@ -27,9 +27,10 @@ module Metar
     end
 
     attr_reader :raw, :metar
-    attr_reader :station_code, :observer, :wind, :variable_wind, :visibility,
+    attr_reader :cavok
+    attr_reader :wind, :variable_wind, :visibility,
       :minimum_visibility, :runway_visible_range, :present_weather, :sky_conditions,
-      :vertical_visibility, :temperature, :dew_point, :sea_level_pressure,
+      :vertical_visibility,
       :recent_weather, :unparsed, :remarks
 
     def initialize(raw)
@@ -38,8 +39,30 @@ module Metar
       analyze
     end
 
+    def station_code
+      @station_code.value
+    end
+
     def time
-      Time.gm(@raw.time.year, @raw.time.month, @day, @hour, @minute)
+      @time.value
+    end
+
+    def observer
+      @observer.value
+    end
+
+    def temperature
+      return nil if @temperature_and_dew_point.nil?
+      @temperature_and_dew_point.temperature
+    end
+
+    def dew_point
+      return nil if @temperature_and_dew_point.nil?
+      @temperature_and_dew_point.dew_point
+    end
+
+    def sea_level_pressure
+      @sea_level_pressure.pressure if @sea_level_pressure
     end
 
     private
@@ -48,17 +71,18 @@ module Metar
       @chunks = @metar.split(' ')
 
       @station_code         = nil
-      @observer             = :real
+      @time                 = nil
+      @observer             = nil
       @wind                 = nil
       @variable_wind        = nil
+      @cavok                = nil
       @visibility           = nil
       @minimum_visibility   = nil
       @runway_visible_range = []
       @present_weather      = []
       @sky_conditions       = []
       @vertical_visibility  = nil
-      @temperature          = nil
-      @dew_point            = nil
+      @temperature_and_dew_point = nil
       @sea_level_pressure   = nil
       @recent_weather       = []
       @unparsed             = []
@@ -66,11 +90,11 @@ module Metar
 
       seek_location
       seek_datetime
-      seek_cor_auto
+      seek_observer
       seek_wind
       seek_variable_wind
-      cavok = seek_cavok
-      if not cavok
+      seek_cavok
+      if !cavok
         seek_visibility
         seek_minimum_visibility
         seek_runway_visible_range
@@ -86,91 +110,63 @@ module Metar
     end
 
     def seek_location
-      if @chunks[0] =~ /^[A-Z][A-Z0-9]{3}$/
-        @station_code = @chunks.shift
-      else
+      @station_code = Metar::Data::StationCode.parse(@chunks[0])
+      if @station_code.nil?
         raise ParseError.new("Expecting location, found '#{ @chunks[0] }' in #{@metar}")
       end
+      @chunks.shift
+      @station_code
     end
 
     def seek_datetime
-      found = false
-      date_matcher =
-        if strict?
-          /^(\d{2})(\d{2})(\d{2})Z$/
-        else
-          /^(\d{1,2})(\d{2})(\d{2})Z$/
-        end
-      if @chunks[0] =~ date_matcher
-        @day, @hour, @minute = $1.to_i, $2.to_i, $3.to_i
-        found = true
-      else
-        if not strict?
-          if @chunks[0] =~ /^(\d{1,2})(\d{2})Z$/
-            # The day is missing, use today's date
-            @day           = Time.now.day
-            @hour, @minute = $1.to_i, $2.to_i
-            found = true
-          end
-        end
-      end
-      if found
-        @chunks.shift
-      else
+      @time = Metar::Data::Time.parse(
+        @chunks[0], year: raw.time.year, month: raw.time.month, strict: strict?
+      )
+      if !@time
         raise ParseError.new("Expecting datetime, found '#{@chunks[0]}' in #{@metar}")
       end
+      @chunks.shift
+      @time
     end
 
-    def seek_cor_auto
-      case
-      when @chunks[0] == 'AUTO' # WMO 15.4
-        @chunks.shift
-        @observer = :auto
-      when @chunks[0] == 'COR'  # WMO specified code word for correction
-        @chunks.shift
-        @observer = :corrected
-      when @chunks[0] =~ /CC[A-Z]/  # Canadian correction
-        # Canada uses CCA for first correction, CCB for second, etc...
-        @chunks.shift
-        @observer = :corrected
-      when @chunks[0] == 'RTD'   #  Delayed observation, no comments on observer
-        @chunks.shift
-      else
-        nil
-      end
+    def seek_observer
+      @observer = Metar::Data::Observer.parse(@chunks[0])
+      @chunks.shift if @observer.raw
+      @observer
     end
 
     def seek_wind
-      wind = Wind.parse(@chunks[0])
-      if wind
-        @chunks.shift
-        @wind = wind
-      end
+      @wind = Metar::Data::Wind.parse(@chunks[0])
+      @chunks.shift if @wind
+      @wind
     end
 
     def seek_variable_wind
-      variable_wind = VariableWind.parse(@chunks[0])
-      if variable_wind
-        @chunks.shift
-        @variable_wind = variable_wind
-      end
+      @variable_wind = Metar::Data::VariableWind.parse(@chunks[0])
+      @chunks.shift if @variable_wind
+      @variable_wind
     end
 
     def seek_cavok
       if @chunks[0] == 'CAVOK'
-        @chunks.shift
-        @visibility      = Visibility.new(M9t::Distance.kilometers(10), nil, :more_than)
-        @present_weather << Metar::WeatherPhenomenon.new('No significant weather')
+        @visibility      = Metar::Data::Visibility.new(
+          nil,
+          distance: M9t::Distance.kilometers(10), comparator: :more_than
+        )
+        @present_weather << Metar::Data::WeatherPhenomenon.new(
+          nil, phenomenon: "No significant weather"
+        )
         @sky_conditions  << SkyCondition.new # = 'clear skies'
-        return true
+        @chunks.shift
+        @cavok = true
       else
-        return false
+        @cavok = false
       end
     end
 
     # 15.10, 15.6.1
     def seek_visibility
-      if @observer == :auto # WMO 15.4
+      if observer == :auto # WMO 15.4
         if @chunks[0] == '////'
           @chunks.shift # Simply dispose of it
           return
@@ -178,50 +174,50 @@ module Metar
       end
 
       if @chunks[0] == '1' or @chunks[0] == '2'
-        visibility = Visibility.parse(@chunks[0] + ' ' + @chunks[1])
-        if visibility
+        @visibility = Metar::Data::Visibility.parse(@chunks[0] + ' ' + @chunks[1])
+        if @visibility
           @chunks.shift
           @chunks.shift
-          @visibility = visibility
         end
       else
-        visibility = Visibility.parse(@chunks[0])
-        if visibility
+        @visibility = Metar::Data::Visibility.parse(@chunks[0])
+        if @visibility
           @chunks.shift
-          @visibility = visibility
         end
       end
+      @visibility
     end
 
     # Optional after visibility: 15.6.2
     def seek_minimum_visibility
-      minimum_visibility = Visibility.parse(@chunks[0])
-      if minimum_visibility
-        @chunks.shift
-        @minimum_visibility = minimum_visibility
-      end
+      @minimum_visibility = Metar::Data::Visibility.parse(@chunks[0])
+      @chunks.shift if @minimum_visibility
+      @minimum_visibility
     end
 
     def seek_runway_visible_range
       loop do
-        runway_visible_range = RunwayVisibleRange.parse(@chunks[0])
-        break if runway_visible_range.nil?
+        rvr = Metar::Data::RunwayVisibleRange.parse(@chunks[0])
+        break if rvr.nil?
         @chunks.shift
-        @runway_visible_range << runway_visible_range
+        @runway_visible_range << rvr
       end
+      @runway_visible_range
     end
 
     def seek_present_weather
-      if @observer == :auto
+      if observer == :auto
         if @chunks[0] == '//' # WMO 15.4
-          @chunks.shift # Simply dispose of it
-          @present_weather << Metar::WeatherPhenomenon.new('not observed')
+          @present_weather << Metar::Data::WeatherPhenomenon.new(
+            nil, phenomenon: "not observed"
+          )
+          @chunks.shift
           return
         end
       end
 
       loop do
-        wtp = WeatherPhenomenon.parse(@chunks[0])
+        wtp = Metar::Data::WeatherPhenomenon.parse(@chunks[0])
         break if wtp.nil?
         @chunks.shift
         @present_weather << wtp
@@ -230,7 +226,7 @@ module Metar
 
     # Repeatable: 15.9.1.3
     def seek_sky_conditions
-      if @observer == :auto # WMO 15.4
+      if observer == :auto # WMO 15.4
         if @chunks[0] == '///' or @chunks[0] == '//////'
           @chunks.shift # Simply dispose of it
           return
@@ -246,28 +242,24 @@ module Metar
     end
 
     def seek_vertical_visibility
-      vertical_visibility = VerticalVisibility.parse(@chunks[0])
-      if vertical_visibility
-        @chunks.shift
-        @vertical_visibility = vertical_visibility
-      end
+      @vertical_visibility = VerticalVisibility.parse(@chunks[0])
+      @chunks.shift if vertical_visibility
+      @vertical_visibility
     end
 
     def seek_temperature_dew_point
-      case
-      when @chunks[0] =~ /^(M?\d+|XX|\/\/)\/(M?\d+|XX|\/\/)?$/
-        @chunks.shift
-        @temperature = Metar::Temperature.parse($1)
-        @dew_point = Metar::Temperature.parse($2)
-      end
+      @temperature_and_dew_point = Metar::Data::TemperatureAndDewPoint.parse(
+        @chunks[0]
+      )
+
+      @chunks.shift if @temperature_and_dew_point
+      @temperature_and_dew_point
     end
 
     def seek_sea_level_pressure
-      sea_level_pressure = Pressure.parse(@chunks[0])
-      if sea_level_pressure
-        @chunks.shift
-        @sea_level_pressure = sea_level_pressure
-      end
+      @sea_level_pressure = Metar::Data::Pressure.parse(@chunks[0])
+      @chunks.shift if @sea_level_pressure
+      @sea_level_pressure
     end
 
     def seek_recent_weather
@@ -275,11 +267,12 @@ module Metar
         return if @chunks.size == 0
         m = /^RE/.match(@chunks[0])
         break if m.nil?
-        recent_weather = Metar::WeatherPhenomenon.parse(m.post_match)
+        recent_weather = Metar::Data::WeatherPhenomenon.parse(m.post_match)
         break if recent_weather.nil?
         @chunks.shift
         @recent_weather << recent_weather
       end
+      @recent_weather
     end
 
     def seek_to_remarks
@@ -297,7 +290,7 @@ module Metar
     # WMO: 15.15
     def seek_remarks
       return if @chunks.size == 0
-      raise 'seek_remarks calls without remark' if @chunks[0] != 'RMK'
+      raise 'seek_remarks called without remark' if @chunks[0] != 'RMK'
 
       @chunks.shift # Drop 'RMK'
       @remarks = []
@@ -315,17 +308,17 @@ module Metar
         end
         if @chunks[0] == 'VIS' and @chunks.size >= 3 and @chunks[1] == 'MIN'
           @chunks.shift(2)
-          r = Metar::VisibilityRemark.parse(@chunks[0])
+          r = Metar::Data::VisibilityRemark.parse(@chunks[0])
           @remarks << r
         end
-        if @chunks[0] == 'DENSITY' and @chunks.size >= 3 and @chunks[1] == 'ALT'
+        if @chunks[0] == 'DENSITY' && @chunks.size >= 3 && @chunks[1] == 'ALT'
           @chunks.shift(2)
-          r = Metar::DensityAltitude.parse(@chunks[0])
+          r = Metar::Data::DensityAltitude.parse(@chunks[0])
           @remarks << r
         end
         case
         when @chunks[0] =~ /^LTG(|CG|IC|CC|CA)$/
-          r = Metar::Lightning.parse_chunks(@chunks)
+          r = Metar::Data::Lightning.parse_chunks(@chunks)
           @remarks << r
         else
           @remarks << @chunks.shift
