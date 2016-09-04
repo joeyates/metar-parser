@@ -1,13 +1,13 @@
 require "spec_helper"
 
-describe Metar::Remark do
+describe Metar::Data::Remark do
   context '.parse' do
     it 'delegate to subclasses' do
-      expect(Metar::Remark.parse('21012')).to be_a(Metar::TemperatureExtreme)
+      expect(described_class.parse('21012')).to be_a(Metar::Data::TemperatureExtreme)
     end
 
     it 'returns nil for unrecognised' do
-      expect(Metar::Remark.parse('FOO')).to be_nil
+      expect(described_class.parse('FOO')).to be_nil
     end
 
     context '6-hour maximum or minimum' do
@@ -18,14 +18,14 @@ describe Metar::Remark do
         ['negative minimum', '21012', [:minimum, -1.2]],
       ].each do |docstring, raw, expected|
         example docstring do
-          expect(Metar::Remark.parse(raw)).to be_temperature_extreme(*expected)
+          expect(described_class.parse(raw)).to be_temperature_extreme(*expected)
         end
       end
     end
 
     context '24-hour maximum and minimum' do
       it 'returns minimum and maximum' do
-        max, min = Metar::Remark.parse('400461006')
+        max, min = described_class.parse('400461006')
 
         expect(max).to be_temperature_extreme(:maximum,  4.6)
         expect(min).to be_temperature_extreme(:minimum, -0.6)
@@ -34,9 +34,9 @@ describe Metar::Remark do
 
     context 'pressure tendency' do
       it 'steady_then_decreasing' do
-        pt = Metar::Remark.parse('58033')
+        pt = described_class.parse('58033')
 
-        expect(pt).to be_a(Metar::PressureTendency)
+        expect(pt).to be_a(Metar::Data::PressureTendency)
         expect(pt.character).to eq(:steady_then_decreasing)
         expect(pt.value).to eq(3.3)
       end
@@ -44,9 +44,9 @@ describe Metar::Remark do
 
     context '3-hour and 6-hour precipitation' do
       it '60009' do
-        pr = Metar::Remark.parse('60009')
+        pr = described_class.parse('60009')
 
-        expect(pr).to be_a(Metar::Precipitation)
+        expect(pr).to be_a(Metar::Data::Precipitation)
         expect(pr.period).to eq(3)
         expect(pr.amount.value).to eq(0.002286)
       end
@@ -54,9 +54,9 @@ describe Metar::Remark do
 
     context '24-hour precipitation' do
       it '70015' do
-        pr = Metar::Remark.parse('70015')
+        pr = described_class.parse('70015')
 
-        expect(pr).to be_a(Metar::Precipitation)
+        expect(pr).to be_a(Metar::Data::Precipitation)
         expect(pr.period).to eq(24)
         expect(pr.amount.value).to eq(0.003810)
       end
@@ -65,11 +65,11 @@ describe Metar::Remark do
     context 'automated station' do
 
       [
-        ['with precipitation dicriminator', 'AO1', [Metar::AutomatedStationType, :with_precipitation_discriminator]],
-        ['without precipitation dicriminator', 'AO2', [Metar::AutomatedStationType, :without_precipitation_discriminator]],
+        ['with precipitation dicriminator', 'AO1', [Metar::Data::AutomatedStationType, :with_precipitation_discriminator]],
+        ['without precipitation dicriminator', 'AO2', [Metar::Data::AutomatedStationType, :without_precipitation_discriminator]],
       ].each do |docstring, raw, expected|
         example docstring do
-          aut = Metar::Remark.parse(raw)
+          aut = described_class.parse(raw)
 
           expect(aut).to be_a(expected[0])
           expect(aut.type).to eq(expected[1])
@@ -79,18 +79,18 @@ describe Metar::Remark do
 
     context 'sea-level pressure' do
       it 'SLP125' do
-        slp = Metar::Remark.parse('SLP125')
+        slp = described_class.parse('SLP125')
 
-        expect(slp).to be_a(Metar::SeaLevelPressure)
+        expect(slp).to be_a(Metar::Data::SeaLevelPressure)
         expect(slp.pressure.value).to eq(0.0125)
       end
     end
 
     context 'hourly temperature and dew point' do
       it 'T00640036' do
-        htm = Metar::Remark.parse('T00641036')
+        htm = described_class.parse('T00641036')
 
-        expect(htm).to be_a(Metar::HourlyTemperatureAndDewPoint)
+        expect(htm).to be_a(Metar::Data::HourlyTemperatureAndDewPoint)
         expect(htm.temperature.value).to eq(6.4)
         expect(htm.dew_point.value).to eq(-3.6)
       end

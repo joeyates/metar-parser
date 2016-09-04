@@ -12,7 +12,7 @@ class Metar::Data::Lightning < Metar::Data::Base
     directions = []
 
     if chunks[0] == 'DSNT'
-      distance = Metar::Distance.miles(10) # Should be >10SM, not 10SM
+      distance = Metar::Data::Distance.miles(10) # Should be >10SM, not 10SM
       raw += " " + chunks.shift
     end
 

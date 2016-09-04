@@ -91,7 +91,7 @@ module Metar
     end
 
     def sea_level_pressure
-      @parser.sea_level_pressure.to_s
+      @parser.sea_level_pressure.value.to_s
     end
 
     def remarks

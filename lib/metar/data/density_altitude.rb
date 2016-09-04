@@ -1,7 +1,7 @@
 class Metar::Data::DensityAltitude < Metar::Data::Base
   def self.parse(raw)
     feet = raw[/^(\d+)(FT)/, 1]
-    height = Metar::Distance.feet(feet)
+    height = Metar::Data::Distance.feet(feet)
 
     new(raw, height: height)
   end

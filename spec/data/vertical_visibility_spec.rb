@@ -16,7 +16,7 @@ RSpec::Matchers.define :be_distance do |expected|
   end
 end
 
-describe Metar::VerticalVisibility do
+describe Metar::Data::VerticalVisibility do
   context '.parse' do
     [
       ['VV + nnn',                  'VV300',  9144],
@@ -24,7 +24,7 @@ describe Metar::VerticalVisibility do
       ['returns nil for unmatched', 'FUBAR',  :expect_nil],
     ].each do |docstring, raw, expected|
       example docstring do
-        expect(Metar::VerticalVisibility.parse(raw)).to be_distance(expected)
+        expect(described_class.parse(raw)).to be_distance(expected)
       end
     end
   end

@@ -1,4 +1,6 @@
-require File.join(File.dirname(__FILE__), 'data')
+require "m9t"
+
+require "metar/data"
 
 # References:
 # WMO = World Meteorological Organization Manual on Codes Volume I.1
@@ -26,12 +28,22 @@ module Metar
       thread_attributes[:compliance] = compliance
     end
 
-    attr_reader :raw, :metar
-    attr_reader :cavok
-    attr_reader :wind, :variable_wind, :visibility,
-      :minimum_visibility, :runway_visible_range, :present_weather, :sky_conditions,
-      :vertical_visibility,
-      :recent_weather, :unparsed, :remarks
+    attr_reader :raw
+    attr_reader :metar
+    attr_reader :observer
+    attr_reader :wind
+    attr_reader :variable_wind
+    attr_reader :visibility
+    attr_reader :minimum_visibility
+    attr_reader :runway_visible_range
+    attr_reader :present_weather
+    attr_reader :sky_conditions
+    attr_reader :vertical_visibility
+    attr_reader :temperature_and_dew_point
+    attr_reader :sea_level_pressure
+    attr_reader :recent_weather
+    attr_reader :unparsed
+    attr_reader :remarks
 
     def initialize(raw)
       @raw   = raw
@@ -47,8 +59,8 @@ module Metar
       @time.value
     end
 
-    def observer
-      @observer.value
+    def cavok?
+      @cavok
     end
 
     def temperature
@@ -61,11 +73,50 @@ module Metar
       @temperature_and_dew_point.dew_point
     end
 
-    def sea_level_pressure
-      @sea_level_pressure.pressure if @sea_level_pressure
+    def raw_attributes
+      attr = {
+        metar: metar,
+        datetime: @time.raw,
+        station_code: station_code,
+      }
+      %i(
+        minimum_visibility
+        observer
+        sea_level_pressure
+        temperature_and_dew_point
+        visibility variable_wind vertical_visibility
+        wind
+      ).each do |key|
+        attr = add_raw_if_present(attr, key)
+      end
+      %i(
+        present_weather
+        recent_weather remarks runway_visible_range
+        sky_conditions
+      ).each do |key|
+        attr = add_raw_if_not_empty(attr, key)
+      end
+      attr[:cavok] = "CAVOK" if cavok?
+      attr
     end
 
     private
+
+    def add_raw_if_present(hash, attribute)
+      value = send(attribute)
+      return hash if value.nil?
+      return hash if value.raw.nil?
+      hash[attribute] = value.raw
+      hash
+    end
+
+    def add_raw_if_not_empty(hash, attribute)
+      values = send(attribute)
+      raws = values.map(&:raw).compact
+      return hash if raws.size == 0
+      hash[attribute] = raws.join(" ")
+      hash
+    end
 
     def analyze
       @chunks = @metar.split(' ')
@@ -88,13 +139,13 @@ module Metar
       @unparsed             = []
       @remarks              = []
 
-      seek_location
+      seek_station_code
       seek_datetime
       seek_observer
       seek_wind
       seek_variable_wind
       seek_cavok
-      if !cavok
+      if !cavok?
         seek_visibility
         seek_minimum_visibility
         seek_runway_visible_range
@@ -109,7 +160,7 @@ module Metar
       seek_remarks
     end
 
-    def seek_location
+    def seek_station_code
       @station_code = Metar::Data::StationCode.parse(@chunks[0])
       if @station_code.nil?
         raise ParseError.new("Expecting location, found '#{ @chunks[0] }' in #{@metar}")
@@ -119,13 +170,13 @@ module Metar
     end
 
     def seek_datetime
+      datetime = @chunks.shift
       @time = Metar::Data::Time.parse(
-        @chunks[0], year: raw.time.year, month: raw.time.month, strict: strict?
+        datetime, year: raw.time.year, month: raw.time.month, strict: strict?
       )
       if !@time
-        raise ParseError.new("Expecting datetime, found '#{@chunks[0]}' in #{@metar}")
+        raise ParseError.new("Expecting datetime, found '#{datetime}' in #{@metar}")
       end
-      @chunks.shift
       @time
     end
 
@@ -149,14 +200,14 @@ module Metar
 
     def seek_cavok
       if @chunks[0] == 'CAVOK'
-        @visibility      = Metar::Data::Visibility.new(
+        @visibility = Metar::Data::Visibility.new(
           nil,
           distance: M9t::Distance.kilometers(10), comparator: :more_than
         )
         @present_weather << Metar::Data::WeatherPhenomenon.new(
           nil, phenomenon: "No significant weather"
         )
-        @sky_conditions  << SkyCondition.new # = 'clear skies'
+        @sky_conditions << Metar::Data::SkyCondition.new(nil) # = 'clear skies'
         @chunks.shift
         @cavok = true
       else
@@ -166,7 +217,7 @@ module Metar
 
     # 15.10, 15.6.1
     def seek_visibility
-      if observer == :auto # WMO 15.4
+      if observer.value == :auto # WMO 15.4
         if @chunks[0] == '////'
           @chunks.shift # Simply dispose of it
           return
@@ -206,7 +257,7 @@ module Metar
     end
 
     def seek_present_weather
-      if observer == :auto
+      if observer.value == :auto
         if @chunks[0] == '//' # WMO 15.4
           @present_weather << Metar::Data::WeatherPhenomenon.new(
             nil, phenomenon: "not observed"
@@ -217,6 +268,8 @@ module Metar
       end
 
       loop do
+        break if @chunks.size == 0
+        break if @chunks[0].start_with?("RE")
         wtp = Metar::Data::WeatherPhenomenon.parse(@chunks[0])
         break if wtp.nil?
         @chunks.shift
@@ -226,7 +279,7 @@ module Metar
 
     # Repeatable: 15.9.1.3
     def seek_sky_conditions
-      if observer == :auto # WMO 15.4
+      if observer.value == :auto # WMO 15.4
         if @chunks[0] == '///' or @chunks[0] == '//////'
           @chunks.shift # Simply dispose of it
           return
@@ -234,7 +287,7 @@ module Metar
       end
 
       loop do
-        sky_condition = SkyCondition.parse(@chunks[0])
+        sky_condition = Metar::Data::SkyCondition.parse(@chunks[0])
         break if sky_condition.nil?
         @chunks.shift
         @sky_conditions << sky_condition
@@ -242,7 +295,7 @@ module Metar
     end
 
     def seek_vertical_visibility
-      @vertical_visibility = VerticalVisibility.parse(@chunks[0])
+      @vertical_visibility = Metar::Data::VerticalVisibility.parse(@chunks[0])
       @chunks.shift if vertical_visibility
       @vertical_visibility
     end
@@ -265,9 +318,8 @@ module Metar
     def seek_recent_weather
       loop do
         return if @chunks.size == 0
-        m = /^RE/.match(@chunks[0])
-        break if m.nil?
-        recent_weather = Metar::Data::WeatherPhenomenon.parse(m.post_match)
+        break if !@chunks[0].start_with?("RE")
+        recent_weather = Metar::Data::WeatherPhenomenon.parse(@chunks[0])
         break if recent_weather.nil?
         @chunks.shift
         @recent_weather << recent_weather
@@ -296,7 +348,7 @@ module Metar
       @remarks = []
       loop do
         break if @chunks.size == 0
-        r = Metar::Remark.parse(@chunks[0])
+        r = Metar::Data::Remark.parse(@chunks[0])
         if r
           if r.is_a?(Array)
             @remarks += r

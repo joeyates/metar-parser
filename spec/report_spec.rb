@@ -83,12 +83,23 @@ describe Metar::Report do
           :vertical_visibility,
           :temperature,
           :dew_point,
-          :sea_level_pressure,
         ].each do |attribute|
           example attribute do
             allow(parser).to receive(attribute) { attribute.to_s }
 
             expect(subject.send(attribute)).to eq(attribute.to_s)
+          end
+        end
+
+        context "sea_level_pressure" do
+          let(:sea_level_pressure) do
+            double(Metar::Data::SeaLevelPressure, value: "slp")
+          end
+
+          it "returns the summary" do
+            allow(parser).to receive(:sea_level_pressure) { sea_level_pressure }
+
+            expect(subject.sea_level_pressure).to eq("slp")
           end
         end
 

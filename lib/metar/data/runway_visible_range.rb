@@ -11,7 +11,7 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
       count      = $3.to_f
       units      = UNITS[$4]
       tendency   = TENDENCY[$5]
-      distance   = Metar::Distance.send(units, count)
+      distance   = Metar::Data::Distance.send(units, count)
       visibility = Metar::Data::Visibility.new(
         nil, distance: distance, comparator: comparator
       )
@@ -27,8 +27,8 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
       count2      = $5.to_f
       units       = UNITS[$6]
       tendency    = TENDENCY[$7]
-      distance1   = Metar::Distance.send(units, count1)
-      distance2   = Metar::Distance.send(units, count2)
+      distance1   = Metar::Data::Distance.send(units, count1)
+      distance2   = Metar::Data::Distance.send(units, count2)
       visibility1 = Metar::Data::Visibility.new(
         nil, distance: distance1, comparator: comparator1
       )

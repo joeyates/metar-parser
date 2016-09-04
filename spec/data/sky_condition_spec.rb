@@ -9,7 +9,7 @@ RSpec::Matchers.define :be_sky_condition do |quantity, height, type|
       false
     elsif sk.quantity != quantity
       false
-    elsif sk.height.is_a?(Metar::Distance) && sk.height.value != height
+    elsif sk.height.is_a?(Metar::Data::Distance) && sk.height.value != height
       false
     elsif sk.type != type
       false
@@ -19,7 +19,7 @@ RSpec::Matchers.define :be_sky_condition do |quantity, height, type|
   end
 end
 
-describe Metar::SkyCondition do
+describe Metar::Data::SkyCondition do
   context '.parse' do
     [
       ['understands clear skies codes', 'NSC',      [nil,            nil,            nil]],
@@ -31,7 +31,7 @@ describe Metar::SkyCondition do
       ['returns nil for unmatched',     'FUBAR',    [:expect_nil,    nil,            nil]],
     ].each do |docstring, raw, expected|
       example docstring do
-        expect(Metar::SkyCondition.parse(raw)).to be_sky_condition(*expected)
+        expect(described_class.parse(raw)).to be_sky_condition(*expected)
       end
     end
   end
@@ -48,7 +48,9 @@ describe Metar::SkyCondition do
       after  { I18n.locale = @old_locale }
 
       example "#{docstring} - #{locale}" do
-        condition = Metar::SkyCondition.new(quantity, height, type)
+        condition = described_class.new(
+          nil, quantity: quantity, height: height, type: type
+        )
         I18n.locale = locale
         expect(condition.to_summary).to eq(expected)
       end
@@ -62,8 +64,10 @@ describe Metar::SkyCondition do
       ['quantity + type', ['broken', 360, 'cumulonimbus'], 'broken cumulonimbus at 360'],
     ].each do |docstring, (quantity, height, type), expected|
       example docstring do
-        condition = Metar::SkyCondition.new(quantity, height, type)
-        expect(condition.to_s).to eq(expected)
+        subject = described_class.new(
+          nil, quantity: quantity, height: height, type: type
+        )
+        expect(subject.to_s).to eq(expected)
       end
     end
   end

@@ -1,8 +1,9 @@
-require 'metar/raw'
-require 'metar/station'
-require 'metar/parser'
-require 'metar/report'
-require 'metar/version'
+require "metar/i18n"
+require "metar/raw"
+require "metar/station"
+require "metar/parser"
+require "metar/report"
+require "metar/version"
 
 module Metar
   # Base class for all Metar exceptions

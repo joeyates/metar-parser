@@ -98,37 +98,37 @@ describe Metar::Parser do
       it 'real' do
         parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
-        expect(parser.observer).to eq(:real)
+        expect(parser.observer.value).to eq(:real)
       end
 
       it 'auto' do
         parser = setup_parser("CYXS 151034Z AUTO 09003KT 1/8SM FZFG VV001 M03/M03 A3019 RMK SLP263 ICG")
 
-        expect(parser.observer).to eq(:auto)
+        expect(parser.observer.value).to eq(:auto)
       end
 
       it 'corrected' do
         parser = setup_parser("PAIL 061610Z COR 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
-        expect(parser.observer).to eq(:corrected)
+        expect(parser.observer.value).to eq(:corrected)
       end
 
       it 'corrected (Canadian, first correction)' do
         parser = setup_parser('CYZU 310100Z CCA 26004KT 15SM FEW009 BKN040TCU BKN100 OVC210 15/12 A2996 RETS RMK SF1TCU4AC2CI1 SLP149')
 
-        expect(parser.observer).to eq(:corrected)
+        expect(parser.observer.value).to eq(:corrected)
       end
 
       it 'corrected (Canadian, second correction)' do
         parser = setup_parser('CYCX 052000Z CCB 30014G27KT 15SM DRSN SCT035 M02/M09 A2992 RMK SC4 SLP133')
 
-        expect(parser.observer).to eq(:corrected)
+        expect(parser.observer.value).to eq(:corrected)
       end
 
       it 'corrected (Canadian, rare third correction)' do
         parser = setup_parser('CYEG 120000Z CCC 12005KT 15SM FEW110 BKN190 03/M01 A2980 RMK AC2AC3 SLP122')
 
-        expect(parser.observer).to eq(:corrected)
+        expect(parser.observer.value).to eq(:corrected)
       end
     end
 
@@ -260,7 +260,7 @@ describe Metar::Parser do
 
     it 'sea_level_pressure' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
-      expect(parser.sea_level_pressure.to_inches_of_mercury).to eq(29.10)
+      expect(parser.sea_level_pressure.pressure.to_inches_of_mercury).to eq(29.10)
     end
 
     it 'recent weather' do
@@ -290,7 +290,7 @@ describe Metar::Parser do
         it 'parses sea level pressure' do
           parser = setup_parser('CYZT 052200Z 31010KT 20SM SKC 17/12 A3005 RMK SLP174 20046')
 
-          expect(parser.remarks[0]).to be_a(Metar::SeaLevelPressure)
+          expect(parser.remarks[0]).to be_a(Metar::Data::SeaLevelPressure)
         end
 
         it 'parses extreme temperature' do
@@ -328,11 +328,105 @@ describe Metar::Parser do
         end
       end
     end
+  end
 
-    def setup_parser(metar)
-      raw = Metar::Raw::Data.new(metar, Time.now)
-      Metar::Parser.new(raw)
+  context "#raw_attributes" do
+    let(:parts) { [station_code, datetime] }
+    let(:metar) { parts.join(" ") }
+    let(:station_code) { "PAIL" }
+    let(:datetime) { "061610Z" }
+    let(:observer) { "COR" }
+    let(:wind) { "24006KT" }
+    let(:variable_wind) { "350V050" }
+    let(:visibility) { "1 3/4SM" }
+    let(:minimum_visibility) { "3/4SM" }
+    let(:runway_visible_range) { "R12/1000N R30/1500N" }
+    let(:present_weather) { "-SN" }
+    let(:sky_conditions) { "BKN016 OVC030" }
+    let(:vertical_visibility) { "VV001" }
+    let(:temperature_and_dew_point) { "33/22" }
+    let(:sea_level_pressure) { "A2910" }
+    let(:recent_weather) { "RETS" }
+    let(:remarks) { "RMK AO2 P0000" }
+    let(:result) { subject.raw_attributes }
+
+    subject { setup_parser(metar) }
+
+    it "returns a Hash" do
+      expect(subject.raw_attributes).to be_a(Hash)
     end
+
+    [
+      [:metar, "is the raw METAR string"],
+      [:station_code, "the station code"],
+      [:datetime, "the date/time string"],
+    ].each do |attr, description|
+      context "#{attr}" do
+        specify ":#{attr} is #{description}" do
+          expect(result).to include(attr)
+          expect(result[attr]).to eq(self.send(attr))
+        end
+      end
+    end
+
+    [
+      [:observer, "an observer"],
+      [:wind, "wind"],
+      [:variable_wind, "variable wind"],
+      [:visibility, "visibility"],
+      [:runway_visible_range, "runway visible range"],
+      [:present_weather, "present weather"],
+      [:sky_conditions, "sky conditions"] ,
+      [:vertical_visibility, "vertical visibility"],
+      [:temperature_and_dew_point, "temperature and dew point"],
+      [:sea_level_pressure, "sea-level pressure"],
+      [:recent_weather, "recent weather"],
+    ].each do |attr, name|
+      context "with #{name}" do
+        let(:parts) { super() + [send(attr)] }
+
+        specify ":#{attr} is set" do
+          expect(result).to include(attr)
+          expect(result[attr]).to eq(send(attr))
+        end
+      end
+    end
+
+    context "with wind and minimum visibility" do
+      let(:parts) { super() + [visibility, minimum_visibility] }
+
+      specify ":minimum_visibility is set" do
+        expect(result).to include(:minimum_visibility)
+        expect(result[:minimum_visibility]).to eq(minimum_visibility)
+      end
+    end
+
+    context "with CAVOK" do
+      let(:parts) { super() + ["CAVOK"] }
+
+      specify ":cavok is set" do
+        expect(result).to include(:cavok)
+        expect(result[:cavok]).to eq("CAVOK")
+      end
+
+      %i(
+        visibility
+        minimum_visibility
+        runway_visible_range
+        present_weather
+        sky_conditions
+      ).each do |attr|
+        specify "#{attr} is not set" do
+          puts "attr: #{attr}"
+          expect(result).to_not include(attr)
+        end
+      end
+    end
+  end
+
+  def setup_parser(metar)
+    raw = Metar::Raw::Data.new(metar, Time.now)
+    Metar::Parser.new(raw)
   end
 end
 

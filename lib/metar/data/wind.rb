@@ -5,16 +5,16 @@ class Metar::Data::Wind < Metar::Data::Base
       return nil if $1.to_i > 360
       new(
         raw,
-        direction: Metar::Direction.new($1),
-        speed: Metar::Speed.parse($2)
+        direction: Metar::Data::Direction.new($1),
+        speed: Metar::Data::Speed.parse($2)
       )
     when raw =~ /^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/
       return nil if $1.to_i > 360
       new(
         raw,
-        direction: Metar::Direction.new($1),
-        speed: Metar::Speed.parse($2 + $4),
-        gusts: Metar::Speed.parse($3)
+        direction: Metar::Data::Direction.new($1),
+        speed: Metar::Data::Speed.parse($2 + $4),
+        gusts: Metar::Data::Speed.parse($3)
       )
     when raw =~ /^VRB(\d{2})G(\d{2,3})(|MPS|KMH|KT)$/
       speed = $1 + $3
@@ -22,13 +22,13 @@ class Metar::Data::Wind < Metar::Data::Base
       new(
         raw,
         direction: :variable_direction,
-        speed: Metar::Speed.parse(speed),
-        gusts: Metar::Speed.parse(gusts)
+        speed: Metar::Data::Speed.parse(speed),
+        gusts: Metar::Data::Speed.parse(gusts)
       )
     when raw =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
-      new(raw, direction: :variable_direction, speed: Metar::Speed.parse($1))
+      new(raw, direction: :variable_direction, speed: Metar::Data::Speed.parse($1))
     when raw =~ /^\/{3}(\d{2}(|MPS|KMH|KT))$/
-      new(raw, direction: :unknown_direction, speed: Metar::Speed.parse($1))
+      new(raw, direction: :unknown_direction, speed: Metar::Data::Speed.parse($1))
     when raw =~ %r(^/////(|MPS|KMH|KT)$)
       new(raw, direction: :unknown_direction, speed: :unknown_speed)
     else

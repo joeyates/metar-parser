@@ -13,7 +13,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../lib/metar')
 
 RSpec::Matchers.define :be_temperature_extreme do |extreme, value|
   match do |remark|
-    if    not remark.is_a?(Metar::TemperatureExtreme)
+    if    not remark.is_a?(Metar::Data::TemperatureExtreme)
       false
     elsif remark.extreme != extreme
       false

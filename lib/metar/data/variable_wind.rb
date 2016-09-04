@@ -3,8 +3,8 @@ class Metar::Data::VariableWind < Metar::Data::Base
     if raw =~ /^(\d+)V(\d+)$/
       new(
         raw,
-        direction1: Metar::Direction.new($1),
-        direction2: Metar::Direction.new($2)
+        direction1: Metar::Data::Direction.new($1),
+        direction2: Metar::Data::Direction.new($2)
       )
     else
       nil

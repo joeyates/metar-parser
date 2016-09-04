@@ -19,7 +19,7 @@ RSpec::Matchers.define :be_wind do |direction, speed, gusts|
       false
     elsif speed.is_a?(Symbol) && wind.speed != speed
       false
-    elsif speed.is_a?(Metar::Speed) && (wind.speed.value - speed).abs > 0.01
+    elsif speed.is_a?(Metar::Data::Speed) && (wind.speed.value - speed).abs > 0.01
       false
     elsif !wind.gusts.nil? && (wind.gusts.value - gusts).abs > 0.01
       false
@@ -86,15 +86,15 @@ describe Metar::Data::Wind do
       ['handles variable_direction',  :en, [:variable_direction, nil,            nil                  ], '443km/h variable direction'   ],
       ['handles unknown_direction',   :en, [:unknown_direction,  nil,            nil                  ], '443km/h unknown direction'    ],
       ['handles unknown_speed',       :en, [nil,                 :unknown_speed, nil                  ], 'unknown speed ESE'            ],
-      ['includes gusts',              :en, [nil,                 nil,            Metar::Speed.new(123)], '443km/h ESE gusts 443km/h'    ],
+      ['includes gusts',              :en, [nil,                 nil,            Metar::Data::Speed.new(123)], '443km/h ESE gusts 443km/h'    ],
       ['formats speed and direction', :it, [nil,                 nil,            nil                  ], '443km/h ESE'                  ],
       ['handles variable_direction',  :it, [:variable_direction, nil,            nil                  ], '443km/h direzione variabile'  ],
       ['handles unknown_direction',   :it, [:unknown_direction,  nil,            nil                  ], '443km/h direzione sconosciuta'],
       ['handles unknown_speed',       :it, [nil,                 :unknown_speed, nil                  ], 'velocità sconosciuta ESE'     ],
-      ['includes gusts',              :it, [nil,                 nil,            Metar::Speed.new(123)], '443km/h ESE folate di 443km/h'],
+      ['includes gusts',              :it, [nil,                 nil,            Metar::Data::Speed.new(123)], '443km/h ESE folate di 443km/h'],
     ].each do |docstring, locale, (direction, speed, gusts), expected|
       direction ||= M9t::Direction.new(123)
-      speed     ||= Metar::Speed.new(123)
+      speed     ||= Metar::Data::Speed.new(123)
 
       example docstring + " (#{locale})" do
         I18n.locale = locale

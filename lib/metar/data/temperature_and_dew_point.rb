@@ -1,8 +1,8 @@
 class Metar::Data::TemperatureAndDewPoint < Metar::Data::Base
   def self.parse(raw)
     if raw =~ /^(M?\d+|XX|\/\/)\/(M?\d+|XX|\/\/)?$/
-      temperature = Metar::Temperature.parse($1)
-      dew_point = Metar::Temperature.parse($2)
+      temperature = Metar::Data::Temperature.parse($1)
+      dew_point = Metar::Data::Temperature.parse($2)
       new(raw, temperature: temperature, dew_point: dew_point)
     end
   end

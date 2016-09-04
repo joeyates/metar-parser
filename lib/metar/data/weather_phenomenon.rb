@@ -1,3 +1,5 @@
+require "metar/i18n"
+
 class Metar::Data::WeatherPhenomenon < Metar::Data::Base
   Modifiers = {
     '+'   => 'heavy',
@@ -51,13 +53,14 @@ class Metar::Data::WeatherPhenomenon < Metar::Data::Base
     descriptors = Descriptors.keys.join('|')
     modifiers   = Modifiers.keys.join('|')
     modifiers.gsub!(/([\+\-])/) { "\\#$1" }
-    rxp = Regexp.new("^(#{modifiers})?(#{descriptors})?((?:#{phenomena}){1,2})$")
+    rxp = Regexp.new("^(RE)?(#{modifiers})?(#{descriptors})?((?:#{phenomena}){1,2})$")
     m   = rxp.match(raw)
     return nil if m.nil?
 
-    modifier_code    = m[1]
-    descriptor_code  = m[2]
-    phenomena_codes  = m[3].scan(/../)
+    recent           = m[1] == "RE"
+    modifier_code    = m[2]
+    descriptor_code  = m[3]
+    phenomena_codes  = m[4].scan(/../)
     phenomena_phrase = phenomena_codes.map { |c| Phenomena[c] }.join(' and ')
 
     new(
@@ -68,11 +71,12 @@ class Metar::Data::WeatherPhenomenon < Metar::Data::Base
     )
   end
 
-  attr_reader :phenomenon, :modifier, :descriptor
+  attr_reader :phenomenon, :modifier, :descriptor, :recent
 
-  def initialize(raw, phenomenon:, modifier: nil, descriptor: nil)
+  def initialize(raw, phenomenon:, modifier: nil, descriptor: nil, recent: false)
     @raw = raw
     @phenomenon, @modifier, @descriptor = phenomenon, modifier, descriptor
+    @recent = recent
   end
 
   def to_s

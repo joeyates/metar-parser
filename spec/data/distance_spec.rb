@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe Metar::Distance do
+describe Metar::Data::Distance do
   let(:value) { 12_345.6789 }
 
   subject { described_class.new(value) }

@@ -13,9 +13,9 @@ RSpec::Matchers.define :be_visibility do |distance, direction, comparator|
       false
     elsif visibility.comparator.nil? != comparator.nil?
       false
-    elsif visibility.distance.is_a?(Metar::Distance)&& (visibility.distance.value - distance).abs > 0.01
+    elsif visibility.distance.is_a?(Metar::Data::Distance) && (visibility.distance.value - distance).abs > 0.01
       false
-    elsif visibility.direction.is_a?(M9t::Direction)&& (visibility.direction.value - direction).abs > 0.01
+    elsif visibility.direction.is_a?(M9t::Direction) && (visibility.direction.value - direction).abs > 0.01
       false
     elsif comparator.is_a?(Symbol)                   && visibility.comparator != comparator
       false
@@ -64,7 +64,7 @@ describe Metar::Data::Visibility do
       ['with distance and direction',             :it, [ :set, :set, nil ],        '4km ESE'],
       ['with distance, direction and comparator', :it, [ :set, :set, :more_than ], 'piú di 4km ESE'],
     ].each do |docstring, locale, (distance, direction, comparator), expected|
-      distance  = Metar::Distance.new(4321) if distance  == :set
+      distance  = Metar::Data::Distance.new(4321) if distance  == :set
       direction = M9t::Direction.new(123)   if direction == :set
 
       example docstring + " (#{locale})" do

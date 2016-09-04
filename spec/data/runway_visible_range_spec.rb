@@ -63,13 +63,13 @@ describe Metar::Data::RunwayVisibleRange do
       ['v1 and v2',       :en,  [[3400.00, nil, nil], [1900.00, nil, nil], nil ], 'runway 14: from 3400m to 1900m'],
       ['v1 and tendency', :en, [[3400.00, nil, nil], nil,                 :improving ], 'runway 14: 3400m improving'],
     ].each do |docstring, locale, (visibility1, visibility2, tendency), expected|
-      d1 = Metar::Distance.new(visibility1[0])
+      d1 = Metar::Data::Distance.new(visibility1[0])
       v1 = Metar::Data::Visibility.new(
         nil, distance: d1, direction: visibility1[1], comparator: visibility1[2]
       )
       v2 =
         if ! visibility2.nil?
-          d2 = Metar::Distance.new(visibility2[0])
+          d2 = Metar::Data::Distance.new(visibility2[0])
           Metar::Data::Visibility.new(
             nil,
             distance: d2, direction: visibility2[1], comparator: visibility2[2]
