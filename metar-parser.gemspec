@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
     Reports can be fully localized (currently Brazilian Portuguese, English, German and Italian are available).
     EOT
   s.version       = Metar::VERSION::STRING
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.1.0'
 
   s.homepage      = 'https://github.com/joeyates/metar-parser'
   s.author        = 'Joe Yates'
@@ -33,9 +33,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'm9t',  '~> 0.3.5'
 
   s.add_development_dependency 'rspec',  '~> 3.2.0'
-  if RUBY_VERSION < "2.0"
-    s.add_development_dependency "json", "< 2"
-  end
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'rubocop'
   s.add_development_dependency 'timecop'
