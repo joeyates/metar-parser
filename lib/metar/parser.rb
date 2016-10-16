@@ -120,6 +120,10 @@ module Metar
 
     def analyze
       @chunks = @metar.split(' ')
+      # Strip final '='
+      if !strict? && @chunks.length > 0
+        @chunks[-1].gsub!(/\s?=$/, '')
+      end
 
       @station_code         = nil
       @time                 = nil

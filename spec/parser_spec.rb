@@ -328,6 +328,46 @@ describe Metar::Parser do
         end
       end
     end
+
+    context "final '='" do
+      let(:parser) {setup_parser('LPPT 070530Z 34003KT 310V010 CAVOK 14/12 Q1013=')}
+
+      it 'parses the final chunk' do
+        expect(parser.sea_level_pressure.value).to eq(1.013)
+      end
+
+      context 'in strict mode' do
+        before do
+          Metar::Parser.compliance = :strict
+        end
+
+        it 'causes and error' do
+          expect do
+            parser
+          end.to raise_error(Metar::ParseError, /Unparsable text found/)
+        end
+      end
+    end
+
+    context "final ' ='" do
+      let(:parser) {setup_parser('LPPT 070530Z 34003KT 310V010 CAVOK 14/12 Q1013 =')}
+
+      it 'parses the final chunk' do
+        expect(parser.sea_level_pressure.value).to eq(1.013)
+      end
+
+      context 'in strict mode' do
+        before do
+          Metar::Parser.compliance = :strict
+        end
+
+        it 'causes and error' do
+          expect do
+            parser
+          end.to raise_error(Metar::ParseError, /Unparsable text found/)
+        end
+      end
+    end
   end
 
   context "#raw_attributes" do
