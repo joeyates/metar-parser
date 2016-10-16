@@ -38,13 +38,15 @@ module Metar
       end
 
       def to_longitude(s)
-        s =~ /^(\d+)-(\d+)([EW])/ or return nil
-        ($3 == 'E' ? 1.0 : -1.0) * ($1.to_f + $2.to_f / 60.0)
+        m = s.match(/^(\d+)-(\d+)([EW])/)
+        return nil if !m
+        (m[3] == 'E' ? 1.0 : -1.0) * (m[1].to_f + m[2].to_f / 60.0)
       end
 
       def to_latitude(s)
-        s =~ /^(\d+)-(\d+)([SN])/ or return nil
-        ($3 == 'N' ? 1.0 : -1.0) * ($1.to_f + $2.to_f / 60.0)
+        m = s.match(/^(\d+)-(\d+)([SN])/)
+        return nil if !m
+        (m[3] == 'E' ? 1.0 : -1.0) * (m[1].to_f + m[2].to_f / 60.0)
       end
     end
 

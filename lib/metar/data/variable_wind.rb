@@ -1,14 +1,15 @@
 class Metar::Data::VariableWind < Metar::Data::Base
   def self.parse(raw)
-    if raw =~ /^(\d+)V(\d+)$/
-      new(
-        raw,
-        direction1: Metar::Data::Direction.new($1),
-        direction2: Metar::Data::Direction.new($2)
-      )
-    else
-      nil
-    end
+    return nil if raw.nil?
+
+    m = raw.match(/^(\d+)V(\d+)$/)
+    return nil if m.nil?
+
+    return new(
+      raw,
+      direction1: Metar::Data::Direction.new(m[1]),
+      direction2: Metar::Data::Direction.new(m[2])
+    )
   end
 
   attr_reader :direction1

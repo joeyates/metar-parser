@@ -14,25 +14,34 @@ class Metar::Data::SkyCondition < Metar::Data::Base
   ]
 
   def self.parse(raw)
-    case
-    when CLEAR_SKIES.include?(raw)
-      new(raw)
-    when raw =~ /^(BKN|FEW|OVC|SCT)(\d+|\/{3})(CB|TCU|\/{3}|)?$/
-      quantity = QUANTITY[$1]
+    if !raw
+      return nil
+    end
+
+    if CLEAR_SKIES.include?(raw)
+      return new(raw)
+    end
+
+    m1 = raw.match(/^(BKN|FEW|OVC|SCT)(\d+|\/{3})(CB|TCU|\/{3}|)?$/)
+    if m1
+      quantity = QUANTITY[m1[1]]
       height   =
-        if $2 == '///'
+        if m1[2] == '///'
           nil
         else
-          Metar::Data::Distance.new($2.to_i * 30.48)
+          Metar::Data::Distance.new(m1[2].to_i * 30.48)
         end
-      type = CONDITION[$3]
-      new(raw, quantity: quantity, height: height, type: type)
-    when raw =~ /^(CB|TCU)$/
-      type = CONDITION[$1]
-      new(raw, type: type)
-    else
-      nil
+      type = CONDITION[m1[3]]
+      return new(raw, quantity: quantity, height: height, type: type)
     end
+
+    m2 = raw.match(/^(CB|TCU)$/)
+    if m2
+      type = CONDITION[m2[1]]
+      return new(raw, type: type)
+    end
+
+    nil
   end
 
   attr_reader :quantity, :height, :type

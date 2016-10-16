@@ -23,46 +23,84 @@ class Metar::Data::Remark
   COLOR_CODE = ['RED', 'AMB', 'YLO', 'GRN', 'WHT', 'BLU']
 
   def self.parse(raw)
-    case raw
-    when /^([12])([01])(\d{3})$/
-      extreme = {'1' => :maximum, '2' => :minimum}[$1]
-      value   = sign($2) * tenths($3)
-      Metar::Data::TemperatureExtreme.new(raw, extreme, value)
-    when /^4([01])(\d{3})([01])(\d{3})$/
-      [
-        Metar::Data::TemperatureExtreme.new(raw, :maximum, sign($1) * tenths($2)),
-        Metar::Data::TemperatureExtreme.new(raw, :minimum, sign($3) * tenths($4)),
-      ]
-    when /^5([0-8])(\d{3})$/
-      character = PRESSURE_CHANGE_CHARACTER[$1.to_i]
-      Metar::Data::PressureTendency.new(raw, character, tenths($2))
-    when /^6(\d{4})$/
-      Metar::Data::Precipitation.new(raw, 3, Metar::Data::Distance.new(inches_to_meters($1))) # actually 3 or 6 depending on reporting time
-    when /^7(\d{4})$/
-      Metar::Data::Precipitation.new(raw, 24, Metar::Data::Distance.new(inches_to_meters($1)))
-    when /^A[0O]([12])$/
-      type = [:with_precipitation_discriminator, :without_precipitation_discriminator][$1.to_i - 1]
-      Metar::Data::AutomatedStationType.new(raw, type)
-    when /^P(\d{4})$/
-      Metar::Data::Precipitation.new(raw, 1, Metar::Data::Distance.new(inches_to_meters($1)))
-    when /^T([01])(\d{3})([01])(\d{3})$/
-      temperature = Metar::Data::Temperature.new(sign($1) * tenths($2))
-      dew_point   = Metar::Data::Temperature.new(sign($3) * tenths($4))
-      Metar::Data::HourlyTemperatureAndDewPoint.new(raw, temperature, dew_point)
-    when /^SLP(\d{3})$/
-      Metar::Data::SeaLevelPressure.new(raw, M9t::Pressure.hectopascals(tenths($1)))
-    when /^(#{INDICATOR_TYPE.keys.join('|')})NO$/
-      type = INDICATOR_TYPE[$1]
-      Metar::Data::SensorStatusIndicator.new(raw, :type, :not_available)
-    when /^(#{COLOR_CODE.join('|')})$/
-      Metar::Data::ColorCode.new(raw, $1)
-    when 'SKC'
-      Metar::Data::SkyCondition.new(raw)
-    when '$'
-      Metar::Data::MaintenanceNeeded.new(raw)
-    else
-      nil
+    if !raw
+      return nil
     end
+
+    m1 = raw.match(/^([12])([01])(\d{3})$/)
+    if m1
+      extreme = {'1' => :maximum, '2' => :minimum}[m1[1]]
+      value   = sign(m1[2]) * tenths(m1[3])
+      return Metar::Data::TemperatureExtreme.new(raw, extreme, value)
+    end
+
+    m2 = raw.match(/^4([01])(\d{3})([01])(\d{3})$/)
+    if m2
+      return [
+        Metar::Data::TemperatureExtreme.new(raw, :maximum, sign(m2[1]) * tenths(m2[2])),
+        Metar::Data::TemperatureExtreme.new(raw, :minimum, sign(m2[3]) * tenths(m2[4])),
+      ]
+    end
+
+    m3 = raw.match(/^5([0-8])(\d{3})$/)
+    if m3
+      character = PRESSURE_CHANGE_CHARACTER[m3[1].to_i]
+      return Metar::Data::PressureTendency.new(raw, character, tenths(m3[2]))
+    end
+
+    m4 = raw.match(/^6(\d{4})$/)
+    if m4
+      return Metar::Data::Precipitation.new(raw, 3, Metar::Data::Distance.new(inches_to_meters(m4[1]))) # actually 3 or 6 depending on reporting time
+    end
+
+    m5 = raw.match(/^7(\d{4})$/)
+    if m5
+      return Metar::Data::Precipitation.new(raw, 24, Metar::Data::Distance.new(inches_to_meters(m5[1])))
+    end
+
+    m6 = raw.match(/^A[0O]([12])$/)
+    if m6
+      type = [:with_precipitation_discriminator, :without_precipitation_discriminator][m6[1].to_i - 1]
+      return Metar::Data::AutomatedStationType.new(raw, type)
+    end
+
+    m7 = raw.match(/^P(\d{4})$/)
+    if m7
+      return Metar::Data::Precipitation.new(raw, 1, Metar::Data::Distance.new(inches_to_meters(m7[1])))
+    end
+
+    m8 = raw.match(/^T([01])(\d{3})([01])(\d{3})$/)
+    if m8
+      temperature = Metar::Data::Temperature.new(sign(m8[1]) * tenths(m8[2]))
+      dew_point   = Metar::Data::Temperature.new(sign(m8[3]) * tenths(m8[4]))
+      return Metar::Data::HourlyTemperatureAndDewPoint.new(raw, temperature, dew_point)
+    end
+
+    m9 = raw.match(/^SLP(\d{3})$/)
+    if m9
+      return Metar::Data::SeaLevelPressure.new(raw, M9t::Pressure.hectopascals(tenths(m9[1])))
+    end
+
+    m10 = raw.match(/^(#{INDICATOR_TYPE.keys.join('|')})NO$/)
+    if m10
+      type = INDICATOR_TYPE[m10[1]]
+      return Metar::Data::SensorStatusIndicator.new(raw, :type, :not_available)
+    end
+
+    m11 = raw.match(/^(#{COLOR_CODE.join('|')})$/)
+    if m11
+      return Metar::Data::ColorCode.new(raw, m11[1])
+    end
+
+    if raw == 'SKC'
+      return Metar::Data::SkyCondition.new(raw)
+    end
+
+    if raw == '$'
+      Metar::Data::MaintenanceNeeded.new(raw)
+    end
+
+    nil
   end
 
   def self.sign(digit)

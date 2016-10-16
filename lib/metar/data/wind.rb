@@ -1,39 +1,58 @@
 class Metar::Data::Wind < Metar::Data::Base
   def self.parse(raw)
-    case
-    when raw =~ /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
-      return nil if $1.to_i > 360
-      new(
+    return nil if raw.nil?
+
+    m1 = raw.match(/^(\d{3})(\d{2}(|MPS|KMH|KT))$/)
+    if m1
+      return nil if m1[1].to_i > 360
+      return new(
         raw,
-        direction: Metar::Data::Direction.new($1),
-        speed: Metar::Data::Speed.parse($2)
+        direction: Metar::Data::Direction.new(m1[1]),
+        speed: Metar::Data::Speed.parse(m1[2])
       )
-    when raw =~ /^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/
-      return nil if $1.to_i > 360
-      new(
+    end
+
+    m2 = raw.match(/^(\d{3})(\d{2})G(\d{2,3}(|MPS|KMH|KT))$/)
+    if m2
+      return nil if m2[1].to_i > 360
+      return new(
         raw,
-        direction: Metar::Data::Direction.new($1),
-        speed: Metar::Data::Speed.parse($2 + $4),
-        gusts: Metar::Data::Speed.parse($3)
+        direction: Metar::Data::Direction.new(m2[1]),
+        speed: Metar::Data::Speed.parse(m2[2] + m2[4]),
+        gusts: Metar::Data::Speed.parse(m2[3])
       )
-    when raw =~ /^VRB(\d{2})G(\d{2,3})(|MPS|KMH|KT)$/
-      speed = $1 + $3
-      gusts = $2 + $3
-      new(
+    end
+
+    m3 = raw.match(/^VRB(\d{2})G(\d{2,3})(|MPS|KMH|KT)$/)
+    if m3
+      speed = m3[1] + m3[3]
+      gusts = m3[2] + m3[3]
+      return new(
         raw,
         direction: :variable_direction,
         speed: Metar::Data::Speed.parse(speed),
         gusts: Metar::Data::Speed.parse(gusts)
       )
-    when raw =~ /^VRB(\d{2}(|MPS|KMH|KT))$/
-      new(raw, direction: :variable_direction, speed: Metar::Data::Speed.parse($1))
-    when raw =~ /^\/{3}(\d{2}(|MPS|KMH|KT))$/
-      new(raw, direction: :unknown_direction, speed: Metar::Data::Speed.parse($1))
-    when raw =~ %r(^/////(|MPS|KMH|KT)$)
-      new(raw, direction: :unknown_direction, speed: :unknown_speed)
-    else
-      nil
     end
+
+    m4 = raw.match(/^VRB(\d{2}(|MPS|KMH|KT))$/)
+    if m4
+      speed = Metar::Data::Speed.parse(m4[1])
+      return new(raw, direction: :variable_direction, speed: speed)
+    end
+
+    m5 = raw.match(/^\/{3}(\d{2}(|MPS|KMH|KT))$/)
+    if m5
+      speed = Metar::Data::Speed.parse(m5[1])
+      return new(raw, direction: :unknown_direction, speed: speed)
+    end
+
+    m6 = raw.match(%r(^/////(|MPS|KMH|KT)$))
+    if m6
+      return new(raw, direction: :unknown_direction, speed: :unknown_speed)
+    end
+
+    nil
   end
 
   attr_reader :direction, :speed, :gusts

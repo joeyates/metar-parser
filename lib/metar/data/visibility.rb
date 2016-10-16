@@ -1,36 +1,59 @@
 class Metar::Data::Visibility < Metar::Data::Base
   def self.parse(raw)
-    case
-    when raw == '9999'
-      new(raw, distance: Metar::Data::Distance.new(10000), comparator: :more_than)
-    when raw =~ /(\d{4})NDV/ # WMO
-      new(raw, distance: Metar::Data::Distance.new($1.to_f)) # Assuming meters
-    when (raw =~ /^((1|2)\s|)([1357])\/([248]|16)SM$/) # US
-      miles          = $1.to_f + $3.to_f / $4.to_f
+    if !raw
+      return nil
+    end
+
+    if raw == '9999'
+      return new(raw, distance: Metar::Data::Distance.new(10000), comparator: :more_than)
+    end
+
+    m1 = raw.match(/(\d{4})NDV/) # WMO
+    if m1
+      return new(raw, distance: Metar::Data::Distance.new(m1[1].to_f)) # Assuming meters
+    end
+
+    m2 = raw.match(/^((1|2)\s|)([1357])\/([248]|16)SM$/) # US
+    if m2
+      miles          = m2[1].to_f + m2[3].to_f / m2[4].to_f
       distance       = Metar::Data::Distance.miles(miles)
       distance.units = :miles
-        new(raw, distance: distance)
-    when raw =~ /^(\d+)SM$/ # US
-      distance       = Metar::Data::Distance.miles($1.to_f)
+      return new(raw, distance: distance)
+    end
+
+    m3 = raw.match(/^(\d+)SM$/) # US
+    if m3
+      distance       = Metar::Data::Distance.miles(m3[1].to_f)
       distance.units = :miles
-        new(raw, distance: distance)
-    when raw == 'M1/4SM' # US
+      return new(raw, distance: distance)
+    end
+
+    if raw == 'M1/4SM' # US
       distance       = Metar::Data::Distance.miles(0.25)
       distance.units = :miles
-        new(raw, distance: distance, comparator: :less_than)
-    when raw =~ /^(\d+)KM$/
-      new(raw, distance: Metar::Data::Distance.kilometers($1))
-    when raw =~ /^(\d+)$/ # We assume meters
-      new(raw, distance: Metar::Data::Distance.new($1))
-    when raw =~ /^(\d+)(N|NE|E|SE|S|SW|W|NW)$/
-      new(
-        raw,
-        distance: Metar::Data::Distance.meters($1),
-        direction: M9t::Direction.compass($2)
-      )
-    else
-      nil
+      return new(raw, distance: distance, comparator: :less_than)
     end
+
+    m4 = raw.match(/^(\d+)KM$/)
+    if m4
+      return new(raw, distance: Metar::Data::Distance.kilometers(m4[1]))
+    end
+
+    m5 = raw.match(/^(\d+)$/) # We assume meters
+    if m5
+      return new(raw, distance: Metar::Data::Distance.new(m5[1]))
+    end
+
+    m6 = raw.match(/^(\d+)(N|NE|E|SE|S|SW|W|NW)$/)
+    if m6
+      return new(
+        raw,
+        distance: Metar::Data::Distance.meters(m6[1]),
+        direction: M9t::Direction.compass(m6[2])
+      )
+    end
+
+    nil
   end
 
   attr_reader :distance, :direction, :comparator

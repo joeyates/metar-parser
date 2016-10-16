@@ -17,25 +17,38 @@ class Metar::Data::Lightning < Metar::Data::Base
     end
 
     loop do
+      break if chunks[0].nil?
+
       if is_compass?(chunks[0])
         direction = chunks.shift
         raw += " " + direction
         directions << direction
-      elsif chunks[0] == 'ALQDS'
+        next
+      end
+
+      if chunks[0] == 'ALQDS'
         directions += ['N', 'E', 'S', 'W']
         raw += " " + chunks.shift
-      elsif chunks[0] =~ /^([NESW]{1,2})-([NESW]{1,2})$/
-        if is_compass?($1) and is_compass?($2)
-          directions += [$1, $2]
+        next
+      end
+
+      m = chunks[0].match(/^([NESW]{1,2})-([NESW]{1,2})$/)
+      if m
+        if is_compass?(m[1]) && is_compass?(m[1])
+          directions += [m[1], m[2]]
           raw += " " + chunks.shift
         else
           break
         end
-      elsif chunks[0] == 'AND'
-        raw += " " + chunks.shift
-      else
-        break
+        next
       end
+
+      if chunks[0] == 'AND'
+        raw += " " + chunks.shift
+        next
+      end
+
+      break
     end
 
     new(

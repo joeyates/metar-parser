@@ -52,7 +52,7 @@ class Metar::Data::WeatherPhenomenon < Metar::Data::Base
     phenomena   = Phenomena.keys.join('|')
     descriptors = Descriptors.keys.join('|')
     modifiers   = Modifiers.keys.join('|')
-    modifiers.gsub!(/([\+\-])/) { "\\#$1" }
+    modifiers.gsub!(/([\+\-])/) { |m| "\\#{m}" }
     rxp = Regexp.new("^(RE)?(#{modifiers})?(#{descriptors})?((?:#{phenomena}){1,2})$")
     m   = rxp.match(raw)
     return nil if m.nil?

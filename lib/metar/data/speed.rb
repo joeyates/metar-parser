@@ -11,12 +11,10 @@ class Metar::Data::Speed < M9t::Speed
   }
 
   def self.parse(raw)
-    case
-    when raw =~ /^(\d+)(|KT|MPS|KMH)$/
-      # Call the appropriate factory method for the supplied units
-      send(METAR_UNITS[$2], $1.to_i)
-    else
-      nil
-    end
+    return nil if raw.nil?
+    m = raw.match(/^(\d+)(|KT|MPS|KMH)$/)
+    return nil if m.nil?
+    # Call the appropriate factory method for the supplied units
+    return send(METAR_UNITS[m[2]], m[1].to_i)
   end
 end

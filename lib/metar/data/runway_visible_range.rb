@@ -4,29 +4,34 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
   UNITS      = {'' => :meters, 'FT' => :feet}
 
   def self.parse(raw)
-    case
-    when raw =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})(FT|)\/?(N|U|D|)$/
-      designator = $1
-      comparator = COMPARATOR[$2]
-      count      = $3.to_f
-      units      = UNITS[$4]
-      tendency   = TENDENCY[$5]
+    return nil if raw.nil?
+
+    m1 = raw.match(/^R(\d+[RLC]?)\/(P|M|)(\d{4})(FT|)\/?(N|U|D|)$/)
+    if m1
+      designator = m1[1]
+      comparator = COMPARATOR[m1[2]]
+      count      = m1[3].to_f
+      units      = UNITS[m1[4]]
+      tendency   = TENDENCY[m1[5]]
       distance   = Metar::Data::Distance.send(units, count)
       visibility = Metar::Data::Visibility.new(
         nil, distance: distance, comparator: comparator
       )
-      new(
+      return new(
         raw,
         designator: designator, visibility1: visibility, tendency: tendency
       )
-    when raw =~ /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)\/?(N|U|D)?$/
-      designator  = $1
-      comparator1 = COMPARATOR[$2]
-      count1      = $3.to_f
-      comparator2 = COMPARATOR[$4]
-      count2      = $5.to_f
-      units       = UNITS[$6]
-      tendency    = TENDENCY[$7]
+    end
+
+    m2 = raw.match(/^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)\/?(N|U|D)?$/)
+    if m2
+      designator  = m2[1]
+      comparator1 = COMPARATOR[m2[2]]
+      count1      = m2[3].to_f
+      comparator2 = COMPARATOR[m2[4]]
+      count2      = m2[5].to_f
+      units       = UNITS[m2[6]]
+      tendency    = TENDENCY[m2[7]]
       distance1   = Metar::Data::Distance.send(units, count1)
       distance2   = Metar::Data::Distance.send(units, count2)
       visibility1 = Metar::Data::Visibility.new(
@@ -35,15 +40,15 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
       visibility2 = Metar::Data::Visibility.new(
         nil, distance: distance2, comparator: comparator2
       )
-      new(
+      return new(
         raw,
         designator: designator,
         visibility1: visibility1, visibility2: visibility2,
         tendency: tendency, units: units
       )
-    else
-      nil
     end
+
+    nil
   end
 
   attr_reader :designator, :visibility1, :visibility2, :tendency

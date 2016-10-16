@@ -10,18 +10,17 @@ class Metar::Data::Time < Metar::Data::Base
         /^(\d{1,2})(\d{2})(\d{2})Z$/
       end
 
-    if raw =~ date_matcher
-      day, hour, minute = $1.to_i, $2.to_i, $3.to_i
+    m1 = raw.match(date_matcher)
+    if m1
+      day, hour, minute = m1[1].to_i, m1[2].to_i, m1[3].to_i
     else
       return nil if strict
 
-      if raw =~ /^(\d{1,2})(\d{2})Z$/
-        # The day is missing, use today's date
-        day           = Time.now.day
-        hour, minute = $1.to_i, $2.to_i
-      else
-        return nil
-      end
+      m2 = raw.match(/^(\d{1,2})(\d{2})Z$/)
+      return nil if !m2
+      # The day is missing, use today's date
+      day           = Time.now.day
+      hour, minute = m2[1].to_i, m2[2].to_i
     end
 
     new(
