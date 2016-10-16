@@ -100,6 +100,10 @@ I18n.locale = :'en-US'
 I18n.t('metar.station_code.title') # station code
 ```
 
+# The METAR Format
+
+See `doc/metar_format`.
+
 # Compliance
 
 By default, the parser runs in 'loose' compliance mode. That means that it tries to
