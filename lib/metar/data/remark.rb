@@ -84,7 +84,7 @@ class Metar::Data::Remark
     m10 = raw.match(/^(#{INDICATOR_TYPE.keys.join('|')})NO$/)
     if m10
       type = INDICATOR_TYPE[m10[1]]
-      return Metar::Data::SensorStatusIndicator.new(raw, :type, :not_available)
+      return Metar::Data::SensorStatusIndicator.new(raw, type, :not_available)
     end
 
     m11 = raw.match(/^(#{COLOR_CODE.join('|')})$/)
