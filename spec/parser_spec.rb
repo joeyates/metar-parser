@@ -457,7 +457,6 @@ describe Metar::Parser do
         sky_conditions
       ).each do |attr|
         specify "#{attr} is not set" do
-          puts "attr: #{attr}"
           expect(result).to_not include(attr)
         end
       end
