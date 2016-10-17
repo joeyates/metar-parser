@@ -3,6 +3,6 @@ language: ruby
 rvm:
   - 2.2.0
   - 2.3.0
-  - jruby-19mode
-  - rbx-2
+  - jruby-9.0.0.0
+  - rubinius-2
 script: "bundle exec rake spec"
