@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
 
   s.test_files    = Dir.glob("spec/**/*_spec.rb")
 
-  s.add_runtime_dependency 'rake'
+  s.add_runtime_dependency 'rake', '< 11.0'
   s.add_runtime_dependency 'rdoc'
   s.add_runtime_dependency 'i18n', '~> 0.7.0'
   s.add_runtime_dependency 'm9t',  '~> 0.3.5'
