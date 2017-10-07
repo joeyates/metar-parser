@@ -19,6 +19,8 @@ RSpec::Matchers.define :be_visibility do |distance, direction, comparator|
       false
     elsif comparator.is_a?(Symbol)                   && visibility.comparator != comparator
       false
+    elsif visibility.distance.units != :meters
+      false
     else
       true
     end
