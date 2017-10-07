@@ -17,20 +17,17 @@ class Metar::Data::Visibility < Metar::Data::Base
     if m2
       miles          = m2[1].to_f + m2[3].to_f / m2[4].to_f
       distance       = Metar::Data::Distance.miles(miles)
-      distance.units = :miles
       return new(raw, distance: distance)
     end
 
     m3 = raw.match(/^(\d+)SM$/) # US
     if m3
       distance       = Metar::Data::Distance.miles(m3[1].to_f)
-      distance.units = :miles
       return new(raw, distance: distance)
     end
 
     if raw == 'M1/4SM' # US
       distance       = Metar::Data::Distance.miles(0.25)
-      distance.units = :miles
       return new(raw, distance: distance, comparator: :less_than)
     end
 
