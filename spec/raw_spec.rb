@@ -238,8 +238,8 @@ describe Metar::Raw::Noaa do
       let(:raw_time)  { "2016/03/31 23:59" }
       let(:raw_metar) { "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
 
-      specify "are parsed as UTC" do
-        expect(subject.time.zone).to eq("UTC")
+      specify "are parsed as UTC/GMT" do
+        expect(subject.time.zone).to eq("UTC").or eq("GMT")
       end
 
       context "across month rollover" do
