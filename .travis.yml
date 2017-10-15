@@ -3,5 +3,6 @@ language: ruby
 rvm:
   - 2.2.0
   - 2.3.0
+  - 2.4.0
   - jruby-9.0.0.0
 script: "bundle exec rake spec"
