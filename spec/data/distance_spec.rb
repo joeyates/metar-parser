@@ -8,14 +8,23 @@ describe Metar::Data::Distance do
 
   context '#value' do
     it 'treats the parameter as meters' do
-      expect(subject.units).to eq(:meters)
       expect(subject.value).to eq(12_345.6789)
     end
   end
 
   context '#to_s' do
     it 'should default to meters' do
-      expect(subject.to_s).to match(/^\d+m/)
+      expect(subject.to_s).to match(/\A\d+m\z/)
+    end
+
+    context 'when overriding the serialization_units' do
+      subject do
+        super().tap { |d| d.serialization_units = :miles }
+      end
+
+      it 'uses the override' do
+        expect(subject.to_s).to match(/\A\d+mi\z/)
+      end
     end
 
     context 'when <= 0.5' do

@@ -2,11 +2,11 @@ require "i18n"
 require "m9t"
 
 class Metar::Data::Distance < M9t::Distance
-  attr_accessor :units
+  attr_accessor :serialization_units
 
   # nil is taken to mean 'data unavailable'
   def initialize(meters = nil)
-    @units = :meters
+    @serialization_units = :meters
     if meters
       super
     else
@@ -17,7 +17,7 @@ class Metar::Data::Distance < M9t::Distance
   # Handles nil case differently to M9t::Distance
   def to_s(options = {})
     options = {
-      units:       units,
+      units:       serialization_units,
       precision:   0,
       abbreviated: true,
     }.merge(options)
