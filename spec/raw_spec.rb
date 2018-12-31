@@ -159,24 +159,28 @@ describe Metar::Raw::Noaa do
   context '.fetch' do
     before do
       allow(ftp).to receive(:retrbinary).and_yield("chunk 1\n").and_yield("chunk 2\n")
+      allow(ftp).to receive(:close)
     end
 
     it 'uses the connection' do
       Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(Net::FTP).to have_received(:new)
+      expect(ftp).to have_received(:close)
     end
 
     it 'downloads the raw report' do
       Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(ftp).to have_received(:retrbinary).with('RETR the_cccc.TXT', kind_of(Fixnum))
+      expect(ftp).to have_received(:close)
     end
 
     it 'returns the data' do
       raw = Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(raw).to eq("chunk 1\nchunk 2\n")
+      expect(ftp).to have_received(:close)
     end
 
     context 'if retrieval fails once' do
@@ -195,6 +199,7 @@ describe Metar::Raw::Noaa do
         raw = Metar::Raw::Noaa.fetch('the_cccc')
 
         expect(raw).to eq("chunk 1\nchunk 2\n")
+        expect(ftp).to have_received(:close)
       end
     end
 
@@ -206,6 +211,7 @@ describe Metar::Raw::Noaa do
       it 'fails with an error' do
         expect do
           Metar::Raw::Noaa.fetch('the_cccc')
+          expect(ftp).to have_received(:close)
         end.to raise_error(RuntimeError, /failed 2 times/)
       end
     end
@@ -217,6 +223,7 @@ describe Metar::Raw::Noaa do
 
     before do
       allow(ftp).to receive(:retrbinary).and_yield(noaa_metar)
+      allow(ftp).to receive(:close)
     end
 
     subject { Metar::Raw::Noaa.new(cccc) }
@@ -225,6 +232,7 @@ describe Metar::Raw::Noaa do
       subject.metar
 
       expect(ftp).to have_received(:retrbinary).with("RETR #{cccc}.TXT", 1024)
+      expect(ftp).to have_received(:close)
     end
 
     it 'sets data to the returned value' do
