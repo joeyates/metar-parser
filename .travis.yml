@@ -1,7 +1,12 @@
 sudo: false
 language: ruby
 rvm:
-  - 2.3.0
-  - 2.4.0
-  - jruby-9.0.0.0
+  - 2.3
+  - 2.4
+  - 2.5
+  - jruby-9.2.5.0
+before_install: # Fix jruby
+  - gem update --system
+  - gem install bundler
+  - gem update bundler
 script: "bundle exec rake spec"
