@@ -88,7 +88,7 @@ module Metar
         end
 
         def disconnect
-          return if @@connection.nil
+          return if @@connection.nil?
           @@connection.close
           @@connection = nil
         end
@@ -101,6 +101,7 @@ module Metar
               connection.retrbinary("RETR #{ cccc }.TXT", 1024) do |chunk|
                 s << chunk
               end
+              disconnect
               return s
             rescue Net::FTPPermError, Net::FTPTempError, EOFError => e
               connect
