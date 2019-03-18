@@ -132,11 +132,33 @@ describe Metar::Parser do
       end
     end
 
-    it 'wind' do
-      parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
+    context 'wind' do
+      it 'is parsed' do
+        parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
 
-      expect(parser.wind.direction.value).to be_within(0.0001).of(240)
-      expect(parser.wind.speed.to_knots).to be_within(0.0001).of(6)
+        expect(parser.wind.direction.value).to be_within(0.0001).of(240)
+        expect(parser.wind.speed.to_knots).to be_within(0.0001).of(6)
+      end
+
+      context 'in strict mode' do
+        before do
+          Metar::Parser.compliance = :strict
+        end
+
+        it 'more than 5 digits fails' do
+          expect do
+            setup_parser('KSEE 181947Z 000000KT 10SM SKC 22/10 A2999')
+          end.to raise_error(Metar::ParseError, /Unparsable/)
+        end
+      end
+
+      context 'in loose mode' do
+        it 'more than 5 digits is parsed' do
+          parser = setup_parser('KSEE 181947Z 000000KT 10SM SKC 22/10 A2999')
+          expect(parser.wind.direction.value).to eq(0.0)
+          expect(parser.visibility.distance.value).to be_within(1).of(16093)
+        end
+      end
     end
 
     it 'variable_wind' do

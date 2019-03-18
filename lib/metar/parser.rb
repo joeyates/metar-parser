@@ -191,7 +191,7 @@ module Metar
     end
 
     def seek_wind
-      @wind = Metar::Data::Wind.parse(@chunks[0])
+      @wind = Metar::Data::Wind.parse(@chunks[0], strict: strict?)
       @chunks.shift if @wind
       @wind
     end

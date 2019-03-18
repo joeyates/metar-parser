@@ -1,8 +1,15 @@
 class Metar::Data::Wind < Metar::Data::Base
-  def self.parse(raw)
+  def self.parse(raw, strict: false)
     return nil if raw.nil?
 
-    m1 = raw.match(/^(\d{3})(\d{2}(|MPS|KMH|KT))$/)
+    plain_match =
+      if strict
+        /^(\d{3})(\d{2}(|MPS|KMH|KT))$/
+      else
+        /^(\d{3})(\d{2,3}(|MPS|KMH|KT))$/
+      end
+
+    m1 = raw.match(plain_match)
     if m1
       return nil if m1[1].to_i > 360
       return new(
