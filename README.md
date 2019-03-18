@@ -91,7 +91,7 @@ Translations are available for the following languages (and region):
 * :'en-US'
 * :it
 * :'pt-BR'
-* 
+
 Thanks to the I18n gem's fallback mechanism, under regional locales, language generic
 translations will be used if a region-specific translation is not available.
 I.e.
