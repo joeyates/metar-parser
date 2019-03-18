@@ -3,5 +3,4 @@
 CONSOLE_PATH=$(dirname $(readlink -f "$0"))
 METAR_ROOT=$(dirname "$CONSOLE_PATH")
 
-bundle exec pry -I"$METAR_ROOT/lib" -r "$METAR_ROOT/script/initialize.rb"
-
+bundle exec pry -I"$METAR_ROOT/lib" -r metar
