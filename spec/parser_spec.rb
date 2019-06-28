@@ -275,9 +275,19 @@ describe Metar::Parser do
       expect(parser.temperature.value).to eq(-17)
     end
 
+    it "accepts a blank temperature" do
+      parser = setup_parser("KSMO 281655Z 18003KT 9SM SCT020 /20 A3002 RMK A02 T0200 $")
+      expect(parser.temperature).to eq(nil)
+    end
+
     it 'dew_point' do
       parser = setup_parser("PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 RMK AO2 P0000")
       expect(parser.dew_point.value).to eq(-20)
+    end
+
+    it "accepts a blank dew_point" do
+      parser = setup_parser("KSMO 281655Z 18003KT 9SM SCT020 20/ A3002 RMK A02 T0200 $")
+      expect(parser.dew_point).to eq(nil)
     end
 
     it 'sea_level_pressure' do
