@@ -4,6 +4,7 @@ require "m9t"
 # Adds a parse method to the M9t base class
 class Metar::Data::Temperature < M9t::Temperature
   def self.parse(raw)
+    return nil if !raw
     m = raw.match(/^(M?)(\d+)$/)
     return nil if !m
     sign = m[1]
