@@ -23,7 +23,8 @@ describe Metar::Report do
     end
 
     before do
-      allow(Metar::Station).to receive(:find_by_cccc).with(station_code) { station }
+      allow(Metar::Station).
+        to receive(:find_by_cccc).with(station_code) { station }
     end
 
     subject { described_class.new(parser) }

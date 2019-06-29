@@ -1,3 +1,7 @@
+AllCops:
+  Exclude:
+    - 'bin/**/*'
+
 Style/StringLiterals:
   Enabled: false
   EnforcedStyle: double_quotes

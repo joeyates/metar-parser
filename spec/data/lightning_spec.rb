@@ -5,11 +5,26 @@ require "spec_helper"
 describe Metar::Data::Lightning do
   context '.parse_chunks' do
     [
-      ['direction',                        'LTG SE',            [:default,      nil, ['SE']]],
-      ['distance direction',               'LTG DSNT SE',       [:default, 16093.44, ['SE']]],
-      ['distance direction and direction', 'LTG DSNT NE AND W', [:default, 16093.44, ['NE', 'W']]],
-      ['distance direction-direction',     'LTG DSNT SE-SW',    [:default, 16093.44, ['SE', 'SW']]],
-      ['distance all quandrants',          'LTG DSNT ALQDS',    [:default, 16093.44, ['N', 'E', 'S', 'W']]],
+      [
+        'direction', 'LTG SE',
+        [:default, nil, ['SE']]
+      ],
+      [
+        'distance direction', 'LTG DSNT SE',
+        [:default, 16093.44, ['SE']]
+      ],
+      [
+        'distance direction and direction', 'LTG DSNT NE AND W',
+        [:default, 16093.44, ['NE', 'W']]
+      ],
+      [
+        'distance direction-direction', 'LTG DSNT SE-SW',
+        [:default, 16093.44, ['SE', 'SW']]
+      ],
+      [
+        'distance all quandrants', 'LTG DSNT ALQDS',
+        [:default, 16093.44, ['N', 'E', 'S', 'W']]
+      ],
     ].each do |docstring, section, expected|
       example docstring do
         chunks = section.split(' ')

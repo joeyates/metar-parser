@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
 class Metar::Data::RunwayVisibleRange < Metar::Data::Base
-  TENDENCY   = {'' => nil, 'N' => :no_change, 'U' => :improving, 'D' => :worsening}
+  TENDENCY = {
+    '' => nil,
+    'N' => :no_change,
+    'U' => :improving,
+    'D' => :worsening
+  }.freeze
+
   COMPARATOR = {'' => nil, 'P' => :more_than, 'M' => :less_than}
   UNITS      = {'' => :meters, 'FT' => :feet}
 
@@ -25,7 +31,9 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
       )
     end
 
-    m2 = raw.match(/^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)\/?(N|U|D)?$/)
+    m2 = raw.match(
+      /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)\/?(N|U|D)?$/
+    )
     if m2
       designator  = m2[1]
       comparator1 = COMPARATOR[m2[2]]
@@ -57,10 +65,18 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
 
   def initialize(
     raw,
-    designator:, visibility1:, visibility2: nil, tendency: nil, units: :meters
+    designator:,
+    visibility1:,
+    visibility2: nil,
+    tendency: nil,
+    units: :meters
   )
     @raw = raw
-    @designator, @visibility1, @visibility2, @tendency, @units = designator, visibility1, visibility2, tendency, units
+    @designator = designator
+    @visibility1 = visibility1
+    @visibility2 = visibility2
+    @tendency = tendency
+    @units = units
   end
 
   def to_s

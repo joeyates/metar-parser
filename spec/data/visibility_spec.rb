@@ -5,7 +5,7 @@ require "spec_helper"
 
 RSpec::Matchers.define :be_visibility do |distance, direction, comparator|
   match do |visibility|
-    if    visibility.nil? && [ distance, direction, comparator ].all?(&:nil?)
+    if visibility.nil? && [ distance, direction, comparator ].all?(&:nil?)
       true
     elsif visibility.nil? != [ distance, direction, comparator ].all?(&:nil?)
       false
@@ -15,11 +15,13 @@ RSpec::Matchers.define :be_visibility do |distance, direction, comparator|
       false
     elsif visibility.comparator.nil? != comparator.nil?
       false
-    elsif visibility.distance.is_a?(Metar::Data::Distance) && (visibility.distance.value - distance).abs > 0.01
+    elsif visibility.distance.is_a?(Metar::Data::Distance) &&
+      (visibility.distance.value - distance).abs > 0.01
       false
-    elsif visibility.direction.is_a?(M9t::Direction) && (visibility.direction.value - direction).abs > 0.01
+    elsif visibility.direction.is_a?(M9t::Direction) &&
+      (visibility.direction.value - direction).abs > 0.01
       false
-    elsif comparator.is_a?(Symbol)                   && visibility.comparator != comparator
+    elsif comparator.is_a?(Symbol) && visibility.comparator != comparator
       false
     else
       true
@@ -59,15 +61,33 @@ describe Metar::Data::Visibility do
     end
 
     [
-      ['with distance',                           :en, [ :set, nil,  nil ],        '4km'],
-      ['with distance and direction',             :en, [ :set, :set, nil ],        '4km ESE'],
-      ['with distance and comparator',            :en, [ :set, nil,  :less_than ], 'less than 4km'],
-      ['with distance, direction and comparator', :en, [ :set, :set, :more_than ], 'more than 4km ESE'],
-      ['with distance and direction',             :it, [ :set, :set, nil ],        '4km ESE'],
-      ['with distance, direction and comparator', :it, [ :set, :set, :more_than ], 'piú di 4km ESE'],
+      [
+        'with distance',
+        :en, [:set, nil, nil], '4km'
+      ],
+      [
+        'with distance and direction',
+        :en, [:set, :set, nil], '4km ESE'
+      ],
+      [
+        'with distance and comparator',
+        :en, [:set, nil, :less_than], 'less than 4km'
+      ],
+      [
+        'with distance, direction and comparator',
+        :en, [:set, :set, :more_than], 'more than 4km ESE'
+      ],
+      [
+        'with distance and direction',
+        :it, [:set, :set, nil ], '4km ESE'
+      ],
+      [
+        'with distance, direction and comparator',
+        :it, [:set, :set, :more_than], 'piú di 4km ESE'
+      ],
     ].each do |docstring, locale, (distance, direction, comparator), expected|
       distance  = Metar::Data::Distance.new(4321) if distance  == :set
-      direction = M9t::Direction.new(123)   if direction == :set
+      direction = M9t::Direction.new(123) if direction == :set
 
       example docstring + " (#{locale})" do
         I18n.locale = locale

@@ -71,6 +71,9 @@ class Metar::Data::Lightning < Metar::Data::Base
 
   def initialize(raw, frequency:, type:, distance:, directions:)
     @raw = raw
-    @frequency, @type, @distance, @directions = frequency, type, distance, directions
+    @frequency = frequency
+    @type = type
+    @distance = distance
+    @directions = directions
   end
 end

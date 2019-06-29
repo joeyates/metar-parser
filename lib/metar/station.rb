@@ -4,8 +4,10 @@ require 'open-uri'
 require 'set'
 
 # A Station can be created without downloading data from the Internet.
-# The class downloads and caches the NOAA station list when it is first requested.
-# As soon of any of the attributes are read, the data is downloaded (if necessary), and attributes are set.
+# The class downloads and caches the NOAA station list
+# when it is first requested.
+# As soon of any of the attributes are read, the data is downloaded
+# (if necessary), and attributes are set.
 
 module Metar
   class Station

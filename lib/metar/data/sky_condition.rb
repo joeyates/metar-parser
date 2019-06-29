@@ -1,11 +1,18 @@
 # frozen_string_literal: true
 
 class Metar::Data::SkyCondition < Metar::Data::Base
-  QUANTITY = {'BKN' => 'broken', 'FEW' => 'few', 'OVC' => 'overcast', 'SCT' => 'scattered'}
+  QUANTITY = {
+    'BKN' => 'broken',
+    'FEW' => 'few',
+    'OVC' => 'overcast',
+    'SCT' => 'scattered'
+  }.freeze
+
   CONDITION = {
     'CB'  => 'cumulonimbus',
     'TCU' => 'towering cumulus',
-    '///' => nil, # cloud type unknown as observed by automatic system (15.9.1.7)
+    # /// - cloud type unknown as observed by automatic system (15.9.1.7)
+    '///' => nil,
     ''    => nil,
   }
   CLEAR_SKIES = [

@@ -5,7 +5,8 @@ require "spec_helper"
 describe Metar::Data::Remark do
   context '.parse' do
     it 'delegate to subclasses' do
-      expect(described_class.parse('21012')).to be_a(Metar::Data::TemperatureExtreme)
+      expect(described_class.parse('21012')).
+        to be_a(Metar::Data::TemperatureExtreme)
     end
 
     it 'returns nil for unrecognised' do
@@ -20,7 +21,8 @@ describe Metar::Data::Remark do
         ['negative minimum', '21012', [:minimum, -1.2]],
       ].each do |docstring, raw, expected|
         example docstring do
-          expect(described_class.parse(raw)).to be_temperature_extreme(*expected)
+          expect(described_class.parse(raw)).
+            to be_temperature_extreme(*expected)
         end
       end
     end
@@ -65,10 +67,23 @@ describe Metar::Data::Remark do
     end
 
     context 'automated station' do
-
       [
-        ['with precipitation dicriminator', 'AO1', [Metar::Data::AutomatedStationType, :with_precipitation_discriminator]],
-        ['without precipitation dicriminator', 'AO2', [Metar::Data::AutomatedStationType, :without_precipitation_discriminator]],
+        [
+          'with precipitation dicriminator',
+          'AO1',
+          [
+            Metar::Data::AutomatedStationType,
+            :with_precipitation_discriminator
+          ]
+        ],
+        [
+          'without precipitation dicriminator',
+          'AO2',
+          [
+            Metar::Data::AutomatedStationType,
+            :without_precipitation_discriminator
+          ]
+        ]
       ].each do |docstring, raw, expected|
         example docstring do
           aut = described_class.parse(raw)

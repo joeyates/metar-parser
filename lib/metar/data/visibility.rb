@@ -7,12 +7,16 @@ class Metar::Data::Visibility < Metar::Data::Base
     end
 
     if raw == '9999'
-      return new(raw, distance: Metar::Data::Distance.new(10000), comparator: :more_than)
+      return new(
+        raw, distance: Metar::Data::Distance.new(10000), comparator: :more_than
+      )
     end
 
     m1 = raw.match(/(\d{4})NDV/) # WMO
     if m1
-      return new(raw, distance: Metar::Data::Distance.new(m1[1].to_f)) # Assuming meters
+      return new(
+        raw, distance: Metar::Data::Distance.new(m1[1].to_f)
+      ) # Assuming meters
     end
 
     m2 = raw.match(/^((1|2)\s|)([1357])\/([248]|16)SM$/) # US

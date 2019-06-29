@@ -55,8 +55,10 @@ class Metar::Data::WeatherPhenomenon < Metar::Data::Base
     descriptors = Descriptors.keys.join('|')
     modifiers   = Modifiers.keys.join('|')
     modifiers.gsub!(/([\+\-])/) { |m| "\\#{m}" }
-    rxp = Regexp.new("^(RE)?(#{modifiers})?(#{descriptors})?((?:#{phenomena}){1,2})$")
-    m   = rxp.match(raw)
+    rxp = Regexp.new(
+      "^(RE)?(#{modifiers})?(#{descriptors})?((?:#{phenomena}){1,2})$"
+    )
+    m = rxp.match(raw)
     return nil if m.nil?
 
     recent           = m[1] == "RE"
@@ -75,9 +77,13 @@ class Metar::Data::WeatherPhenomenon < Metar::Data::Base
 
   attr_reader :phenomenon, :modifier, :descriptor, :recent
 
-  def initialize(raw, phenomenon:, modifier: nil, descriptor: nil, recent: false)
+  def initialize(
+    raw, phenomenon:, modifier: nil, descriptor: nil, recent: false
+  )
     @raw = raw
-    @phenomenon, @modifier, @descriptor = phenomenon, modifier, descriptor
+    @phenomenon = phenomenon
+    @modifier = modifier
+    @descriptor = descriptor
     @recent = recent
   end
 

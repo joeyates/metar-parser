@@ -18,7 +18,8 @@ module Metar
 
     def initialize(parser)
       @parser = parser
-      @station = Station.find_by_cccc(@parser.station_code) # TODO: parser should return the station
+      # TODO: parser should return the station
+      @station = Station.find_by_cccc(@parser.station_code)
     end
 
     def station_name
@@ -70,7 +71,10 @@ module Metar
     end
 
     def sky_summary
-      return I18n.t('metar.sky_conditions.clear skies') if @parser.sky_conditions.length == 0
+      if @parser.sky_conditions.length == 0
+        return I18n.t('metar.sky_conditions.clear skies')
+      end
+
       @parser.sky_conditions[-1].to_summary
     end
 
@@ -100,7 +104,9 @@ module Metar
 
     def to_s
       attributes.collect do |attribute|
-        I18n.t('metar.' + attribute[:attribute].to_s + '.title') + ': ' + attribute[:value]
+        I18n.t('metar.' + attribute[:attribute].to_s + '.title') +
+          ': ' +
+          attribute[:value]
       end.join("\n") + "\n"
     end
 

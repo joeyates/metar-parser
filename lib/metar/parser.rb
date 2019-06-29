@@ -169,7 +169,9 @@ module Metar
     def seek_station_code
       @station_code = Metar::Data::StationCode.parse(@chunks[0])
       if @station_code.nil?
-        raise ParseError.new("Expecting location, found '#{ @chunks[0] }' in #{@metar}")
+        raise ParseError.new(
+          "Expecting location, found '#{ @chunks[0] }' in #{@metar}"
+        )
       end
       @chunks.shift
       @station_code
@@ -181,7 +183,9 @@ module Metar
         datetime, year: raw.time.year, month: raw.time.month, strict: strict?
       )
       if !@time
-        raise ParseError.new("Expecting datetime, found '#{datetime}' in #{@metar}")
+        raise ParseError.new(
+          "Expecting datetime, found '#{datetime}' in #{@metar}"
+        )
       end
       @time
     end
@@ -231,7 +235,9 @@ module Metar
       end
 
       if @chunks[0] == '1' or @chunks[0] == '2'
-        @visibility = Metar::Data::Visibility.parse(@chunks[0] + ' ' + @chunks[1])
+        @visibility = Metar::Data::Visibility.parse(
+          @chunks[0] + ' ' + @chunks[1]
+        )
         if @visibility
           @chunks.shift
           @chunks.shift
