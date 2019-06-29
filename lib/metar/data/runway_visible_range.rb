@@ -8,13 +8,13 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
     'D' => :worsening
   }.freeze
 
-  COMPARATOR = {'' => nil, 'P' => :more_than, 'M' => :less_than}
-  UNITS      = {'' => :meters, 'FT' => :feet}
+  COMPARATOR = {'' => nil, 'P' => :more_than, 'M' => :less_than}.freeze
+  UNITS      = {'' => :meters, 'FT' => :feet}.freeze
 
   def self.parse(raw)
     return nil if raw.nil?
 
-    m1 = raw.match(/^R(\d+[RLC]?)\/(P|M|)(\d{4})(FT|)\/?(N|U|D|)$/)
+    m1 = raw.match(%r(^R(\d+[RLC]?)/(P|M|)(\d{4})(FT|)/?(N|U|D|)$))
     if m1
       designator = m1[1]
       comparator = COMPARATOR[m1[2]]
@@ -32,7 +32,7 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
     end
 
     m2 = raw.match(
-      /^R(\d+[RLC]?)\/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)\/?(N|U|D)?$/
+      %r(^R(\d+[RLC]?)/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)/?(N|U|D)?$)
     )
     if m2
       designator  = m2[1]
@@ -82,8 +82,8 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
   def to_s
     distance_options = {
       abbreviated: true,
-      precision:   0,
-      units:       @units,
+      precision: 0,
+      units: @units
     }
     s =
       if @visibility2.nil?
@@ -99,9 +99,7 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
           ' '  + @visibility2.to_s(distance_options)
       end
 
-    if ! tendency.nil?
-      s += ' ' + I18n.t("tendency.#{tendency}")
-    end
+    s += ' ' + I18n.t("tendency.#{tendency}") if !tendency.nil?
 
     s
   end

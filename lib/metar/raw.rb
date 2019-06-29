@@ -9,21 +9,23 @@ module Metar
     class Base
       attr_reader :metar
       attr_reader :time
-      alias :to_s :metar
+      alias to_s metar
     end
 
     ##
     # Use this class when you have a METAR string and the date of reading
     class Data < Base
       def initialize(metar, time = nil)
-        if time == nil
+        if time.nil?
           warn <<-EOT
           Using Metar::Raw::Data without a time parameter is deprecated.
           Please supply the reading time as the second parameter.
           EOT
           time = Time.now
         end
-        @metar, @time = metar, time
+
+        @metar = metar
+        @time = time
       end
     end
 
@@ -41,6 +43,7 @@ module Metar
 
       def time
         return @time if @time
+
         dom = day_of_month
         date = Date.today
         loop do
@@ -59,13 +62,15 @@ module Metar
       def datetime
         datetime = metar[/^\w{4} (\d{6})Z/, 1]
         raise "The METAR string must have a 6 digit datetime" if datetime.nil?
+
         datetime
       end
 
       def day_of_month
         dom = datetime[0..1].to_i
         raise "Day of month must be at most 31" if dom > 31
-        raise "Day of month must be greater than 0" if dom == 0
+        raise "Day of month must be greater than 0" if dom.zero?
+
         dom
       end
     end
@@ -75,9 +80,9 @@ module Metar
       @@connection = nil
 
       class << self
-
         def connection
           return @@connection if @@connection
+
           connect
           @@connection
         end
@@ -91,6 +96,7 @@ module Metar
 
         def disconnect
           return if @@connection.nil?
+
           @@connection.close
           @@connection = nil
         end
@@ -100,19 +106,18 @@ module Metar
           while attempts < 2
             begin
               s = ''
-              connection.retrbinary("RETR #{ cccc }.TXT", 1024) do |chunk|
+              connection.retrbinary("RETR #{cccc}.TXT", 1024) do |chunk|
                 s += chunk
               end
               disconnect
               return s
-            rescue Net::FTPPermError, Net::FTPTempError, EOFError => e
+            rescue Net::FTPPermError, Net::FTPTempError, EOFError
               connect
               attempts += 1
             end
           end
           raise "Net::FTP.retrbinary failed #{attempts} times"
         end
-
       end
 
       # Station is a string containing the CCCC code, or
@@ -126,7 +131,7 @@ module Metar
         @data
       end
       # #raw is deprecated, use #data
-      alias :raw :data
+      alias raw data
 
       def time
         fetch
@@ -142,6 +147,7 @@ module Metar
 
       def fetch
         return if @data
+
         @data = Noaa.fetch(@cccc)
         parse
       end

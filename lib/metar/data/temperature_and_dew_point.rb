@@ -4,7 +4,7 @@ class Metar::Data::TemperatureAndDewPoint < Metar::Data::Base
   def self.parse(raw)
     return nil if !raw
 
-    m = raw.match(/^(M?\d+|XX|\/\/)\/(M?\d+|XX|\/\/)?$/)
+    m = raw.match(%r(^(M?\d+|XX|//)\/(M?\d+|XX|//)?$))
     return nil if !m
 
     temperature = Metar::Data::Temperature.parse(m[1])
@@ -14,7 +14,7 @@ class Metar::Data::TemperatureAndDewPoint < Metar::Data::Base
 
   attr_reader :temperature
   attr_reader :dew_point
-  
+
   def initialize(raw, temperature:, dew_point:)
     @raw = raw
     @temperature = temperature

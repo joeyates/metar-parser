@@ -6,17 +6,19 @@ require "m9t"
 # Adds a parse method to the M9t base class
 class Metar::Data::Speed < M9t::Speed
   METAR_UNITS = {
-    ""    => :kilometers_per_hour,
+    "" => :kilometers_per_hour,
     "KMH" => :kilometers_per_hour,
     "MPS" => :meters_per_second,
-    "KT"  => :knots,
-  }
+    "KT" => :knots
+  }.freeze
 
   def self.parse(raw)
     return nil if raw.nil?
+
     m = raw.match(/^(\d+)(|KT|MPS|KMH)$/)
     return nil if m.nil?
+
     # Call the appropriate factory method for the supplied units
-    return send(METAR_UNITS[m[2]], m[1].to_i)
+    send(METAR_UNITS[m[2]], m[1].to_i)
   end
 end

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # frozen_string_literal: true
 
 require "spec_helper"
@@ -18,12 +17,12 @@ RSpec::Matchers.define :be_wind do |direction, speed, gusts|
     elsif direction.is_a?(Symbol) && wind.direction != direction
       false
     elsif direction.is_a?(M9t::Direction) &&
-      (wind.direction.value - direction).abs > 0.01
+          (wind.direction.value - direction).abs > 0.01
       false
     elsif speed.is_a?(Symbol) && wind.speed != speed
       false
     elsif speed.is_a?(Metar::Data::Speed) &&
-      (wind.speed.value - speed).abs > 0.01
+          (wind.speed.value - speed).abs > 0.01
       false
     elsif !wind.gusts.nil? && (wind.gusts.value - gusts).abs > 0.01
       false
@@ -42,107 +41,107 @@ describe Metar::Data::Wind do
         [123.0, 12.50, nil]
       ],
       [
-        'understands 5 digits + KMH',                         '12345KMH',
+        'understands 5 digits + KMH', '12345KMH',
         [123.0, 12.50, nil]
       ],
       [
-        'understands 5 digits + MPS',                         '12345MPS',
+        'understands 5 digits + MPS', '12345MPS',
         [123.0, 45.00, nil]
       ],
       [
-        'understands 5 digits + KT',                          '12345KT',
+        'understands 5 digits + KT', '12345KT',
         [123.0, 23.15, nil]
       ],
       [
-        'rounds 360 down to 0',                               '36045KT',
+        'rounds 360 down to 0', '36045KT',
         [0.0,   23.15, nil]
       ],
       [
-        'returns nil for directions outside 0 to 360',        '88845KT',
-        [nil,   nil,   nil]
+        'returns nil for directions outside 0 to 360', '88845KT',
+        [nil, nil,   nil]
       ],
       # +gusts
       [
-        'understands 5 digits + G + 2 digits',                '12345G67',
+        'understands 5 digits + G + 2 digits', '12345G67',
         [123.0, 12.50, 18.61]
       ],
       [
-        'understands 5 digits + G + 2 digits + KMH',          '12345G67KMH',
+        'understands 5 digits + G + 2 digits + KMH', '12345G67KMH',
         [123.0, 12.50, 18.61]
       ],
       [
-        'understands 5 digits + G + 2 digits + MPS',          '12345G67MPS',
+        'understands 5 digits + G + 2 digits + MPS', '12345G67MPS',
         [123.0, 45.00, 67.00]
       ],
       [
-        'understands 5 digits + G + 2 digits + KT',           '12345G67KT',
+        'understands 5 digits + G + 2 digits + KT', '12345G67KT',
         [123.0, 23.15, 34.47]
       ],
       # Variable direction
       [
-        'understands VRB + 2 digits',                         'VRB12',
-        [:variable_direction,  3.33, nil]
+        'understands VRB + 2 digits', 'VRB12',
+        [:variable_direction, 3.33, nil]
       ],
       [
-        'understands VRB + 2 digits + KMH',                   'VRB12KMH',
-        [:variable_direction,  3.33, nil]
+        'understands VRB + 2 digits + KMH', 'VRB12KMH',
+        [:variable_direction, 3.33, nil]
       ],
       [
-        'understands VRB + 2 digits + MPS',                   'VRB12MPS',
+        'understands VRB + 2 digits + MPS', 'VRB12MPS',
         [:variable_direction, 12.00, nil]
       ],
       [
-        'understands VRB + 2 digits + KT',                    'VRB12KT',
-        [:variable_direction,  6.17, nil]
+        'understands VRB + 2 digits + KT', 'VRB12KT',
+        [:variable_direction, 6.17, nil]
       ],
       # + gusts
       [
-        'understands VRB + 2 digits + G + 2 digits',          'VRB45G67',
+        'understands VRB + 2 digits + G + 2 digits', 'VRB45G67',
         [:variable_direction, 12.50, 18.61]
       ],
       [
-        'understands VRB + 2 digits + G + 2 digits + KMH',    'VRB45G67KMH',
+        'understands VRB + 2 digits + G + 2 digits + KMH', 'VRB45G67KMH',
         [:variable_direction, 12.50, 18.61]
       ],
       [
-        'understands VRB + 2 digits + G + 2 digits + MPS',    'VRB45G67MPS',
+        'understands VRB + 2 digits + G + 2 digits + MPS', 'VRB45G67MPS',
         [:variable_direction, 45.00, 67.00]
       ],
       [
-        'understands VRB + 2 digits + G + 2 digits + KT',     'VRB45G67KT',
+        'understands VRB + 2 digits + G + 2 digits + KT', 'VRB45G67KT',
         [:variable_direction, 23.15, 34.47]
       ],
       # Unknown direction
       [
-        'understands /// + 2 digits',                         '///12',
-        [:unknown_direction,  3.33, nil]
+        'understands /// + 2 digits', '///12',
+        [:unknown_direction, 3.33, nil]
       ],
       [
-        'understands /// + 2 digits + KMH',                   '///12KMH',
-        [:unknown_direction,  3.33, nil]
+        'understands /// + 2 digits + KMH', '///12KMH',
+        [:unknown_direction, 3.33, nil]
       ],
       [
-        'understands /// + 2 digits + MPS',                   '///12MPS',
+        'understands /// + 2 digits + MPS', '///12MPS',
         [:unknown_direction, 12.00, nil]
       ],
       [
-        'understands /// + 2 digits + KT',                    '///12KT',
-        [:unknown_direction,  6.17, nil]
+        'understands /// + 2 digits + KT', '///12KT',
+        [:unknown_direction, 6.17, nil]
       ],
       # Unknown direction and speed
       [
-        'understands /////',                                  '/////',
+        'understands /////', '/////',
         [:unknown_direction, :unknown_speed, nil]
       ],
       # Bad data
       [
-        'returns nil for badly formatted values',             'XYZ12KT',
+        'returns nil for badly formatted values', 'XYZ12KT',
         [nil, nil, nil]
       ],
       [
-        'returns nil for nil',                                nil,
+        'returns nil for nil', nil,
         [nil, nil, nil]
-      ],
+      ]
     ].each do |docstring, raw, expected|
       example docstring do
         expect(described_class.parse(raw)).to be_wind(*expected)
@@ -163,52 +162,52 @@ describe Metar::Data::Wind do
     [
       [
         'formats speed and direction',
-        :en, [nil,                 nil,            nil],
+        :en, [nil,                 nil, nil],
         '443km/h ESE'
       ],
       [
         'handles variable_direction',
-        :en, [:variable_direction, nil,            nil],
+        :en, [:variable_direction, nil, nil],
         '443km/h variable direction'
       ],
       [
         'handles unknown_direction',
-        :en, [:unknown_direction,  nil,            nil],
+        :en, [:unknown_direction, nil, nil],
         '443km/h unknown direction'
       ],
       [
         'handles unknown_speed',
-        :en, [nil,                 :unknown_speed, nil],
+        :en, [nil, :unknown_speed, nil],
         'unknown speed ESE'
       ],
       [
         'includes gusts',
-        :en, [nil,                 nil,            Metar::Data::Speed.new(123)],
+        :en, [nil, nil, Metar::Data::Speed.new(123)],
         '443km/h ESE gusts 443km/h'
       ],
       [
         'formats speed and direction',
-        :it, [nil,                 nil,            nil],
+        :it, [nil,                 nil, nil],
         '443km/h ESE'
       ],
       [
         'handles variable_direction',
-        :it, [:variable_direction, nil,            nil],
+        :it, [:variable_direction, nil, nil],
         '443km/h direzione variabile'
       ],
       [
         'handles unknown_direction',
-        :it, [:unknown_direction,  nil,            nil],
+        :it, [:unknown_direction, nil, nil],
         '443km/h direzione sconosciuta'
       ],
       [
         'handles unknown_speed',
-        :it, [nil,                 :unknown_speed, nil],
+        :it, [nil, :unknown_speed, nil],
         'velocità sconosciuta ESE'
       ],
       [
         'includes gusts',
-        :it, [nil,                 nil,            Metar::Data::Speed.new(123)],
+        :it, [nil, nil, Metar::Data::Speed.new(123)],
         '443km/h ESE folate di 443km/h'
       ]
     ].each do |docstring, locale, (direction, speed, gusts), expected|

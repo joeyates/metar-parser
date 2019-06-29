@@ -8,9 +8,9 @@ describe Metar::Report do
       double(
         Metar::Parser,
         station_code: station_code,
-        date:         Date.parse(metar_date),
-        time:         Time.parse(metar_datetime),
-        observer:     :real
+        date: Date.parse(metar_date),
+        time: Time.parse(metar_datetime),
+        observer: :real
       )
     end
     let(:station_code) { "SSSS" }
@@ -77,14 +77,14 @@ describe Metar::Report do
 
     context 'proxied from parser' do
       context 'singly' do
-        [
-          :wind,
-          :variable_wind,
-          :visibility,
-          :minimum_visibility,
-          :vertical_visibility,
-          :temperature,
-          :dew_point,
+        %i[
+          wind
+          variable_wind
+          visibility
+          minimum_visibility
+          vertical_visibility
+          temperature
+          dew_point
         ].each do |attribute|
           example attribute do
             allow(parser).to receive(attribute) { attribute.to_s }

@@ -9,29 +9,25 @@ class Metar::Data::SkyCondition < Metar::Data::Base
   }.freeze
 
   CONDITION = {
-    'CB'  => 'cumulonimbus',
+    'CB' => 'cumulonimbus',
     'TCU' => 'towering cumulus',
     # /// - cloud type unknown as observed by automatic system (15.9.1.7)
     '///' => nil,
-    ''    => nil,
-  }
+    '' => nil
+  }.freeze
   CLEAR_SKIES = [
     'NSC', # WMO
     'NCD', # WMO
     'CLR',
-    'SKC',
-  ]
+    'SKC'
+  ].freeze
 
   def self.parse(raw)
-    if !raw
-      return nil
-    end
+    return nil if !raw
 
-    if CLEAR_SKIES.include?(raw)
-      return new(raw)
-    end
+    return new(raw) if CLEAR_SKIES.include?(raw)
 
-    m1 = raw.match(/^(BKN|FEW|OVC|SCT)(\d+|\/{3})(CB|TCU|\/{3}|)?$/)
+    m1 = raw.match(%r(^(BKN|FEW|OVC|SCT)(\d+|/{3})(CB|TCU|/{3}|)?$))
     if m1
       quantity = QUANTITY[m1[1]]
       height   =
@@ -57,7 +53,9 @@ class Metar::Data::SkyCondition < Metar::Data::Base
 
   def initialize(raw, quantity: nil, height: nil, type: nil)
     @raw = raw
-    @quantity, @height, @type = quantity, height, type
+    @quantity = quantity
+    @height = height
+    @type = type
   end
 
   def to_s
@@ -69,7 +67,7 @@ class Metar::Data::SkyCondition < Metar::Data::Base
   end
 
   def to_summary
-    if @quantity == nil and @height == nil and @type == nil
+    if @quantity.nil? && @height.nil? && @type.nil?
       I18n.t('metar.sky_conditions.clear skies')
     else
       type = @type ? ' ' + @type : ''

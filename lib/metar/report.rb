@@ -2,17 +2,17 @@
 
 module Metar
   class Report
-    ATTRIBUTES = [
-      :station_name,
-      :station_country,
-      :time,
-      :wind,
-      :visibility,
-      :minimum_visibility,
-      :present_weather,
-      :sky_summary,
-      :temperature,
-    ]
+    ATTRIBUTES = %i[
+      station_name
+      station_country
+      time
+      wind
+      visibility
+      minimum_visibility
+      present_weather
+      sky_summary
+      temperature
+    ].freeze
 
     attr_reader :parser, :station
 
@@ -39,7 +39,10 @@ module Metar
     end
 
     def time
-      "%u:%02u" % [@parser.time.hour, @parser.time.min]
+      format(
+        "%<hour>u:%02<min>u",
+        hour: @parser.time.hour, min: @parser.time.min
+      )
     end
 
     def observer
@@ -63,7 +66,7 @@ module Metar
     end
 
     def runway_visible_range
-      @parser.runway_visible_range.collect { |rvr| rvr.to_s }.join(', ')
+      @parser.runway_visible_range.map(&:to_s).join(', ')
     end
 
     def present_weather
@@ -71,7 +74,7 @@ module Metar
     end
 
     def sky_summary
-      if @parser.sky_conditions.length == 0
+      if @parser.sky_conditions.empty?
         return I18n.t('metar.sky_conditions.clear skies')
       end
 
@@ -79,7 +82,7 @@ module Metar
     end
 
     def sky_conditions
-      @parser.sky_conditions.collect { |sky| sky.to_s }.join(', ')
+      @parser.sky_conditions.map(&:to_s).join(', ')
     end
 
     def vertical_visibility
@@ -114,8 +117,8 @@ module Metar
 
     def attributes
       a = Metar::Report::ATTRIBUTES.map do |key|
-        value = self.send(key).to_s
-        {:attribute => key, :value => value} if not value.empty?
+        value = send(key).to_s
+        {attribute: key, value: value} if !value.empty?
       end
       a.compact
     end

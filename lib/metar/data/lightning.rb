@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class Metar::Data::Lightning < Metar::Data::Base
-  TYPE = {'' => :default}
+  TYPE = {'' => :default}.freeze
 
   def self.parse_chunks(chunks)
     raw = chunks.shift
     m = raw.match(/^LTG(|CG|IC|CC|CA)$/)
     raise 'first chunk is not lightning' if m.nil?
+
     type = TYPE[m[1]]
 
     frequency = nil
@@ -29,19 +30,18 @@ class Metar::Data::Lightning < Metar::Data::Base
       end
 
       if chunks[0] == 'ALQDS'
-        directions += ['N', 'E', 'S', 'W']
+        directions += %w[N E S W]
         raw += " " + chunks.shift
         next
       end
 
       m = chunks[0].match(/^([NESW]{1,2})-([NESW]{1,2})$/)
       if m
-        if is_compass?(m[1]) && is_compass?(m[1])
-          directions += [m[1], m[2]]
-          raw += " " + chunks.shift
-        else
-          break
-        end
+        break if !is_compass?(m[1])
+        break if !is_compass?(m[2])
+
+        directions += [m[1], m[2]]
+        raw += " " + chunks.shift
         next
       end
 

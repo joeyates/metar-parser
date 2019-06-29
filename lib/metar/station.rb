@@ -17,7 +17,7 @@ module Metar
       @nsd_cccc = nil # Contains the text of the station list
 
       def countries
-        all_structures.reduce(Set.new) { |a, s| a.add(s[ :country ]) }.to_a.sort
+        all_structures.reduce(Set.new) { |a, s| a.add(s[:country]) }.to_a.sort
       end
 
       def all
@@ -34,7 +34,7 @@ module Metar
 
       # Does the given CCCC code exist?
       def exist?(cccc)
-        not find_data_by_cccc(cccc).nil?
+        !find_data_by_cccc(cccc).nil?
       end
 
       def find_all_by_country(country)
@@ -44,23 +44,26 @@ module Metar
       def to_longitude(s)
         m = s.match(/^(\d+)-(\d+)([EW])/)
         return nil if !m
+
         (m[3] == 'E' ? 1.0 : -1.0) * (m[1].to_f + m[2].to_f / 60.0)
       end
 
       def to_latitude(s)
         m = s.match(/^(\d+)-(\d+)([SN])/)
         return nil if !m
+
         (m[3] == 'E' ? 1.0 : -1.0) * (m[1].to_f + m[2].to_f / 60.0)
       end
     end
 
     attr_reader :cccc, :name, :state, :country, :longitude, :latitude, :raw
-    alias :code :cccc
+    alias code cccc
 
     # No check is made on the existence of the station
     def initialize(cccc, noaa_data)
       raise "Station identifier must not be nil"   if cccc.nil?
       raise "Station identifier must not be empty" if cccc.to_s == ''
+
       @cccc = cccc
       load! noaa_data
     end
@@ -92,13 +95,13 @@ module Metar
         @nsd_cccc.each_line do |station|
           fields = station.split(';')
           @structures << {
-            cccc:      fields[0],
-            name:      fields[3],
-            state:     fields[4],
-            country:   fields[5],
-            latitude:  fields[7],
+            cccc: fields[0],
+            name: fields[3],
+            state: fields[4],
+            country: fields[5],
+            latitude: fields[7],
             longitude: fields[8],
-            raw:       station.clone,
+            raw: station.clone
           }
         end
 
@@ -108,7 +111,6 @@ module Metar
       def find_data_by_cccc(cccc)
         all_structures.find { |station| station[:cccc] == cccc }
       end
-
     end
 
     def load!(noaa_data)

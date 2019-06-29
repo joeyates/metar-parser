@@ -14,15 +14,19 @@ class Metar::Data::Time < Metar::Data::Base
 
     m1 = raw.match(date_matcher)
     if m1
-      day, hour, minute = m1[1].to_i, m1[2].to_i, m1[3].to_i
+      day = m1[1].to_i
+      hour = m1[2].to_i
+      minute = m1[3].to_i
     else
       return nil if strict
 
       m2 = raw.match(/^(\d{1,2})(\d{2})Z$/)
       return nil if !m2
+
       # The day is missing, use today's date
-      day           = Time.now.day
-      hour, minute = m2[1].to_i, m2[2].to_i
+      day = Time.now.day
+      hour = m2[1].to_i
+      minute = m2[2].to_i
     end
 
     new(

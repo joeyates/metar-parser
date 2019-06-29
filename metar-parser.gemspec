@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-$:.unshift(File.join(File.dirname(__FILE__), 'lib'))
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib'))
 require 'metar/version'
 
 Gem::Specification.new do |s|
@@ -31,14 +31,14 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'i18n', '~> 0.7.0'
   s.add_runtime_dependency 'm9t',  '~> 0.3.5'
 
-  s.add_development_dependency 'rspec',  '~> 3.2'
-  s.add_development_dependency 'simplecov'
-  s.add_development_dependency 'rubocop'
-  s.add_development_dependency 'timecop'
   s.add_development_dependency 'pry'
   s.add_development_dependency 'pry-doc'
   s.add_development_dependency 'rake', '< 11.0'
   s.add_development_dependency 'rdoc'
+  s.add_development_dependency 'rspec', '~> 3.2'
+  s.add_development_dependency 'rubocop'
+  s.add_development_dependency 'simplecov'
+  s.add_development_dependency 'timecop'
 
   s.rubyforge_project = 'nowarning'
 end

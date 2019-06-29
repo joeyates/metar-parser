@@ -12,10 +12,8 @@ RSpec::Matchers.define :be_sky_condition do |quantity, height, type|
       false
     elsif sk.height.is_a?(Metar::Data::Distance) && sk.height.value != height
       false
-    elsif sk.type != type
-      false
     else
-      true
+      sk.type == type
     end
   end
 end
@@ -28,27 +26,27 @@ describe Metar::Data::SkyCondition do
         [nil, nil, nil]
       ],
       [
-        'quantity + height',             'BKN12',
+        'quantity + height', 'BKN12',
         ['broken', 365.76, nil]
       ],
       [
-        'quantity + height + type',      'BKN12CB',
+        'quantity + height + type', 'BKN12CB',
         ['broken', 365.76, 'cumulonimbus']
       ],
       [
-        'quantity + ///',                'BKN///',
+        'quantity + ///', 'BKN///',
         ['broken', nil, nil]
       ],
       [
-        'quantity + height + ///',       'FEW038///',
+        'quantity + height + ///', 'FEW038///',
         ['few', 1158.24, nil]
       ],
       [
-        'cumulonimbus only',             'CB', # seems non-standard, but occurs
+        'cumulonimbus only', 'CB', # seems non-standard, but occurs
         [nil, nil, 'cumulonimbus']
       ],
       [
-        'returns nil for unmatched',     'FUBAR',
+        'returns nil for unmatched', 'FUBAR',
         [:expect_nil, nil, nil]
       ]
     ].each do |docstring, raw, expected|
@@ -61,15 +59,15 @@ describe Metar::Data::SkyCondition do
   context '.to_summary' do
     [
       [
-        'all values nil',  [nil, nil, nil],
-        :en,      'clear skies'
+        'all values nil', [nil, nil, nil],
+        :en, 'clear skies'
       ],
       [
-        'quantity',        ['broken', nil, nil],
-        :en,      'broken cloud'
+        'quantity', ['broken', nil, nil],
+        :en, 'broken cloud'
       ],
       [
-        'quantity',        ['broken', nil, nil],
+        'quantity', ['broken', nil, nil],
         :'en-US', 'broken clouds'
       ],
       [
@@ -97,11 +95,11 @@ describe Metar::Data::SkyCondition do
   context '.to_s' do
     [
       [
-        'all values nil',  [nil, nil, nil],
+        'all values nil', [nil, nil, nil],
         'clear skies'
       ],
       [
-        'quantity',        ['broken', 360, nil],
+        'quantity', ['broken', 360, nil],
         'broken cloud at 360'
       ],
       [

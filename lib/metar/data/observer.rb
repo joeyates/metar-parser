@@ -7,10 +7,10 @@ class Metar::Data::Observer < Metar::Data::Base
       new(raw, value: :auto)
     when raw == 'COR'  # WMO specified code word for correction
       new(raw, value: :corrected)
-    when raw =~ /CC[A-Z]/  # Canadian correction
+    when raw =~ /CC[A-Z]/ # Canadian correction
       # Canada uses CCA for first correction, CCB for second, etc...
       new(raw, value: :corrected)
-    when raw == 'RTD'   #  Delayed observation, no comments on observer
+    when raw == 'RTD' #  Delayed observation, no comments on observer
       new(raw, value: :rtd)
     else
       new(nil, value: :real)

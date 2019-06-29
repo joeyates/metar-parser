@@ -15,10 +15,10 @@ describe Metar::Data::Remark do
 
     context '6-hour maximum or minimum' do
       [
-        ['positive maximum', '10046', [:maximum,  4.6]],
+        ['positive maximum', '10046', [:maximum, 4.6]],
         ['negative maximum', '11012', [:maximum, -1.2]],
-        ['positive minimum', '20046', [:minimum,  4.6]],
-        ['negative minimum', '21012', [:minimum, -1.2]],
+        ['positive minimum', '20046', [:minimum, 4.6]],
+        ['negative minimum', '21012', [:minimum, -1.2]]
       ].each do |docstring, raw, expected|
         example docstring do
           expect(described_class.parse(raw)).
@@ -31,7 +31,7 @@ describe Metar::Data::Remark do
       it 'returns minimum and maximum' do
         max, min = described_class.parse('400461006')
 
-        expect(max).to be_temperature_extreme(:maximum,  4.6)
+        expect(max).to be_temperature_extreme(:maximum, 4.6)
         expect(min).to be_temperature_extreme(:minimum, -0.6)
       end
     end

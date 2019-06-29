@@ -7,7 +7,7 @@ class Metar::Data::VariableWind < Metar::Data::Base
     m = raw.match(/^(\d+)V(\d+)$/)
     return nil if m.nil?
 
-    return new(
+    new(
       raw,
       direction1: Metar::Data::Direction.new(m[1]),
       direction2: Metar::Data::Direction.new(m[2])
@@ -19,7 +19,8 @@ class Metar::Data::VariableWind < Metar::Data::Base
 
   def initialize(raw, direction1:, direction2:)
     @raw = raw
-    @direction1, @direction2 = direction1, direction2
+    @direction1 = direction1
+    @direction2 = direction2
   end
 
   def to_s

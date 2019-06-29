@@ -18,4 +18,3 @@ module Metar
 
   autoload :Data, "metar/data"
 end
-

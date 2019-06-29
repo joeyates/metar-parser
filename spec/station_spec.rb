@@ -8,10 +8,8 @@ RSpec::Matchers.define :have_attribute do |attribute|
   match do |object|
     if !object.respond_to?(attribute)
       false
-    elsif object.method(attribute).arity != 0
-      false
     else
-      true
+      object.method(attribute).arity == 0
     end
   end
 end
@@ -134,13 +132,13 @@ describe Metar::Station do
   end
   let(:noaa_data) do
     {
-      cccc:      cccc,
-      name:      name,
-      state:     state,
-      country:   country,
+      cccc: cccc,
+      name: name,
+      state: state,
+      country: country,
       longitude: "055-24E",
-      latitude:  "11-03S",
-      raw:       noaa_raw,
+      latitude: "11-03S",
+      raw: noaa_raw
     }
   end
 
@@ -186,7 +184,7 @@ describe Metar::Station do
     let(:metar) do
       "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910"
     end
-    let(:time) { Date.new(2010, 02, 06) }
+    let(:time) { Date.new(2010, 2, 6) }
     let(:raw) { double(Metar::Raw, metar: metar, time: time) }
 
     before do

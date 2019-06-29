@@ -13,21 +13,19 @@ class Metar::Data::Remark
     :decreasing_then_increasing, # 5
     :decreasing_then_steady,     # 6
     :decreasing,                 # 7
-    :steady_then_decreasing,     # 8
-  ]
+    :steady_then_decreasing # 8
+  ].freeze
 
   INDICATOR_TYPE = {
-    'TS'  => :thunderstorm_information,
+    'TS' => :thunderstorm_information,
     'PWI' => :precipitation_identifier,
-    'P'   => :precipitation_amount,
-  }
+    'P' => :precipitation_amount
+  }.freeze
 
-  COLOR_CODE = ['RED', 'AMB', 'YLO', 'GRN', 'WHT', 'BLU']
+  COLOR_CODE = %w[RED AMB YLO GRN WHT BLU].freeze
 
   def self.parse(raw)
-    if !raw
-      return nil
-    end
+    return nil if !raw
 
     m1 = raw.match(/^([12])([01])(\d{3})$/)
     if m1
@@ -68,8 +66,8 @@ class Metar::Data::Remark
     m6 = raw.match(/^A[0O]([12])$/)
     if m6
       index = m6[1].to_i - 1
-      type = [
-        :with_precipitation_discriminator, :without_precipitation_discriminator
+      type = %i[
+        with_precipitation_discriminator without_precipitation_discriminator
       ][index]
       return Metar::Data::AutomatedStationType.new(raw, type)
     end
@@ -102,17 +100,11 @@ class Metar::Data::Remark
     end
 
     m11 = raw.match(/^(#{COLOR_CODE.join('|')})$/)
-    if m11
-      return Metar::Data::ColorCode.new(raw, m11[1])
-    end
+    return Metar::Data::ColorCode.new(raw, m11[1]) if m11
 
-    if raw == 'SKC'
-      return Metar::Data::SkyCondition.new(raw)
-    end
+    return Metar::Data::SkyCondition.new(raw) if raw == 'SKC'
 
-    if raw == '$'
-      Metar::Data::MaintenanceNeeded.new(raw)
-    end
+    return Metar::Data::MaintenanceNeeded.new(raw) if raw == '$'
 
     nil
   end

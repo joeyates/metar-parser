@@ -53,8 +53,8 @@ describe Metar::Raw::Metar do
       expect(subject.time.day).to eq(31)
     end
 
-    context "when the current day of month " +
-      "is greater than the METAR's day of month" do
+    context "when the current day of month " \
+            "is greater than the METAR's day of month" do
       let(:call_time) { Time.parse("2016-04-11 16:35") }
       let(:raw_metar) do
         "OPPS 092359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011"
@@ -184,7 +184,8 @@ describe Metar::Raw::Noaa do
       Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(ftp).
-        to have_received(:retrbinary).with('RETR the_cccc.TXT', kind_of(Fixnum))
+        to have_received(:retrbinary).
+        with('RETR the_cccc.TXT', kind_of(Integer))
       expect(ftp).to have_received(:close)
     end
 
@@ -202,6 +203,7 @@ describe Metar::Raw::Noaa do
         allow(ftp).to receive(:retrbinary) do |_args, &block|
           @attempt += 1
           raise Net::FTPTempError if @attempt == 1
+
           block.call "chunk 1\n"
           block.call "chunk 2\n"
         end

@@ -10,10 +10,8 @@ RSpec::Matchers.define :be_distance do |expected|
       false
     elsif distance.value.nil? && expected.nil?
       true
-    elsif (distance.value - expected).abs > 0.01
-      false
     else
-      true
+      (distance.value - expected).abs <= 0.01
     end
   end
 end
@@ -23,7 +21,7 @@ describe Metar::Data::VerticalVisibility do
     [
       ['VV + nnn',                  'VV300',  9144],
       ['///',                       '///',    nil],
-      ['returns nil for unmatched', 'FUBAR',  :expect_nil],
+      ['returns nil for unmatched', 'FUBAR',  :expect_nil]
     ].each do |docstring, raw, expected|
       example docstring do
         expect(described_class.parse(raw)).to be_distance(expected)

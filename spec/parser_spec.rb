@@ -13,10 +13,10 @@ describe Metar::Parser do
     let(:station) { double(Metar::Station) }
     let(:raw) { double(Metar::Raw::Noaa, metar: metar, time: time) }
     let(:metar) do
-      "XXXX 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+      "XXXX 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
         "RMK AO2 P0000"
     end
-    let(:time) { Time.gm(2010, 02, 06) }
+    let(:time) { Time.gm(2010, 2, 6) }
 
     before do
       allow(Metar::Station).to receive(:new) { station }
@@ -52,11 +52,11 @@ describe Metar::Parser do
     context 'datetime' do
       it 'is parsed' do
         parser = setup_parser(
-          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
-        expect(parser.time).to eq(Time.gm(2011, 05, 06, 16, 10))
+        expect(parser.time).to eq(Time.gm(2011, 5, 6, 16, 10))
       end
 
       it 'throws an error is missing' do
@@ -89,7 +89,7 @@ describe Metar::Parser do
 
         it 'less than 6 numerals fails' do
           expect do
-            parser = setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
+            setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
           end.to raise_error(Metar::ParseError, /Expecting datetime/)
         end
       end
@@ -98,13 +98,13 @@ describe Metar::Parser do
         it '5 numerals parses' do
           parser = setup_parser('MMCE 21645Z 12010KT 8SM SKC 29/26 A2992 RMK')
 
-          expect(parser.time).to eq(Time.gm(2011, 05, 02, 16, 45))
+          expect(parser.time).to eq(Time.gm(2011, 5, 2, 16, 45))
         end
 
         it "with 4 numerals parses, takes today's day" do
           parser = setup_parser('HKML 1600Z 19010KT 9999 FEW022 25/22 Q1015')
 
-          expect(parser.time).to eq(Time.gm(2011, 05, 06, 16, 00))
+          expect(parser.time).to eq(Time.gm(2011, 5, 6, 16, 0))
         end
       end
     end
@@ -112,7 +112,7 @@ describe Metar::Parser do
     context '.observer' do
       it 'real' do
         parser = setup_parser(
-          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
@@ -121,7 +121,7 @@ describe Metar::Parser do
 
       it 'auto' do
         parser = setup_parser(
-          "CYXS 151034Z AUTO 09003KT 1/8SM FZFG VV001 M03/M03 A3019 " +
+          "CYXS 151034Z AUTO 09003KT 1/8SM FZFG VV001 M03/M03 A3019 " \
             "RMK SLP263 ICG"
         )
 
@@ -130,7 +130,7 @@ describe Metar::Parser do
 
       it 'corrected' do
         parser = setup_parser(
-          "PAIL 061610Z COR 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z COR 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
@@ -139,8 +139,8 @@ describe Metar::Parser do
 
       it 'corrected (Canadian, first correction)' do
         parser = setup_parser(
-          "CYZU 310100Z CCA 26004KT 15SM " +
-            "FEW009 BKN040TCU BKN100 OVC210 15/12 A2996 RETS " +
+          "CYZU 310100Z CCA 26004KT 15SM " \
+            "FEW009 BKN040TCU BKN100 OVC210 15/12 A2996 RETS " \
             "RMK SF1TCU4AC2CI1 SLP149"
         )
 
@@ -149,7 +149,7 @@ describe Metar::Parser do
 
       it 'corrected (Canadian, second correction)' do
         parser = setup_parser(
-          "CYCX 052000Z CCB 30014G27KT 15SM DRSN SCT035 M02/M09 A2992 " +
+          "CYCX 052000Z CCB 30014G27KT 15SM DRSN SCT035 M02/M09 A2992 " \
             "RMK SC4 SLP133"
         )
 
@@ -158,7 +158,7 @@ describe Metar::Parser do
 
       it 'corrected (Canadian, rare third correction)' do
         parser = setup_parser(
-          "CYEG 120000Z CCC 12005KT 15SM FEW110 BKN190 03/M01 A2980 " +
+          "CYEG 120000Z CCC 12005KT 15SM FEW110 BKN190 03/M01 A2980 " \
             "RMK AC2AC3 SLP122"
         )
 
@@ -169,7 +169,7 @@ describe Metar::Parser do
     context 'wind' do
       it 'is parsed' do
         parser = setup_parser(
-          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
@@ -193,7 +193,7 @@ describe Metar::Parser do
         it 'more than 5 digits is parsed' do
           parser = setup_parser('KSEE 181947Z 000000KT 10SM SKC 22/10 A2999')
           expect(parser.wind.direction.value).to eq(0.0)
-          expect(parser.visibility.distance.value).to be_within(1).of(16093)
+          expect(parser.visibility.distance.value).to be_within(1).of(16_093)
         end
       end
     end
@@ -213,7 +213,8 @@ describe Metar::Parser do
           "PAIL 061610Z 24006KT CAVOK M17/M20 A2910 RMK AO2 P0000"
         )
 
-        expect(parser.visibility.distance.value).to be_within(0.01).of(10000.00)
+        expect(parser.visibility.distance.value).
+          to be_within(0.01).of(10_000.00)
         expect(parser.visibility.comparator).to eq(:more_than)
         expect(parser.present_weather.size).to eq(1)
         expect(parser.present_weather[0].phenomenon).
@@ -224,7 +225,7 @@ describe Metar::Parser do
 
       it 'visibility_miles_and_fractions' do
         parser = setup_parser(
-          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
@@ -233,7 +234,7 @@ describe Metar::Parser do
 
       it 'in meters' do
         parser = setup_parser(
-          "VABB 282210Z 22005KT 4000 HZ SCT018 " +
+          "VABB 282210Z 22005KT 4000 HZ SCT018 " \
             "FEW025TCU BKN100 28/25 Q1003 NOSIG"
         )
 
@@ -242,7 +243,7 @@ describe Metar::Parser do
 
       it '//// with automatic observer' do
         parser = setup_parser(
-          "CYXS 151034Z AUTO 09003KT //// FZFG VV001 M03/M03 A3019 " +
+          "CYXS 151034Z AUTO 09003KT //// FZFG VV001 M03/M03 A3019 " \
             "RMK SLP263 ICG"
         )
 
@@ -252,7 +253,7 @@ describe Metar::Parser do
 
     it 'runway_visible_range' do
       parser = setup_parser(
-        "ESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 " +
+        "ESSB 151020Z 26003KT 2000 R12/1000N R30/1500N VV002 M07/M07 " \
           "Q1013 1271//55"
       )
       expect(parser.runway_visible_range.size).to eq(2)
@@ -264,7 +265,7 @@ describe Metar::Parser do
 
     it 'runway_visible_range_defaults_to_empty_array' do
       parser = setup_parser(
-        "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+        "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
           "RMK AO2 P0000"
       )
 
@@ -273,7 +274,7 @@ describe Metar::Parser do
 
     it 'runway_visible_range_variable' do
       parser = setup_parser(
-        "KPDX 151108Z 11006KT 1/4SM R10R/1600VP6000FT FG OVC002 05/05 A3022 " +
+        "KPDX 151108Z 11006KT 1/4SM R10R/1600VP6000FT FG OVC002 05/05 A3022 " \
           "RMK AO2"
       )
 
@@ -286,7 +287,7 @@ describe Metar::Parser do
     context '.present_weather' do
       it 'normal' do
         parser = setup_parser(
-          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
@@ -297,7 +298,7 @@ describe Metar::Parser do
 
       it 'auto + //' do
         parser = setup_parser(
-          "PAIL 061610Z AUTO 24006KT 1 3/4SM // BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z AUTO 24006KT 1 3/4SM // BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
@@ -316,7 +317,7 @@ describe Metar::Parser do
     context '.sky_conditions' do
       it 'normal' do
         parser = setup_parser(
-          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
@@ -345,7 +346,7 @@ describe Metar::Parser do
 
     it 'vertical_visibility' do
       parser = setup_parser(
-        "CYXS 151034Z AUTO 09003KT 1/8SM FZFG VV001 M03/M03 A3019 " +
+        "CYXS 151034Z AUTO 09003KT 1/8SM FZFG VV001 M03/M03 A3019 " \
           "RMK SLP263 ICG"
       )
       expect(parser.vertical_visibility.value).to eq(30.48)
@@ -353,7 +354,7 @@ describe Metar::Parser do
 
     it 'temperature' do
       parser = setup_parser(
-        "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+        "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
           "RMK AO2 P0000"
       )
       expect(parser.temperature.value).to eq(-17)
@@ -368,7 +369,7 @@ describe Metar::Parser do
 
     it 'dew_point' do
       parser = setup_parser(
-        "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+        "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
           "RMK AO2 P0000"
       )
       expect(parser.dew_point.value).to eq(-20)
@@ -383,7 +384,7 @@ describe Metar::Parser do
 
     it 'sea_level_pressure' do
       parser = setup_parser(
-        "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+        "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
           "RMK AO2 P0000"
       )
       expect(parser.sea_level_pressure.pressure.to_inches_of_mercury).
@@ -403,7 +404,7 @@ describe Metar::Parser do
     context 'remarks' do
       it 'are collected' do
         parser = setup_parser(
-          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+          "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
             "RMK AO2 P0000"
         )
 
@@ -439,7 +440,7 @@ describe Metar::Parser do
 
         it 'parses density altitude' do
           parser = setup_parser(
-            "CYBW 010000Z AUTO VRB04KT 9SM SCT070 13/M01 A3028 " +
+            "CYBW 010000Z AUTO VRB04KT 9SM SCT070 13/M01 A3028 " \
               "RMK DENSITY ALT 4100FT="
           )
 
@@ -456,7 +457,7 @@ describe Metar::Parser do
         it 'unparsed data causes an error' do
           expect do
             setup_parser(
-              "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+              "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
                 "FOO RMK AO2 P0000"
             )
           end.to raise_error(Metar::ParseError, /Unparsable text found/)
@@ -466,7 +467,7 @@ describe Metar::Parser do
       context 'in loose mode' do
         it 'unparsed data is collected' do
           parser = setup_parser(
-            "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " +
+            "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910 " \
               "FOO RMK AO2 P0000"
           )
 
@@ -550,12 +551,12 @@ describe Metar::Parser do
     [
       [:metar, "is the raw METAR string"],
       [:station_code, "the station code"],
-      [:datetime, "the date/time string"],
+      [:datetime, "the date/time string"]
     ].each do |attr, description|
-      context "#{attr}" do
+      context attr.to_s do
         specify ":#{attr} is #{description}" do
           expect(result).to include(attr)
-          expect(result[attr]).to eq(self.send(attr))
+          expect(result[attr]).to eq(send(attr))
         end
       end
     end
@@ -567,11 +568,11 @@ describe Metar::Parser do
       [:visibility, "visibility"],
       [:runway_visible_range, "runway visible range"],
       [:present_weather, "present weather"],
-      [:sky_conditions, "sky conditions"] ,
+      [:sky_conditions, "sky conditions"],
       [:vertical_visibility, "vertical visibility"],
       [:temperature_and_dew_point, "temperature and dew point"],
       [:sea_level_pressure, "sea-level pressure"],
-      [:recent_weather, "recent weather"],
+      [:recent_weather, "recent weather"]
     ].each do |attr, name|
       context "with #{name}" do
         let(:parts) { super() + [send(attr)] }

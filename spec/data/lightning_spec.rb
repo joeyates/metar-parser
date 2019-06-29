@@ -11,20 +11,20 @@ describe Metar::Data::Lightning do
       ],
       [
         'distance direction', 'LTG DSNT SE',
-        [:default, 16093.44, ['SE']]
+        [:default, 16_093.44, ['SE']]
       ],
       [
         'distance direction and direction', 'LTG DSNT NE AND W',
-        [:default, 16093.44, ['NE', 'W']]
+        [:default, 16_093.44, %w[NE W]]
       ],
       [
         'distance direction-direction', 'LTG DSNT SE-SW',
-        [:default, 16093.44, ['SE', 'SW']]
+        [:default, 16_093.44, %w[SE SW]]
       ],
       [
         'distance all quandrants', 'LTG DSNT ALQDS',
-        [:default, 16093.44, ['N', 'E', 'S', 'W']]
-      ],
+        [:default, 16_093.44, %w[N E S W]]
+      ]
     ].each do |docstring, section, expected|
       example docstring do
         chunks = section.split(' ')
@@ -42,9 +42,9 @@ describe Metar::Data::Lightning do
     end
 
     it 'removes parsed chunks' do
-      chunks = ['LTG', 'DSNT', 'SE', 'FOO']
+      chunks = %w[LTG DSNT SE FOO]
 
-      r = described_class.parse_chunks(chunks)
+      described_class.parse_chunks(chunks)
 
       expect(chunks).to eq(['FOO'])
     end
@@ -56,9 +56,9 @@ describe Metar::Data::Lightning do
     end
 
     it "doesn't not fail if all chunks are parsed" do
-      chunks = ['LTG', 'DSNT', 'SE']
+      chunks = %w[LTG DSNT SE]
 
-      r = described_class.parse_chunks(chunks)
+      described_class.parse_chunks(chunks)
 
       expect(chunks).to eq([])
     end
