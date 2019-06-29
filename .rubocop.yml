@@ -1,5 +1,5 @@
 Style/StringLiterals:
   Enabled: false
   EnforcedStyle: double_quotes
-Style/TrailingCommaInLiteral:
+Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: consistent_comma
