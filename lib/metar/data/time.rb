@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Metar::Data::Time < Metar::Data::Base
   def self.parse(raw, year: nil, month: nil, strict: true)
     year ||= DateTime.now.year

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rspec'
 
 if RUBY_VERSION > '1.9'

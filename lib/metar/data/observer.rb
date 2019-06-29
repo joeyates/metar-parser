@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Metar::Data::Observer < Metar::Data::Base
   def self.parse(raw)
     case

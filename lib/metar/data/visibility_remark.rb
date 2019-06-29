@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Metar::Data::VisibilityRemark < Metar::Data::Visibility
   def self.parse(raw)
     metres, direction = raw.scan(/^(\d{4})([NESW]?)$/)[0]

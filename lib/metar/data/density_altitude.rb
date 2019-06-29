@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Metar::Data::DensityAltitude < Metar::Data::Base
   def self.parse(raw)
     feet = raw[/^(\d+)(FT)/, 1]

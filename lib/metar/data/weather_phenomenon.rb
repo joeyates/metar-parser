@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "metar/i18n"
 
 class Metar::Data::WeatherPhenomenon < Metar::Data::Base

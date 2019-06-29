@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "i18n"
 
 locales_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "locales"))

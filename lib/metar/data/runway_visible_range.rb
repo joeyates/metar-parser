@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Metar::Data::RunwayVisibleRange < Metar::Data::Base
   TENDENCY   = {'' => nil, 'N' => :no_change, 'U' => :improving, 'D' => :worsening}
   COMPARATOR = {'' => nil, 'P' => :more_than, 'M' => :less_than}

@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec::Matchers.define :be_runway_visible_range do |designator, visibility1, visibility2, tendency|

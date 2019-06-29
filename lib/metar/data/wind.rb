@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Metar::Data::Wind < Metar::Data::Base
   def self.parse(raw, strict: false)
     return nil if raw.nil?

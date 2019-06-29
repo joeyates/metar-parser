@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Metar::Data::SkyCondition < Metar::Data::Base
   QUANTITY = {'BKN' => 'broken', 'FEW' => 'few', 'OVC' => 'overcast', 'SCT' => 'scattered'}
   CONDITION = {

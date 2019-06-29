@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Metar::Data::Lightning < Metar::Data::Base
   TYPE = {'' => :default}
 

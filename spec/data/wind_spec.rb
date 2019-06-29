@@ -1,4 +1,6 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec::Matchers.define :be_wind do |direction, speed, gusts|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'date'
 require 'net/ftp'
 require 'time'
@@ -99,7 +101,7 @@ module Metar
             begin
               s = ''
               connection.retrbinary("RETR #{ cccc }.TXT", 1024) do |chunk|
-                s << chunk
+                s += chunk
               end
               disconnect
               return s
