@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 
-class Metar::Data::DensityAltitude < Metar::Data::Base
-  def self.parse(raw)
-    feet = raw[/^(\d+)(FT)/, 1]
-    height = Metar::Data::Distance.feet(feet)
+module Metar
+  module Data
+    class DensityAltitude < Metar::Data::Base
+      def self.parse(raw)
+        feet = raw[/^(\d+)(FT)/, 1]
+        height = Metar::Data::Distance.feet(feet)
 
-    new(raw, height: height)
-  end
+        new(raw, height: height)
+      end
 
-  attr_accessor :height
+      attr_accessor :height
 
-  def initialize(raw, height:)
-    @raw = raw
-    @height = height
+      def initialize(raw, height:)
+        @raw = raw
+        @height = height
+      end
+    end
   end
 end
