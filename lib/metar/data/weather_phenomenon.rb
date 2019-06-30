@@ -75,7 +75,8 @@ class Metar::Data::WeatherPhenomenon < Metar::Data::Base
       raw,
       phenomenon: phenomena_phrase,
       modifier: MODIFIERS[modifier_code],
-      descriptor: DESCRIPTORS[descriptor_code]
+      descriptor: DESCRIPTORS[descriptor_code],
+      recent: recent
     )
   end
 

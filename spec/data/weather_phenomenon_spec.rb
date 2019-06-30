@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec::Matchers.define :be_weather_phenomenon do |modifier, descriptor, phen|
+RSpec::Matchers.define :be_weather_phenomenon do |mod, desc, phen, recent|
   match do |wp|
     if wp.nil? && phen.nil?
       true
@@ -10,10 +10,12 @@ RSpec::Matchers.define :be_weather_phenomenon do |modifier, descriptor, phen|
       false
     elsif wp.phenomenon != phen
       false
-    elsif wp.modifier != modifier
+    elsif wp.modifier != mod
+      false
+    elsif wp.descriptor != desc
       false
     else
-      wp.descriptor == descriptor
+      wp.recent == recent
     end
   end
 end
@@ -23,39 +25,43 @@ describe Metar::Data::WeatherPhenomenon do
     [
       [
         'simple phenomenon', 'BR',
-        [nil, nil, 'mist']
+        [nil, nil, 'mist', false]
       ],
       [
         'descriptor + phenomenon', 'BCFG',
-        [nil, 'patches of', 'fog']
+        [nil, 'patches of', 'fog', false]
       ],
       [
         'thunderstorm and rain', 'TSRA',
-        [nil, 'thunderstorm and', 'rain']
+        [nil, 'thunderstorm and', 'rain', false]
       ],
       [
         'intensity + phenomenon', '+RA',
-        ['heavy', nil, 'rain']
+        ['heavy', nil, 'rain', false]
       ],
       [
         'intensity + proximity + phenomenon', '-VCTSRA',
-        ['nearby light', 'thunderstorm and', 'rain']
+        ['nearby light', 'thunderstorm and', 'rain', false]
       ],
       [
         '2 phenomena: SN RA', 'SNRA',
-        [nil, nil, 'snow and rain']
+        [nil, nil, 'snow and rain', false]
       ],
       [
         '2 phenomena: RA DZ', 'RADZ',
-        [nil, nil, 'rain and drizzle']
+        [nil, nil, 'rain and drizzle', false]
       ],
       [
         'modifier + descriptor + phenomenon', 'VCDRFG',
-        ['nearby', 'low drifting', 'fog']
+        ['nearby', 'low drifting', 'fog', false]
+      ],
+      [
+        'recent', 'RESN',
+        [nil, nil, 'snow', true]
       ],
       [
         'returns nil for unmatched', 'FUBAR',
-        [nil, nil, nil]
+        [nil, nil, nil, false]
       ]
     ].each do |docstring, raw, expected|
       example docstring do
