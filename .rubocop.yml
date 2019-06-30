@@ -3,6 +3,17 @@ AllCops:
   Exclude:
     - 'bin/**/*'
 
+Layout/DotPosition:
+  EnforcedStyle: trailing
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
+
+Style/Documentation:
+  Enabled: false
+Style/EmptyCaseCondition:
+  Enabled: false
+Style/NegatedIf:
+  Enabled: false
 Style/PercentLiteralDelimiters:
   PreferredDelimiters:
     '%i': '()'
@@ -13,3 +24,7 @@ Style/StringLiterals:
   EnforcedStyle: double_quotes
 Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: no_comma
+Style/WhileUntilDo:
+  Enabled: false
+Style/WhileUntilModifier:
+  Enabled: false
