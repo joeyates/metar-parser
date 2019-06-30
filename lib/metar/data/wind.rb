@@ -52,13 +52,13 @@ class Metar::Data::Wind < Metar::Data::Base
       return new(raw, direction: :variable_direction, speed: speed)
     end
 
-    m5 = raw.match(%r(^/{3}(\d{2}(|MPS|KMH|KT))$))
+    m5 = raw.match(%r{^/{3}(\d{2}(|MPS|KMH|KT))$})
     if m5
       speed = Metar::Data::Speed.parse(m5[1])
       return new(raw, direction: :unknown_direction, speed: speed)
     end
 
-    m6 = raw.match(%r(^/////(|MPS|KMH|KT)$))
+    m6 = raw.match(%r{^/////(|MPS|KMH|KT)$})
     return new(raw, direction: :unknown_direction, speed: :unknown_speed) if m6
 
     nil

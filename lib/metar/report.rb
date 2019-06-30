@@ -2,7 +2,7 @@
 
 module Metar
   class Report
-    ATTRIBUTES = %i[
+    ATTRIBUTES = %i(
       station_name
       station_country
       time
@@ -12,7 +12,7 @@ module Metar
       present_weather
       sky_summary
       temperature
-    ].freeze
+    ).freeze
 
     attr_reader :parser, :station
 

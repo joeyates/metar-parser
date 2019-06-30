@@ -30,7 +30,7 @@ class Metar::Data::Lightning < Metar::Data::Base
       end
 
       if chunks[0] == 'ALQDS'
-        directions += %w[N E S W]
+        directions += %w(N E S W)
         raw += " " + chunks.shift
         next
       end

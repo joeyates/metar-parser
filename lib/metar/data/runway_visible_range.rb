@@ -14,7 +14,7 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
   def self.parse(raw)
     return nil if raw.nil?
 
-    m1 = raw.match(%r(^R(\d+[RLC]?)/(P|M|)(\d{4})(FT|)/?(N|U|D|)$))
+    m1 = raw.match(%r{^R(\d+[RLC]?)/(P|M|)(\d{4})(FT|)/?(N|U|D|)$})
     if m1
       designator = m1[1]
       comparator = COMPARATOR[m1[2]]
@@ -32,7 +32,7 @@ class Metar::Data::RunwayVisibleRange < Metar::Data::Base
     end
 
     m2 = raw.match(
-      %r(^R(\d+[RLC]?)/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)/?(N|U|D)?$)
+      %r{^R(\d+[RLC]?)/(P|M|)(\d{4})V(P|M|)(\d{4})(FT|)/?(N|U|D)?$}
     )
     if m2
       designator  = m2[1]

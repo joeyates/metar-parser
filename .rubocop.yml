@@ -2,6 +2,11 @@ AllCops:
   Exclude:
     - 'bin/**/*'
 
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    '%i': '()'
+    '%r': '{}'
+    '%w': '()'
 Style/StringLiterals:
   Enabled: false
   EnforcedStyle: double_quotes

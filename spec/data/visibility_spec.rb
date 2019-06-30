@@ -74,7 +74,7 @@ describe Metar::Data::Visibility do
       ],
       [
         'with distance, direction and comparator',
-        :en, %i[set set more_than], 'more than 4km ESE'
+        :en, %i(set set more_than), 'more than 4km ESE'
       ],
       [
         'with distance and direction',
@@ -82,7 +82,7 @@ describe Metar::Data::Visibility do
       ],
       [
         'with distance, direction and comparator',
-        :it, %i[set set more_than], 'piú di 4km ESE'
+        :it, %i(set set more_than), 'piú di 4km ESE'
       ]
     ].each do |docstring, locale, (distance, direction, comparator), expected|
       distance  = Metar::Data::Distance.new(4321) if distance == :set

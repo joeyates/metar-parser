@@ -27,7 +27,7 @@ class Metar::Data::SkyCondition < Metar::Data::Base
 
     return new(raw) if CLEAR_SKIES.include?(raw)
 
-    m1 = raw.match(%r(^(BKN|FEW|OVC|SCT)(\d+|/{3})(CB|TCU|/{3}|)?$))
+    m1 = raw.match(%r{^(BKN|FEW|OVC|SCT)(\d+|/{3})(CB|TCU|/{3}|)?$})
     if m1
       quantity = QUANTITY[m1[1]]
       height   =

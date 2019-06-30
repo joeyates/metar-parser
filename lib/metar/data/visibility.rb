@@ -17,7 +17,7 @@ class Metar::Data::Visibility < Metar::Data::Base
       ) # Assuming meters
     end
 
-    m2 = raw.match(%r(^((1|2)\s|)([1357])/([248]|16)SM$)) # US
+    m2 = raw.match(%r{^((1|2)\s|)([1357])/([248]|16)SM$}) # US
     if m2
       numerator = m2[3].to_f
       denominator = m2[4].to_f

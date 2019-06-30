@@ -22,7 +22,7 @@ class Metar::Data::Remark
     'P' => :precipitation_amount
   }.freeze
 
-  COLOR_CODE = %w[RED AMB YLO GRN WHT BLU].freeze
+  COLOR_CODE = %w(RED AMB YLO GRN WHT BLU).freeze
 
   def self.parse(raw)
     return nil if !raw
@@ -66,9 +66,9 @@ class Metar::Data::Remark
     m6 = raw.match(/^A[0O]([12])$/)
     if m6
       index = m6[1].to_i - 1
-      type = %i[
+      type = %i(
         with_precipitation_discriminator without_precipitation_discriminator
-      ][index]
+      )[index]
       return Metar::Data::AutomatedStationType.new(raw, type)
     end
 

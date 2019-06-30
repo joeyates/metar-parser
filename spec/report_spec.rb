@@ -77,7 +77,7 @@ describe Metar::Report do
 
     context 'proxied from parser' do
       context 'singly' do
-        %i[
+        %i(
           wind
           variable_wind
           visibility
@@ -85,7 +85,7 @@ describe Metar::Report do
           vertical_visibility
           temperature
           dew_point
-        ].each do |attribute|
+        ).each do |attribute|
           example attribute do
             allow(parser).to receive(attribute) { attribute.to_s }
 

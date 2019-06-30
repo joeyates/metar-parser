@@ -15,7 +15,7 @@ module Metar
       new(raw)
     end
 
-    COMPLIANCE = %i[strict loose].freeze
+    COMPLIANCE = %i(strict loose).freeze
 
     def self.thread_attributes
       Thread.current[:metar_parser] ||= {}

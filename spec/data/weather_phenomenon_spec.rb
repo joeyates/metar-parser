@@ -108,7 +108,7 @@ describe Metar::Data::WeatherPhenomenon do
       ],
       [
         'modifier + descriptor + phenomenon', :en,
-        %w[heavy freezing drizzle],
+        %w(heavy freezing drizzle),
         'heavy freezing drizzle'
       ]
     ].each do |docstring, locale, (modifier, descriptor, phenomenon), expected|
