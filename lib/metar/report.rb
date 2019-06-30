@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "metar/data/remark"
+
 module Metar
   class Report
     ATTRIBUTES = %i(
