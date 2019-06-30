@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'open-uri'
+require 'net/http'
+require 'uri'
 require 'set'
 
 # A Station can be created without downloading data from the Internet.
@@ -83,7 +84,9 @@ module Metar
       @structures = nil
 
       def download_stations
-        open(NOAA_STATION_LIST_URL) { |fil| fil.read }
+        uri = URI.parse(NOAA_STATION_LIST_URL)
+        response = Net::HTTP.get_response(uri)
+        response.body
       end
 
       def all_structures

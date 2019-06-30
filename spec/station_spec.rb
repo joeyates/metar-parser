@@ -16,9 +16,40 @@ end
 
 describe Metar::Station do
   context "using structures" do
+    let(:response) { double(body: nsd_file) }
+
+    ##
+    # NOAA Station list fields:
+    #
+    # 0    1  2   3          45     6 7      8       9      10      11  12  13
+    # PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+    #
+    # 0 - CCCC
+    # 1 - ?
+    # 2 - ?
+    # 3 - name of station
+    # 4 - state
+    # 5 - country
+    # 6 - ?
+    # 7 - latitude1
+    # 8 - longitude1
+    # 9 - latitude2
+    # 10 - longitude2
+    # 11 - ?
+    # 12 - ?
+    # 13 - ?
+    #
+    let(:nsd_file) do
+      <<-TEXT.gsub(/^\s{8}/, "")
+        PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+        AAAA;00;000;Airport A1;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+        AAAB;00;000;Airport A2;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+        BBBA;00;000;Airport B1;;Bbbbb;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+      TEXT
+    end
+
     before do
-      allow(Metar::Station).to receive(:open).
-        with(Metar::Station::NOAA_STATION_LIST_URL) { nsd_file }
+      allow(Net::HTTP).to receive(:get_response) { response }
     end
 
     context ".countries" do
@@ -65,38 +96,6 @@ describe Metar::Station do
 
         expect(aaaaa.map(&:cccc)).to eq(%w(AAAA AAAB))
       end
-    end
-
-    ##
-    # NOAA Station list fields:
-    #
-    # 0    1  2   3          45     6 7      8       9      10      11  12  13
-    # PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-    #
-    # 0 - CCCC
-    # 1 - ?
-    # 2 - ?
-    # 3 - name of station
-    # 4 - state
-    # 5 - country
-    # 6 - ?
-    # 7 - latitude1
-    # 8 - longitude1
-    # 9 - latitude2
-    # 10 - longitude2
-    # 11 - ?
-    # 12 - ?
-    # 13 - ?
-    #
-    def nsd_file
-      nsd_text = <<-TEXT.gsub(/^\s{8}/, "")
-        PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-        AAAA;00;000;Airport A1;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-        AAAB;00;000;Airport A2;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-        BBBA;00;000;Airport B1;;Bbbbb;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-      TEXT
-
-      StringIO.new(nsd_text)
     end
   end
 
