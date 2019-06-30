@@ -22,7 +22,7 @@ class Metar::Data::Lightning < Metar::Data::Base
     loop do
       break if chunks[0].nil?
 
-      if is_compass?(chunks[0])
+      if compass?(chunks[0])
         direction = chunks.shift
         raw += " " + direction
         directions << direction
@@ -37,8 +37,8 @@ class Metar::Data::Lightning < Metar::Data::Base
 
       m = chunks[0].match(/^([NESW]{1,2})-([NESW]{1,2})$/)
       if m
-        break if !is_compass?(m[1])
-        break if !is_compass?(m[2])
+        break if !compass?(m[1])
+        break if !compass?(m[2])
 
         directions += [m[1], m[2]]
         raw += " " + chunks.shift
@@ -60,8 +60,8 @@ class Metar::Data::Lightning < Metar::Data::Base
     )
   end
 
-  def self.is_compass?(s)
-    s =~ /^([NESW]|NE|SE|SW|NW)$/
+  def self.compass?(direction)
+    direction =~ /^([NESW]|NE|SE|SW|NW)$/
   end
 
   attr_accessor :frequency
