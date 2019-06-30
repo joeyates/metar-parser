@@ -112,69 +112,24 @@ describe Metar::Raw::Noaa do
 
   let(:cccc) { "ESSB" }
   let(:ftp) do
-    double(Net::FTP, login: nil, chdir: nil, :passive= => nil, retrbinary: nil)
+    double(
+      Net::FTP,
+      chdir: nil,
+      close: nil,
+      login: nil,
+      :passive= => nil,
+      retrbinary: nil
+    )
   end
 
   before do
     allow(Net::FTP).to receive(:new) { ftp }
   end
 
-  after do
-    Metar::Raw::Noaa.send(:class_variable_set, '@@connection', nil)
-  end
-
-  context '.connection' do
-    context 'uncached' do
-      it 'sets up the connection' do
-        Metar::Raw::Noaa.connect
-
-        expect(Net::FTP).to have_received(:new)
-      end
-    end
-
-    context 'cached' do
-      before :each do
-        Metar::Raw::Noaa.send(:class_variable_set, '@@connection', ftp)
-      end
-
-      it 'does not connect to FTP' do
-        Metar::Raw::Noaa.connection
-
-        expect(Net::FTP).to_not have_received(:new)
-      end
-
-      it 'returns the cached connection' do
-        connection = Metar::Raw::Noaa.connection
-
-        expect(connection).to eq(ftp)
-      end
-    end
-  end
-
-  context '.connect' do
-    it 'sets up the connection' do
-      Metar::Raw::Noaa.connect
-
-      expect(Net::FTP).to have_received(:new)
-      expect(ftp).to have_received(:login).with(no_args)
-      expect(ftp).
-        to have_received(:chdir).with('data/observations/metar/stations')
-      expect(ftp).to have_received(:passive=).with(true)
-    end
-  end
-
   context '.fetch' do
     before do
       allow(ftp).
         to receive(:retrbinary).and_yield("chunk 1\n").and_yield("chunk 2\n")
-      allow(ftp).to receive(:close)
-    end
-
-    it 'uses the connection' do
-      Metar::Raw::Noaa.fetch('the_cccc')
-
-      expect(Net::FTP).to have_received(:new)
-      expect(ftp).to have_received(:close)
     end
 
     it 'downloads the raw report' do
@@ -183,13 +138,17 @@ describe Metar::Raw::Noaa do
       expect(ftp).
         to have_received(:retrbinary).
         with('RETR the_cccc.TXT', kind_of(Integer))
-      expect(ftp).to have_received(:close)
     end
 
     it 'returns the data' do
       raw = Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(raw).to eq("chunk 1\nchunk 2\n")
+    end
+
+    it 'closes the connection' do
+      Metar::Raw::Noaa.fetch('the_cccc')
+
       expect(ftp).to have_received(:close)
     end
 
