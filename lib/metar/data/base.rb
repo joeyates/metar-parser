@@ -1,15 +1,21 @@
-class Metar::Data::Base
-  def self.parse(raw)
-    new(raw)
-  end
+# frozen_string_literal: true
 
-  attr_reader :raw
+module Metar
+  module Data
+    class Base
+      def self.parse(raw)
+        new(raw)
+      end
 
-  def initialize(raw)
-    @raw = raw
-  end
+      attr_reader :raw
 
-  def value
-    raw
+      def initialize(raw)
+        @raw = raw
+      end
+
+      def value
+        raw
+      end
+    end
   end
 end

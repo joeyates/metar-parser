@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 require 'net/ftp'
@@ -29,7 +30,8 @@ describe Metar::Raw::Data do
 
     context "when called without a time parameter" do
       it "warns that the usage is deprecated" do
-        expect { described_class.new(raw_metar) }.to output(/deprecated/).to_stderr
+        expect { described_class.new(raw_metar) }.
+          to output(/deprecated/).to_stderr
       end
     end
   end
@@ -51,9 +53,12 @@ describe Metar::Raw::Metar do
       expect(subject.time.day).to eq(31)
     end
 
-    context "when the current day of month is greater than the METAR's day of month" do
+    context "when the current day of month " \
+            "is greater than the METAR's day of month" do
       let(:call_time) { Time.parse("2016-04-11 16:35") }
-      let(:raw_metar) { "OPPS 092359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+      let(:raw_metar) do
+        "OPPS 092359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011"
+      end
 
       it "uses the date from the current month" do
         expect(subject.time.year).to eq(2016)
@@ -76,26 +81,27 @@ describe Metar::Raw::Metar do
       let(:raw_metar) { "OPPS 3123Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
 
       it "throws an error" do
-        expect { subject.time }
-          .to raise_error(RuntimeError, /6 digit/)
+        expect { subject.time }.to raise_error(RuntimeError, /6 digit/)
       end
     end
 
     context "when the day of month in the datetime is > 31" do
-      let(:raw_metar) { "OPPS 332359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+      let(:raw_metar) do
+        "OPPS 332359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011"
+      end
 
       it "throws an error" do
-        expect { subject.time }
-          .to raise_error(RuntimeError, /at most 31/)
+        expect { subject.time }.to raise_error(RuntimeError, /at most 31/)
       end
     end
 
     context "when the day of month in the datetime is 0" do
-      let(:raw_metar) { "OPPS 002359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+      let(:raw_metar) do
+        "OPPS 002359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011"
+      end
 
       it "throws an error" do
-        expect { subject.time }
-          .to raise_error(RuntimeError, /greater than 0/)
+        expect { subject.time }.to raise_error(RuntimeError, /greater than 0/)
       end
     end
   end
@@ -106,80 +112,43 @@ describe Metar::Raw::Noaa do
 
   let(:cccc) { "ESSB" }
   let(:ftp) do
-    double(Net::FTP, login: nil, chdir: nil, :passive= => nil, retrbinary: nil)
+    double(
+      Net::FTP,
+      chdir: nil,
+      close: nil,
+      login: nil,
+      :passive= => nil,
+      retrbinary: nil
+    )
   end
 
   before do
     allow(Net::FTP).to receive(:new) { ftp }
   end
 
-  after do
-    Metar::Raw::Noaa.send(:class_variable_set, '@@connection', nil)
-  end
-
-  context '.connection' do
-    context 'uncached' do
-      it 'sets up the connection' do
-        Metar::Raw::Noaa.connect
-
-        expect(Net::FTP).to have_received(:new)
-      end
-    end
-
-    context 'cached' do
-      before :each do
-        Metar::Raw::Noaa.send(:class_variable_set, '@@connection', ftp)
-      end
-
-      it 'does not connect to FTP' do
-        Metar::Raw::Noaa.connection
-
-        expect(Net::FTP).to_not have_received(:new)
-      end
-
-      it 'returns the cached connection' do
-        connection = Metar::Raw::Noaa.connection
-
-        expect(connection).to eq(ftp)
-      end
-    end
-  end
-
-  context '.connect' do
-    it 'sets up the connection' do
-      Metar::Raw::Noaa.connect
-
-      expect(Net::FTP).to have_received(:new)
-      expect(ftp).to have_received(:login).with(no_args)
-      expect(ftp).to have_received(:chdir).with('data/observations/metar/stations')
-      expect(ftp).to have_received(:passive=).with(true)
-    end
-  end
-
   context '.fetch' do
     before do
-      allow(ftp).to receive(:retrbinary).and_yield("chunk 1\n").and_yield("chunk 2\n")
-      allow(ftp).to receive(:close)
-    end
-
-    it 'uses the connection' do
-      Metar::Raw::Noaa.fetch('the_cccc')
-
-      expect(Net::FTP).to have_received(:new)
-      expect(ftp).to have_received(:close)
+      allow(ftp).
+        to receive(:retrbinary).and_yield("chunk 1\n").and_yield("chunk 2\n")
     end
 
     it 'downloads the raw report' do
       Metar::Raw::Noaa.fetch('the_cccc')
 
-      expect(ftp).to have_received(:retrbinary).with('RETR the_cccc.TXT', kind_of(Fixnum))
-      expect(ftp).to have_received(:close)
+      expect(ftp).
+        to have_received(:retrbinary).
+        with('RETR the_cccc.TXT', kind_of(Integer))
     end
 
     it 'returns the data' do
       raw = Metar::Raw::Noaa.fetch('the_cccc')
 
       expect(raw).to eq("chunk 1\nchunk 2\n")
+    end
+
+    it 'closes the connection' do
+      Metar::Raw::Noaa.fetch('the_cccc')
+
       expect(ftp).to have_received(:close)
     end
 
@@ -190,6 +159,7 @@ describe Metar::Raw::Noaa do
         allow(ftp).to receive(:retrbinary) do |_args, &block|
           @attempt += 1
           raise Net::FTPTempError if @attempt == 1
+
           block.call "chunk 1\n"
           block.call "chunk 2\n"
         end
@@ -244,7 +214,9 @@ describe Metar::Raw::Noaa do
     context "times" do
       let(:cccc)      { "OPPS" }
       let(:raw_time)  { "2016/03/31 23:59" }
-      let(:raw_metar) { "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
+      let(:raw_metar) do
+        "OPPS 312359Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011"
+      end
 
       specify "are parsed as UTC/GMT" do
         expect(subject.time.zone).to eq("UTC").or eq("GMT")

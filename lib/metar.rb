@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "metar/i18n"
 require "metar/raw"
 require "metar/station"
@@ -16,4 +18,3 @@ module Metar
 
   autoload :Data, "metar/data"
 end
-

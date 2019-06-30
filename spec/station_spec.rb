@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
 require "stringio"
@@ -7,19 +8,48 @@ RSpec::Matchers.define :have_attribute do |attribute|
   match do |object|
     if !object.respond_to?(attribute)
       false
-    elsif object.method(attribute).arity != 0
-      false
     else
-      true
+      object.method(attribute).arity == 0
     end
   end
 end
 
 describe Metar::Station do
   context "using structures" do
+    let(:response) { double(body: nsd_file) }
+
+    ##
+    # NOAA Station list fields:
+    #
+    # 0    1  2   3          45     6 7      8       9      10      11  12  13
+    # PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+    #
+    # 0 - CCCC
+    # 1 - ?
+    # 2 - ?
+    # 3 - name of station
+    # 4 - state
+    # 5 - country
+    # 6 - ?
+    # 7 - latitude1
+    # 8 - longitude1
+    # 9 - latitude2
+    # 10 - longitude2
+    # 11 - ?
+    # 12 - ?
+    # 13 - ?
+    #
+    let(:nsd_file) do
+      <<-TEXT.gsub(/^\s{8}/, "")
+        PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+        AAAA;00;000;Airport A1;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+        AAAB;00;000;Airport A2;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+        BBBA;00;000;Airport B1;;Bbbbb;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
+      TEXT
+    end
+
     before do
-      allow(Metar::Station).to receive(:open)
-        .with(Metar::Station::NOAA_STATION_LIST_URL) { nsd_file }
+      allow(Net::HTTP).to receive(:get_response) { response }
     end
 
     context ".countries" do
@@ -67,37 +97,6 @@ describe Metar::Station do
         expect(aaaaa.map(&:cccc)).to eq(%w(AAAA AAAB))
       end
     end
-
-    ##
-    # NOAA Station list fields:
-    #
-    # 0    1  2   3          45     6 7      8       9      10      11  12  13
-    # PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-    #
-    # 0 - CCCC
-    # 1 - ?
-    # 2 - ?
-    # 3 - name of station
-    # 4 - state
-    # 5 - country
-    # 6 - ?
-    # 7 - latitude1
-    # 8 - longitude1
-    # 9 - latitude2
-    # 10 - longitude2
-    # 11 - ?
-    # 12 - ?
-    # 13 - ?
-    #
-    def nsd_file
-      nsd_text = <<-EOT.gsub(/^\s{8}/, "")
-        PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-        AAAA;00;000;Airport A1;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-        AAAB;00;000;Airport A2;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-        BBBA;00;000;Airport B1;;Bbbbb;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-      EOT
-      StringIO.new(nsd_text)
-    end
   end
 
   context ".to_longitude" do
@@ -133,13 +132,13 @@ describe Metar::Station do
   end
   let(:noaa_data) do
     {
-      cccc:      cccc,
-      name:      name,
-      state:     state,
-      country:   country,
+      cccc: cccc,
+      name: name,
+      state: state,
+      country: country,
       longitude: "055-24E",
-      latitude:  "11-03S",
-      raw:       noaa_raw,
+      latitude: "11-03S",
+      raw: noaa_raw
     }
   end
 
@@ -185,7 +184,7 @@ describe Metar::Station do
     let(:metar) do
       "PAIL 061610Z 24006KT 1 3/4SM -SN BKN016 OVC030 M17/M20 A2910"
     end
-    let(:time) { Date.new(2010, 02, 06) }
+    let(:time) { Date.new(2010, 2, 6) }
     let(:raw) { double(Metar::Raw, metar: metar, time: time) }
 
     before do

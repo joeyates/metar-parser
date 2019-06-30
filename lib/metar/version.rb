@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Metar
   module VERSION #:nodoc:
     MAJOR = 1

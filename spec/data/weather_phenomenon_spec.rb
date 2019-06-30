@@ -1,20 +1,21 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
-RSpec::Matchers.define :be_weather_phenomenon do |modifier, descriptor, phenomenon|
+RSpec::Matchers.define :be_weather_phenomenon do |mod, desc, phen, recent|
   match do |wp|
-    if wp.nil? && phenomenon.nil?
+    if wp.nil? && phen.nil?
       true
-    elsif wp.nil?       != phenomenon.nil?
+    elsif wp.nil? != phen.nil?
       false
-    elsif wp.phenomenon != phenomenon
+    elsif wp.phenomenon != phen
       false
-    elsif wp.modifier   != modifier
+    elsif wp.modifier != mod
       false
-    elsif wp.descriptor != descriptor
+    elsif wp.descriptor != desc
       false
     else
-      true
+      wp.recent == recent
     end
   end
 end
@@ -22,15 +23,46 @@ end
 describe Metar::Data::WeatherPhenomenon do
   context '.parse' do
     [
-      ['simple phenomenon',                  'BR',     [nil,      nil,            'mist']],
-      ['descriptor + phenomenon',            'BCFG',   [nil,      'patches of',   'fog']],
-      ['thunderstorm and rain',              'TSRA',   [nil,      'thunderstorm and', 'rain']],
-      ['intensity + phenomenon',             '+RA',    ['heavy',  nil,            'rain']],
-      ['intensity + proximity + phenomenon', '-VCTSRA', ['nearby light', 'thunderstorm and', 'rain']],
-      ['2 phenomena: SN RA',                 'SNRA',   [nil,      nil,            'snow and rain']],
-      ['2 phenomena: RA DZ',                 'RADZ',   [nil,      nil,            'rain and drizzle']],
-      ['modifier + descriptor + phenomenon', 'VCDRFG', ['nearby', 'low drifting', 'fog']],
-      ['returns nil for unmatched',          'FUBAR',  [nil,      nil,            nil]],
+      [
+        'simple phenomenon', 'BR',
+        [nil, nil, 'mist', false]
+      ],
+      [
+        'descriptor + phenomenon', 'BCFG',
+        [nil, 'patches of', 'fog', false]
+      ],
+      [
+        'thunderstorm and rain', 'TSRA',
+        [nil, 'thunderstorm and', 'rain', false]
+      ],
+      [
+        'intensity + phenomenon', '+RA',
+        ['heavy', nil, 'rain', false]
+      ],
+      [
+        'intensity + proximity + phenomenon', '-VCTSRA',
+        ['nearby light', 'thunderstorm and', 'rain', false]
+      ],
+      [
+        '2 phenomena: SN RA', 'SNRA',
+        [nil, nil, 'snow and rain', false]
+      ],
+      [
+        '2 phenomena: RA DZ', 'RADZ',
+        [nil, nil, 'rain and drizzle', false]
+      ],
+      [
+        'modifier + descriptor + phenomenon', 'VCDRFG',
+        ['nearby', 'low drifting', 'fog', false]
+      ],
+      [
+        'recent', 'RESN',
+        [nil, nil, 'snow', true]
+      ],
+      [
+        'returns nil for unmatched', 'FUBAR',
+        [nil, nil, nil, false]
+      ]
     ].each do |docstring, raw, expected|
       example docstring do
         expect(described_class.parse(raw)).to be_weather_phenomenon(*expected)
@@ -49,12 +81,36 @@ describe Metar::Data::WeatherPhenomenon do
     end
 
     [
-      ['simple phenomenon',       :en, [ nil,    nil,          'mist'],    'mist'],
-      ['simple phenomenon',       :it, [ nil,    nil,          'mist'],    'foschia'],
-      ['descriptor + phenomenon', :en, [ nil,    'patches of', 'fog'],     'patches of fog'],
-      ['thunderstorm and rain',   :en, [ nil,    'thunderstorm and', 'rain'],  'thunderstorm and rain'],
-      ['modifier + phenomenon',   :en, ['heavy', nil,          'drizzle'], 'heavy drizzle'],
-      ['modifier + descriptor + phenomenon', :en, ['heavy', 'freezing', 'drizzle'], 'heavy freezing drizzle'],
+      [
+        'simple phenomenon', :en,
+        [nil, nil, 'mist'],
+        'mist'
+      ],
+      [
+        'simple phenomenon', :it,
+        [nil, nil, 'mist'],
+        'foschia'
+      ],
+      [
+        'descriptor + phenomenon', :en,
+        [nil, 'patches of', 'fog'],
+        'patches of fog'
+      ],
+      [
+        'thunderstorm and rain', :en,
+        [nil, 'thunderstorm and', 'rain'],
+        'thunderstorm and rain'
+      ],
+      [
+        'modifier + phenomenon', :en,
+        ['heavy', nil, 'drizzle'],
+        'heavy drizzle'
+      ],
+      [
+        'modifier + descriptor + phenomenon', :en,
+        %w(heavy freezing drizzle),
+        'heavy freezing drizzle'
+      ]
     ].each do |docstring, locale, (modifier, descriptor, phenomenon), expected|
       example docstring + " (#{locale})" do
         I18n.locale = locale
@@ -67,4 +123,3 @@ describe Metar::Data::WeatherPhenomenon do
     end
   end
 end
-

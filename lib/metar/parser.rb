@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "m9t"
 
 require "metar/data"
@@ -13,7 +15,7 @@ module Metar
       new(raw)
     end
 
-    COMPLIANCE = [:strict, :loose]
+    COMPLIANCE = %i(strict loose).freeze
 
     def self.thread_attributes
       Thread.current[:metar_parser] ||= {}
@@ -25,6 +27,7 @@ module Metar
 
     def self.compliance=(compliance)
       raise 'Unknown compliance' unless COMPLIANCE.find(compliance)
+
       thread_attributes[:compliance] = compliance
     end
 
@@ -65,11 +68,13 @@ module Metar
 
     def temperature
       return nil if @temperature_and_dew_point.nil?
+
       @temperature_and_dew_point.temperature
     end
 
     def dew_point
       return nil if @temperature_and_dew_point.nil?
+
       @temperature_and_dew_point.dew_point
     end
 
@@ -77,7 +82,7 @@ module Metar
       attr = {
         metar: metar,
         datetime: @time.raw,
-        station_code: station_code,
+        station_code: station_code
       }
       %i(
         minimum_visibility
@@ -106,6 +111,7 @@ module Metar
       value = send(attribute)
       return hash if value.nil?
       return hash if value.raw.nil?
+
       hash[attribute] = value.raw
       hash
     end
@@ -113,7 +119,8 @@ module Metar
     def add_raw_if_not_empty(hash, attribute)
       values = send(attribute)
       raws = values.map(&:raw).compact
-      return hash if raws.size == 0
+      return hash if raws.empty?
+
       hash[attribute] = raws.join(" ")
       hash
     end
@@ -121,8 +128,8 @@ module Metar
     def analyze
       @chunks = @metar.split(' ')
       # Strip final '='
-      if !strict? && @chunks.length > 0
-        @chunks[-1].gsub!(/\s?=$/, '')
+      if !strict?
+        @chunks[-1].gsub!(/\s?=$/, '') if !@chunks.empty?
       end
 
       @station_code         = nil
@@ -167,7 +174,8 @@ module Metar
     def seek_station_code
       @station_code = Metar::Data::StationCode.parse(@chunks[0])
       if @station_code.nil?
-        raise ParseError.new("Expecting location, found '#{ @chunks[0] }' in #{@metar}")
+        message = "Expecting location, found '#{@chunks[0]}' in #{@metar}"
+        raise ParseError, message
       end
       @chunks.shift
       @station_code
@@ -178,9 +186,11 @@ module Metar
       @time = Metar::Data::Time.parse(
         datetime, year: raw.time.year, month: raw.time.month, strict: strict?
       )
+
       if !@time
-        raise ParseError.new("Expecting datetime, found '#{datetime}' in #{@metar}")
+        raise ParseError, "Expecting datetime, found '#{datetime}' in #{@metar}"
       end
+
       @time
     end
 
@@ -228,17 +238,17 @@ module Metar
         end
       end
 
-      if @chunks[0] == '1' or @chunks[0] == '2'
-        @visibility = Metar::Data::Visibility.parse(@chunks[0] + ' ' + @chunks[1])
+      if @chunks[0] == '1' || @chunks[0] == '2'
+        @visibility = Metar::Data::Visibility.parse(
+          @chunks[0] + ' ' + @chunks[1]
+        )
         if @visibility
           @chunks.shift
           @chunks.shift
         end
       else
         @visibility = Metar::Data::Visibility.parse(@chunks[0])
-        if @visibility
-          @chunks.shift
-        end
+        @chunks.shift if @visibility
       end
       @visibility
     end
@@ -254,6 +264,7 @@ module Metar
       loop do
         rvr = Metar::Data::RunwayVisibleRange.parse(@chunks[0])
         break if rvr.nil?
+
         @chunks.shift
         @runway_visible_range << rvr
       end
@@ -272,10 +283,12 @@ module Metar
       end
 
       loop do
-        break if @chunks.size == 0
+        break if @chunks.empty?
         break if @chunks[0].start_with?("RE")
+
         wtp = Metar::Data::WeatherPhenomenon.parse(@chunks[0])
         break if wtp.nil?
+
         @chunks.shift
         @present_weather << wtp
       end
@@ -284,7 +297,7 @@ module Metar
     # Repeatable: 15.9.1.3
     def seek_sky_conditions
       if observer.value == :auto # WMO 15.4
-        if @chunks[0] == '///' or @chunks[0] == '//////'
+        if @chunks[0] == '///' || @chunks[0] == '//////'
           @chunks.shift # Simply dispose of it
           return
         end
@@ -293,6 +306,7 @@ module Metar
       loop do
         sky_condition = Metar::Data::SkyCondition.parse(@chunks[0])
         break if sky_condition.nil?
+
         @chunks.shift
         @sky_conditions << sky_condition
       end
@@ -321,10 +335,12 @@ module Metar
 
     def seek_recent_weather
       loop do
-        return if @chunks.size == 0
+        return if @chunks.empty?
         break if !@chunks[0].start_with?("RE")
+
         recent_weather = Metar::Data::WeatherPhenomenon.parse(@chunks[0])
         break if recent_weather.nil?
+
         @chunks.shift
         @recent_weather << recent_weather
       end
@@ -333,11 +349,11 @@ module Metar
 
     def seek_to_remarks
       if strict?
-        if @chunks.size > 0 and @chunks[0] != 'RMK'
-          raise ParseError.new("Unparsable text found: '#{@chunks.join(' ')}'")
+        if !@chunks.empty? && @chunks[0] != 'RMK'
+          raise ParseError, "Unparsable text found: '#{@chunks.join(' ')}'"
         end
       else
-        while @chunks.size > 0 and @chunks[0] != 'RMK' do
+        while !@chunks.empty? && @chunks[0] != 'RMK' do
           @unparsed << @chunks.shift
         end
       end
@@ -345,13 +361,14 @@ module Metar
 
     # WMO: 15.15
     def seek_remarks
-      return if @chunks.size == 0
+      return if @chunks.empty?
       raise 'seek_remarks called without remark' if @chunks[0] != 'RMK'
 
       @chunks.shift # Drop 'RMK'
       @remarks = []
       loop do
-        break if @chunks.size == 0
+        break if @chunks.empty?
+
         r = Metar::Data::Remark.parse(@chunks[0])
         if r
           if r.is_a?(Array)
@@ -362,7 +379,7 @@ module Metar
           @chunks.shift
           next
         end
-        if @chunks[0] == 'VIS' and @chunks.size >= 3 and @chunks[1] == 'MIN'
+        if @chunks[0] == 'VIS' && @chunks.size >= 3 && @chunks[1] == 'MIN'
           @chunks.shift(2)
           r = Metar::Data::VisibilityRemark.parse(@chunks[0])
           @remarks << r

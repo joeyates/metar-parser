@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec::Matchers.define :be_sky_condition do |quantity, height, type|
@@ -11,10 +12,8 @@ RSpec::Matchers.define :be_sky_condition do |quantity, height, type|
       false
     elsif sk.height.is_a?(Metar::Data::Distance) && sk.height.value != height
       false
-    elsif sk.type != type
-      false
     else
-      true
+      sk.type == type
     end
   end
 end
@@ -22,13 +21,34 @@ end
 describe Metar::Data::SkyCondition do
   context '.parse' do
     [
-      ['understands clear skies codes', 'NSC',      [nil,            nil,            nil]],
-      ['quantity + height',             'BKN12',    ['broken',    365.76,            nil]],
-      ['quantity + height + type',      'BKN12CB',  ['broken',    365.76, 'cumulonimbus']],
-      ['quantity + ///',                'BKN///',   ['broken',       nil,            nil]],
-      ['quantity + height + ///',       'FEW038///',['few',      1158.24,            nil]],
-      ['cumulonimbus only',             'CB',       [nil,            nil, 'cumulonimbus']], # seems non-standard, but occurs
-      ['returns nil for unmatched',     'FUBAR',    [:expect_nil,    nil,            nil]],
+      [
+        'understands clear skies codes', 'NSC',
+        [nil, nil, nil]
+      ],
+      [
+        'quantity + height', 'BKN12',
+        ['broken', 365.76, nil]
+      ],
+      [
+        'quantity + height + type', 'BKN12CB',
+        ['broken', 365.76, 'cumulonimbus']
+      ],
+      [
+        'quantity + ///', 'BKN///',
+        ['broken', nil, nil]
+      ],
+      [
+        'quantity + height + ///', 'FEW038///',
+        ['few', 1158.24, nil]
+      ],
+      [
+        'cumulonimbus only', 'CB', # seems non-standard, but occurs
+        [nil, nil, 'cumulonimbus']
+      ],
+      [
+        'returns nil for unmatched', 'FUBAR',
+        [:expect_nil, nil, nil]
+      ]
     ].each do |docstring, raw, expected|
       example docstring do
         expect(described_class.parse(raw)).to be_sky_condition(*expected)
@@ -38,11 +58,26 @@ describe Metar::Data::SkyCondition do
 
   context '.to_summary' do
     [
-      ['all values nil',  [nil,      nil, nil           ], :en,      'clear skies'        ],
-      ['quantity',        ['broken', nil, nil           ], :en,      'broken cloud'       ],
-      ['quantity',        ['broken', nil, nil           ], :'en-US', 'broken clouds'      ],
-      ['quantity + type', ['broken', nil, 'cumulonimbus'], :en,      'broken cumulonimbus'],
-      ['quantity + type', ['broken', nil, 'cumulonimbus'], :'en-US', 'broken cumulonimbus clouds'],
+      [
+        'all values nil', [nil, nil, nil],
+        :en, 'clear skies'
+      ],
+      [
+        'quantity', ['broken', nil, nil],
+        :en, 'broken cloud'
+      ],
+      [
+        'quantity', ['broken', nil, nil],
+        :'en-US', 'broken clouds'
+      ],
+      [
+        'quantity + type', ['broken', nil, 'cumulonimbus'],
+        :en,      'broken cumulonimbus'
+      ],
+      [
+        'quantity + type', ['broken', nil, 'cumulonimbus'],
+        :'en-US', 'broken cumulonimbus clouds'
+      ]
     ].each do |docstring, (quantity, height, type), locale, expected|
       before { @old_locale = I18n.locale }
       after  { I18n.locale = @old_locale }
@@ -59,9 +94,18 @@ describe Metar::Data::SkyCondition do
 
   context '.to_s' do
     [
-      ['all values nil',  [nil,      nil, nil],            'clear skies'               ],
-      ['quantity',        ['broken', 360, nil],            'broken cloud at 360'       ],
-      ['quantity + type', ['broken', 360, 'cumulonimbus'], 'broken cumulonimbus at 360'],
+      [
+        'all values nil', [nil, nil, nil],
+        'clear skies'
+      ],
+      [
+        'quantity', ['broken', 360, nil],
+        'broken cloud at 360'
+      ],
+      [
+        'quantity + type', ['broken', 360, 'cumulonimbus'],
+        'broken cumulonimbus at 360'
+      ]
     ].each do |docstring, (quantity, height, type), expected|
       example docstring do
         subject = described_class.new(

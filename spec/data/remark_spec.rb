@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 describe Metar::Data::Remark do
   context '.parse' do
     it 'delegate to subclasses' do
-      expect(described_class.parse('21012')).to be_a(Metar::Data::TemperatureExtreme)
+      expect(described_class.parse('21012')).
+        to be_a(Metar::Data::TemperatureExtreme)
     end
 
     it 'returns nil for unrecognised' do
@@ -12,13 +15,14 @@ describe Metar::Data::Remark do
 
     context '6-hour maximum or minimum' do
       [
-        ['positive maximum', '10046', [:maximum,  4.6]],
+        ['positive maximum', '10046', [:maximum, 4.6]],
         ['negative maximum', '11012', [:maximum, -1.2]],
-        ['positive minimum', '20046', [:minimum,  4.6]],
-        ['negative minimum', '21012', [:minimum, -1.2]],
+        ['positive minimum', '20046', [:minimum, 4.6]],
+        ['negative minimum', '21012', [:minimum, -1.2]]
       ].each do |docstring, raw, expected|
         example docstring do
-          expect(described_class.parse(raw)).to be_temperature_extreme(*expected)
+          expect(described_class.parse(raw)).
+            to be_temperature_extreme(*expected)
         end
       end
     end
@@ -27,7 +31,7 @@ describe Metar::Data::Remark do
       it 'returns minimum and maximum' do
         max, min = described_class.parse('400461006')
 
-        expect(max).to be_temperature_extreme(:maximum,  4.6)
+        expect(max).to be_temperature_extreme(:maximum, 4.6)
         expect(min).to be_temperature_extreme(:minimum, -0.6)
       end
     end
@@ -63,10 +67,23 @@ describe Metar::Data::Remark do
     end
 
     context 'automated station' do
-
       [
-        ['with precipitation dicriminator', 'AO1', [Metar::Data::AutomatedStationType, :with_precipitation_discriminator]],
-        ['without precipitation dicriminator', 'AO2', [Metar::Data::AutomatedStationType, :without_precipitation_discriminator]],
+        [
+          'with precipitation dicriminator',
+          'AO1',
+          [
+            Metar::Data::AutomatedStationType,
+            :with_precipitation_discriminator
+          ]
+        ],
+        [
+          'without precipitation dicriminator',
+          'AO2',
+          [
+            Metar::Data::AutomatedStationType,
+            :without_precipitation_discriminator
+          ]
+        ]
       ].each do |docstring, raw, expected|
         example docstring do
           aut = described_class.parse(raw)

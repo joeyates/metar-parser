@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
 describe Metar::Report do
@@ -7,9 +8,9 @@ describe Metar::Report do
       double(
         Metar::Parser,
         station_code: station_code,
-        date:         Date.parse(metar_date),
-        time:         Time.parse(metar_datetime),
-        observer:     :real
+        date: Date.parse(metar_date),
+        time: Time.parse(metar_datetime),
+        observer: :real
       )
     end
     let(:station_code) { "SSSS" }
@@ -22,7 +23,8 @@ describe Metar::Report do
     end
 
     before do
-      allow(Metar::Station).to receive(:find_by_cccc).with(station_code) { station }
+      allow(Metar::Station).
+        to receive(:find_by_cccc).with(station_code) { station }
     end
 
     subject { described_class.new(parser) }
@@ -75,15 +77,15 @@ describe Metar::Report do
 
     context 'proxied from parser' do
       context 'singly' do
-        [
-          :wind,
-          :variable_wind,
-          :visibility,
-          :minimum_visibility,
-          :vertical_visibility,
-          :temperature,
-          :dew_point,
-        ].each do |attribute|
+        %i(
+          wind
+          variable_wind
+          visibility
+          minimum_visibility
+          vertical_visibility
+          temperature
+          dew_point
+        ).each do |attribute|
           example attribute do
             allow(parser).to receive(attribute) { attribute.to_s }
 
@@ -173,17 +175,17 @@ describe Metar::Report do
       end
 
       it "returns the full report" do
-        expected = <<EOT
-name: Airport 1
-country: Wwwwww
-time: #{metar_time}
-wind: wind
-visibility: visibility
-minimum visibility: min visibility
-weather: pw
-sky: sky2
-temperature: temp
-EOT
+        expected = <<-EXPECTED.gsub(/^\s{10}/, "")
+          name: Airport 1
+          country: Wwwwww
+          time: #{metar_time}
+          wind: wind
+          visibility: visibility
+          minimum visibility: min visibility
+          weather: pw
+          sky: sky2
+          temperature: temp
+        EXPECTED
         expect(subject.to_s).to eq(expected)
       end
     end
