@@ -89,12 +89,13 @@ describe Metar::Station do
     # 13 - ?
     #
     def nsd_file
-      nsd_text = <<-EOT.gsub(/^\s{8}/, "")
+      nsd_text = <<-TEXT.gsub(/^\s{8}/, "")
         PPPP;00;000;Airport P1;;Ppppp;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
         AAAA;00;000;Airport A1;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
         AAAB;00;000;Airport A2;;Aaaaa;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
         BBBA;00;000;Airport B1;;Bbbbb;1;11-03S;055-24E;11-03S;055-24E;000;000;P\r
-      EOT
+      TEXT
+
       StringIO.new(nsd_text)
     end
   end

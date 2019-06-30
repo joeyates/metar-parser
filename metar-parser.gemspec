@@ -6,13 +6,13 @@ require 'metar/version'
 Gem::Specification.new do |s|
   s.name          = 'metar-parser'
   s.summary       = 'A Ruby gem for worldwide weather reports'
-  s.description   = <<-EOT
+  s.description = <<-DESCRIPTION
     metar-parser is a ruby gem that downloads weather reports, parses them and formats reports.
 
     It also provides weather station listings and info (e.g. country, latitude and longitude).
 
     Reports can be fully localized (currently Brazilian Portuguese, English, German and Italian are available).
-    EOT
+  DESCRIPTION
   s.version       = Metar::VERSION::STRING
   s.required_ruby_version = '>= 2.2.0'
 

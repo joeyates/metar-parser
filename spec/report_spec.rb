@@ -175,17 +175,17 @@ describe Metar::Report do
       end
 
       it "returns the full report" do
-        expected = <<EOT
-name: Airport 1
-country: Wwwwww
-time: #{metar_time}
-wind: wind
-visibility: visibility
-minimum visibility: min visibility
-weather: pw
-sky: sky2
-temperature: temp
-EOT
+        expected = <<-EXPECTED.gsub(/^\s{10}/, "")
+          name: Airport 1
+          country: Wwwwww
+          time: #{metar_time}
+          wind: wind
+          visibility: visibility
+          minimum visibility: min visibility
+          weather: pw
+          sky: sky2
+          temperature: temp
+        EXPECTED
         expect(subject.to_s).to eq(expected)
       end
     end
