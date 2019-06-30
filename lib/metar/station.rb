@@ -12,7 +12,7 @@ require 'set'
 
 module Metar
   class Station
-    NOAA_STATION_LIST_URL = 'http://tgftp.nws.noaa.gov/data/nsd_cccc.txt'
+    NOAA_STATION_LIST_URL = 'https://tgftp.nws.noaa.gov/data/nsd_cccc.txt'
 
     class << self
       @nsd_cccc = nil # Contains the text of the station list
