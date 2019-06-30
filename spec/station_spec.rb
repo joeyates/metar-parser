@@ -17,8 +17,8 @@ end
 describe Metar::Station do
   context "using structures" do
     before do
-      allow(Metar::Station).to receive(:open)
-        .with(Metar::Station::NOAA_STATION_LIST_URL) { nsd_file }
+      allow(Metar::Station).to receive(:open).
+        with(Metar::Station::NOAA_STATION_LIST_URL) { nsd_file }
     end
 
     context ".countries" do

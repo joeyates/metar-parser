@@ -81,8 +81,7 @@ describe Metar::Raw::Metar do
       let(:raw_metar) { "OPPS 3123Z 23006KT 4000 HZ SCT040 SCT100 17/12 Q1011" }
 
       it "throws an error" do
-        expect { subject.time }
-          .to raise_error(RuntimeError, /6 digit/)
+        expect { subject.time }.to raise_error(RuntimeError, /6 digit/)
       end
     end
 
@@ -92,8 +91,7 @@ describe Metar::Raw::Metar do
       end
 
       it "throws an error" do
-        expect { subject.time }
-          .to raise_error(RuntimeError, /at most 31/)
+        expect { subject.time }.to raise_error(RuntimeError, /at most 31/)
       end
     end
 
@@ -103,8 +101,7 @@ describe Metar::Raw::Metar do
       end
 
       it "throws an error" do
-        expect { subject.time }
-          .to raise_error(RuntimeError, /greater than 0/)
+        expect { subject.time }.to raise_error(RuntimeError, /greater than 0/)
       end
     end
   end
