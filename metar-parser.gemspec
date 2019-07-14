@@ -40,6 +40,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rubocop'
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'timecop'
-
-  s.rubyforge_project = 'nowarning'
 end
