@@ -69,6 +69,7 @@ de:
     present_weather:
       title: Wetter
       not observed: nicht beobachtet
+      no significant weather: kein signifikantes Wetter
       mist: Nebel
       dust: Staub
       blowing dust: aufgewirbelter Staub

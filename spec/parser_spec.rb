@@ -305,6 +305,15 @@ describe Metar::Parser do
         expect(parser.present_weather.size).to eq(1)
         expect(parser.present_weather[0].phenomenon).to eq('not observed')
       end
+
+      it 'reports no significant weather' do
+        parser = setup_parser(
+          "LFSL 260630Z 31007KT 6000 NSW SCT018 BKN100 29/23 Q1010 NOSIG"
+        )
+
+        expect(parser.present_weather.size).to eq(1)
+        expect(parser.present_weather[0].phenomenon).to eq('no significant weather')
+      end
     end
 
     it 'present_weather_defaults_to_empty_array' do

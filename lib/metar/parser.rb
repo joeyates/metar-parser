@@ -282,6 +282,14 @@ module Metar
         end
       end
 
+      if @chunks[0] == 'NSW'
+        @present_weather << Metar::Data::WeatherPhenomenon.new(
+          nil, phenomenon: "no significant weather"
+        )
+        @chunks.shift
+        return
+      end
+
       loop do
         break if @chunks.empty?
         break if @chunks[0].start_with?("RE")

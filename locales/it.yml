@@ -69,6 +69,7 @@ it:
     present_weather:
       title: tempo
       not observed: non osservato
+      no significant weather: nessun tempo significativo
       mist: foschia
       dust: polvere
       blowing dust: polviscolo

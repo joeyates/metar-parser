@@ -71,6 +71,7 @@ en:
     present_weather:
       title: weather
       not observed: not observed
+      no significant weather: no significant weather
       mist: mist
       dust: dust
       blowing dust: blowing dust
