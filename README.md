@@ -1,5 +1,6 @@
-metar-parser [![Build Status](https://secure.travis-ci.org/joeyates/metar-parser.png)][Continuous Integration]
-============
+[![Build Status](https://github.com/joeyates/metar-parser/actions/workflows/main.yml/badge.svg)][CI Status]
+
+# metar-parser
 
 *Get latest weather reports from weather stations worldwide*
 
@@ -11,7 +12,6 @@ metar-parser [![Build Status](https://secure.travis-ci.org/joeyates/metar-parser
 [Source Code]: https://github.com/joeyates/metar-parser "Source code at GitHub"
 [API documentation]: http://rubydoc.info/gems/metar-parser/frames "RDoc API Documentation at Rubydoc.info"
 [Rubygem]: http://rubygems.org/gems/metar-parser "Ruby gem at rubygems.org"
-[Continuous Integration]: http://travis-ci.org/joeyates/metar-parser "Build status by Travis-CI"
 
 The information comes from the National Oceanic and Atmospheric Association's raw data source.
 
