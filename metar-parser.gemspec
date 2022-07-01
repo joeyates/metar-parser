@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
     Reports can be fully localized (currently Brazilian Portuguese, English, German and Italian are available).
   DESCRIPTION
   s.version = Metar::VERSION::STRING
-  s.required_ruby_version = '>= 2.4.0'
+  s.required_ruby_version = '>= 2.5.0'
 
   s.homepage = 'https://github.com/joeyates/metar-parser'
   s.author = 'Joe Yates'
