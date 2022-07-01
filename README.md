@@ -115,18 +115,6 @@ If you only want to accept standards-compliant METAR strings, do this:
 Metar::Parse.compliance = :strict
 ```
 
-Changelog
-=========
-
-1.0.0
------
-This version introduces a major change to the Metar::Raw class.
-
-Previously, this class downloaded METAR data from the NOAA FTP site.
-The old functionality has been moved to Metar::Raw::Noaa. The new class,
-Metar::Raw::Data accepts a METAR string as a parameter - allowing the user to
-parse METAR strings without necessarily contacting the NOAA.
-
 Contributors
 ============
 
@@ -134,35 +122,3 @@ Contributors
 * [Derek Johnson](https://github.com/EpicDraws)
 * [Florian Egermann and Mathias Wollin](https://github.com/math)
 * [Douglas Robertson](https://github.com/douglasr)
-
-Alternative Software
-====================
-
-Ruby
-----
-
-Other Ruby libraries offering METAR parsing:
-
-* [ruby-metar]
-* [ruby-wx]
-
-There are many reports (WMO) that these libraries do not parse.
-
-[ruby-metar]: http://github.com/brandonh/ruby-metar
-[ruby-wx]: http://hans.fugal.net/src/ruby-wx/doc/
-
-There are two gems which read the National Oceanic and Atmospheric Association's XML weather data feeds:
-
-* [noaa]
-* [noaa-weather]
-
-[noaa]: http://github.com/outoftime/noaa
-[noaa-weather]: http://rubygems.org/gems/noaa-weather "Ruby interface to NOAA SOAP interface"
-
-Other
------
-
-* [Interactive map]
-
-[Interactive map]: http://www.spatiality.at/metarr/frontend/
-
