@@ -7,11 +7,12 @@
   * [Source Code]
   * [API documentation]
   * [Rubygem]
-  * [Continuous Integration]
+  * [CI Status]
 
 [Source Code]: https://github.com/joeyates/metar-parser "Source code at GitHub"
 [API documentation]: http://rubydoc.info/gems/metar-parser/frames "RDoc API Documentation at Rubydoc.info"
 [Rubygem]: http://rubygems.org/gems/metar-parser "Ruby gem at rubygems.org"
+[CI Status]: https://github.com/joeyates/metar-parser/actions/workflows/main.yml
 
 The information comes from the National Oceanic and Atmospheric Association's raw data source.
 
