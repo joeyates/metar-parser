@@ -133,6 +133,7 @@ Contributors
 * [Joe Yates](https://github.com/joeyates)
 * [Derek Johnson](https://github.com/EpicDraws)
 * [Florian Egermann and Mathias Wollin](https://github.com/math)
+* [Douglas Robertson](https://github.com/douglasr)
 
 Alternative Software
 ====================
