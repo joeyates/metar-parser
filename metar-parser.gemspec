@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'i18n', '>= 0.8.0'
   s.add_runtime_dependency 'm9t',  '~> 0.3.5'
+  s.add_runtime_dependency 'net-ftp'
 
   s.add_development_dependency 'pry'
   s.add_development_dependency 'pry-doc'
