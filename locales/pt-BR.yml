@@ -90,6 +90,7 @@ pt-BR:
     present_weather:
       title: clima
       not observed: não observado
+      no significant weather: sem clima significativo
       mist: misto
       dust: poeira
       blowing dust: sopro com poeira
