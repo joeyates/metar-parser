@@ -1,0 +1,33 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Ruby ${{ matrix.ruby }}
+    strategy:
+      matrix:
+        ruby:
+          - '2.5'
+          - '2.6'
+          - '2.7'
+          - '3.0'
+          - '3.1'
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        rubygems: 3.0.3
+        bundler-cache: true
+    - name: Run the default task
+      run: bundle exec rake
