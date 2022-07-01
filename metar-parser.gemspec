@@ -29,12 +29,12 @@ Gem::Specification.new do |s|
 
   s.test_files = Dir.glob("spec/**/*_spec.rb")
 
-  s.add_runtime_dependency 'i18n', '~> 0.7.0'
+  s.add_runtime_dependency 'i18n', '>= 0.8.0'
   s.add_runtime_dependency 'm9t',  '~> 0.3.5'
 
   s.add_development_dependency 'pry'
   s.add_development_dependency 'pry-doc'
-  s.add_development_dependency 'rake', '< 11.0'
+  s.add_development_dependency 'rake', '>= 12.3.3'
   s.add_development_dependency 'rdoc'
   s.add_development_dependency 'rspec', '~> 3.2'
   s.add_development_dependency 'rubocop'
