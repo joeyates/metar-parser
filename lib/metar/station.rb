@@ -53,7 +53,7 @@ module Metar
         m = latitude.match(/^(\d+)-(\d+)([SN])/)
         return nil if !m
 
-        (m[3] == 'E' ? 1.0 : -1.0) * (m[1].to_f + m[2].to_f / 60.0)
+        (m[3] == 'S' ? 1.0 : -1.0) * (m[1].to_f + m[2].to_f / 60.0)
       end
     end
 
