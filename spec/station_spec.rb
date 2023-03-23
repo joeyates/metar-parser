@@ -104,6 +104,12 @@ describe Metar::Station do
       expect(Metar::Station.to_longitude("055-24E")).to eq(55.4)
     end
 
+    context "with Western values" do
+      it "returns negative results" do
+        expect(Metar::Station.to_longitude("055-24W")).to eq(-55.4)
+      end
+    end
+
     it "returns nil for badly formed strings" do
       expect(Metar::Station.to_longitude("aaa")).to be_nil
     end
@@ -111,7 +117,13 @@ describe Metar::Station do
 
   context ".to_latitude" do
     it "converts strings to latitude" do
-      expect(Metar::Station.to_latitude("11-03S")).to eq(-11.05)
+      expect(Metar::Station.to_latitude("11-03N")).to eq(11.05)
+    end
+
+    context "with Southern values" do
+      it "returns negative results" do
+        expect(Metar::Station.to_latitude("11-03S")).to eq(-11.05)
+      end
     end
 
     it "returns nil for badly formed strings" do
@@ -123,12 +135,25 @@ describe Metar::Station do
   let(:name) { "Station name" }
   let(:state) { "State" }
   let(:country) { "Country" }
+  let(:longitude) { "055-24E" }
+  let(:latitude) { "11-03N" }
   let(:noaa_raw) do
-    cccc +
-      ";00;000;" +
-      name + ";" +
-      state + ";" +
-      country + ";1;11-03S;055-24E;11-03S;055-24E;000;000;P"
+    [
+      cccc,
+      "00",
+      "000",
+      name,
+      state,
+      country,
+      "1",
+      latitude,
+      longitude,
+      latitude,
+      longitude,
+      "000",
+      "000",
+      "P"
+    ].join(";")
   end
   let(:noaa_data) do
     {
@@ -136,8 +161,8 @@ describe Metar::Station do
       name: name,
       state: state,
       country: country,
-      longitude: "055-24E",
-      latitude: "11-03S",
+      longitude: longitude,
+      latitude: latitude,
       raw: noaa_raw
     }
   end
@@ -175,8 +200,24 @@ describe Metar::Station do
       specify { expect(subject.state).to eq(state) }
       specify { expect(subject.country).to eq(country) }
       specify { expect(subject.longitude).to eq(55.4) }
-      specify { expect(subject.latitude).to eq(-11.05) }
+      specify { expect(subject.latitude).to eq(11.05) }
       specify { expect(subject.raw).to eq(noaa_raw) }
+
+      context "when longitude is Western" do
+        let(:longitude) { "055-24W" }
+
+        it "is parsed as negative" do
+          expect(subject.longitude).to eq(-55.4)
+        end
+      end
+
+      context "When latitude is Southern" do
+        let(:latitude) { "11-03S" }
+
+        it "is parsed as negative" do
+          expect(subject.latitude).to eq(-11.05)
+        end
+      end
     end
   end
 
